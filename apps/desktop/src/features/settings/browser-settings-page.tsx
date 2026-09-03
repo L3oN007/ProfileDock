@@ -10,12 +10,11 @@ import { Label } from "@ProfileDock/ui/components/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-
-import { useBrowserStatus } from "@/lib/query/hooks";
-import { isDesktopRuntime } from "@/lib/tauri/runtime";
-import { setBrowserExecutable } from "@/lib/tauri/browser";
-import type { AppError } from "@/types/app";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
+import { useBrowserStatus } from "@/lib/query/hooks";
+import { setBrowserExecutable } from "@/lib/tauri/browser";
+import { isDesktopRuntime } from "@/lib/tauri/runtime";
+import type { AppError } from "@/types/app";
 
 export function BrowserSettingsPage() {
 	const desktop = isDesktopRuntime();

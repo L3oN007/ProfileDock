@@ -78,7 +78,9 @@ export function DashboardPage() {
 								: "notdetected"
 							: "unavailable"
 					}
-					detail={desktop ? (browserQuery.data?.version ?? undefined) : undefined}
+					detail={
+						desktop ? (browserQuery.data?.version ?? undefined) : undefined
+					}
 				/>
 			</div>
 		</div>

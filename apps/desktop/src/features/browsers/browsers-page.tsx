@@ -59,7 +59,11 @@ export function BrowsersPage() {
 						<span className="text-muted-foreground">Version</span>
 						<span>{browserQuery.data?.version ?? "—"}</span>
 					</div>
-					<Button variant="outline" className="mt-2" render={<Link to="/settings" />}>
+					<Button
+						variant="outline"
+						className="mt-2"
+						render={<Link to="/settings" />}
+					>
 						Change executable
 					</Button>
 				</CardContent>
