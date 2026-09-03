@@ -1,79 +1,106 @@
 # ProfileDock
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, and more.
+ProfileDock is a desktop application for managing browser profiles, proxies, and automation workflows.
 
-## Features
+## Stack
 
-- **TypeScript** - For type safety and improved developer experience
-- **TanStack Router** - File-based routing with full type safety
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
-- **Biome** - Linting and formatting
-- **Tauri** - Build native desktop applications
-- **Turborepo** - Optimized monorepo build system
+- **Frontend**: React, TanStack Router, TanStack Query, TailwindCSS
+- **Desktop**: Tauri 2 (Rust backend)
+- **Database**: SQLite (sqlx)
+- **Monorepo**: pnpm workspaces + Turborepo
 
 ## Getting Started
-
-First, install the dependencies:
 
 ```bash
 pnpm install
 ```
 
-Then, run the development server:
+### Desktop development (WSL / Linux)
 
 ```bash
-pnpm run dev
+pnpm desktop:dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-
-## UI Customization
-
-React web apps in this stack share shadcn/ui primitives through `packages/ui`.
-
-- Change design tokens and global styles in `packages/ui/src/styles/globals.css`
-- Update shared primitives in `packages/ui/src/components/*`
-- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
-
-### Add more shared components
-
-Run this from the project root to add more primitives to the shared UI package:
+### Web-only development
 
 ```bash
-npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
+pnpm dev:desktop
 ```
-
-Import shared components like this:
-
-```tsx
-import { Button } from "@ProfileDock/ui/components/button";
-```
-
-### Add app-specific blocks
-
-If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
-
-## Git Hooks and Formatting
-
-- Run checks: `pnpm run check`
 
 ## Project Structure
 
 ```
 ProfileDock/
 ├── apps/
-│   ├── web/         # Frontend application (React + TanStack Router)
+│   └── desktop/              # Tauri desktop app
+│       ├── src/              # React frontend
+│       │   ├── app/          # Layout, providers
+│       │   ├── features/     # Feature modules
+│       │   ├── lib/tauri/    # Typed IPC wrappers
+│       │   └── routes/       # TanStack Router routes
+│       └── src-tauri/        # Rust backend
+│           └── src/
+│               ├── commands/         # Tauri IPC layer
+│               ├── application/      # Services
+│               ├── domain/           # Types & models
+│               ├── infrastructure/   # DB, FS, process
+│               ├── state/            # AppState
+│               └── error/            # Unified error model
 ├── packages/
-│   ├── ui/          # Shared shadcn/ui components and styles
+│   ├── ui/                   # Shared shadcn/ui components
+│   ├── env/                  # Environment config
+│   └── config/               # Shared TS config
+└── docs/
+    └── phase0.md             # Foundation phase spec
 ```
 
-## Available Scripts
+## Architecture
 
-- `pnpm run dev`: Start all applications in development mode
-- `pnpm run build`: Build all applications
-- `pnpm run dev:web`: Start only the web application
-- `pnpm run check-types`: Check TypeScript types across all apps
-- `pnpm run check`: Run Biome formatting and linting
-- `cd apps/web && pnpm run desktop:dev`: Start Tauri desktop app in development
-- `cd apps/web && pnpm run desktop:build`: Build Tauri desktop app
+```
+React Feature → TS API wrapper → Tauri invoke() → Command → Service → Repository/Process/OS
+```
+
+Rust is the source of truth for database, filesystem, browser processes, and configuration.
+
+## App Data Directory
+
+Runtime data is stored outside the source tree:
+
+- **Linux/WSL**: `~/.local/share/ProfileDock/`
+- **Windows**: `%LOCALAPPDATA%\ProfileDock\`
+
+```
+ProfileDock/
+├── profiledock.db
+├── config.json
+├── logs/profiledock.log
+├── profiles/
+├── browsers/
+├── cache/
+└── temp/
+```
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm desktop:dev` | Start Tauri desktop app |
+| `pnpm dev:desktop` | Start Vite dev server only |
+| `pnpm check-types` | Typecheck all packages |
+| `pnpm check` | Biome lint + format |
+| `cargo check` (in `src-tauri`) | Check Rust backend |
+| `cargo test` (in `src-tauri`) | Run Rust tests |
+
+## Phase 0 Status
+
+Foundation layer complete:
+
+- [x] Monorepo renamed (`apps/desktop`)
+- [x] FE/Rust boundary with typed IPC
+- [x] AppState, AppPaths, SQLite + migrations
+- [x] Unified error model
+- [x] Tracing/logging to app data dir
+- [x] ProcessManager abstraction
+- [x] BrowserProvider + CloakBrowser detection
+- [x] Dashboard + Settings UI shell
+- [x] CI (lint, typecheck, cargo fmt/clippy/test)

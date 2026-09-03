@@ -13,12 +13,10 @@ impl MetadataRepository {
     }
 
     pub async fn get(&self, key: &str) -> Result<Option<String>, AppError> {
-        let value = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM app_metadata WHERE key = ?",
-        )
-        .bind(key)
-        .fetch_optional(&self.pool)
-        .await?;
+        let value = sqlx::query_scalar::<_, String>("SELECT value FROM app_metadata WHERE key = ?")
+            .bind(key)
+            .fetch_optional(&self.pool)
+            .await?;
 
         Ok(value)
     }

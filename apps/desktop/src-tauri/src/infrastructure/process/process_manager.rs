@@ -15,6 +15,7 @@ pub enum ProcessType {
     Sidecar,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize)]
 pub struct ManagedProcess {
     pub id: String,
@@ -22,16 +23,19 @@ pub struct ManagedProcess {
     pub process_type: ProcessType,
 }
 
+#[allow(dead_code)]
 struct ProcessEntry {
     child: Child,
     process_type: ProcessType,
 }
 
+#[allow(dead_code)]
 #[derive(Clone, Default)]
 pub struct ProcessManager {
     inner: Arc<Mutex<HashMap<String, ProcessEntry>>>,
 }
 
+#[allow(dead_code)]
 impl ProcessManager {
     pub fn new() -> Self {
         Self::default()
@@ -43,7 +47,7 @@ impl ProcessManager {
         args: &[String],
         process_type: ProcessType,
     ) -> Result<ManagedProcess, AppError> {
-        let mut child = Command::new(executable)
+        let child = Command::new(executable)
             .args(args)
             .stdin(Stdio::null())
             .stdout(Stdio::null())
@@ -82,7 +86,7 @@ impl ProcessManager {
             .lock()
             .map_err(|_| AppError::ProcessNotFound(id.to_string()))?;
 
-        let entry = processes
+        let mut entry = processes
             .remove(id)
             .ok_or_else(|| AppError::ProcessNotFound(id.to_string()))?;
 

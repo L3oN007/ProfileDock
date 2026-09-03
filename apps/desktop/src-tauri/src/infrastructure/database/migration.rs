@@ -19,17 +19,12 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<(), AppError> {
     Ok(())
 }
 
-async fn apply_if_needed(
-    pool: &SqlitePool,
-    version: i64,
-    sql: &str,
-) -> Result<(), AppError> {
-    let applied: Option<i64> = sqlx::query_scalar(
-        "SELECT version FROM schema_migrations WHERE version = ?",
-    )
-    .bind(version)
-    .fetch_optional(pool)
-    .await?;
+async fn apply_if_needed(pool: &SqlitePool, version: i64, sql: &str) -> Result<(), AppError> {
+    let applied: Option<i64> =
+        sqlx::query_scalar("SELECT version FROM schema_migrations WHERE version = ?")
+            .bind(version)
+            .fetch_optional(pool)
+            .await?;
 
     if applied.is_some() {
         return Ok(());

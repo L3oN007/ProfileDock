@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Biome check
+        run: pnpm run check
+
+      - name: Typecheck
+        run: pnpm run check-types
+
+      - name: Cargo fmt
+        working-directory: apps/desktop/src-tauri
+        run: cargo fmt --check
+
+      - name: Cargo clippy
+        working-directory: apps/desktop/src-tauri
+        run: cargo clippy -- -D warnings
+
+      - name: Cargo test
+        working-directory: apps/desktop/src-tauri
+        run: cargo test
