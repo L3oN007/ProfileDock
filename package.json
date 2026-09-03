@@ -12,6 +12,7 @@
 		"check-types": "turbo run check-types",
 		"dev:desktop": "turbo run dev -F @profiledock/desktop --",
 		"desktop:dev": "pnpm --filter @profiledock/desktop desktop:dev",
+		"desktop:build": "pnpm --filter @profiledock/desktop desktop:build",
 		"check": "biome check --write ."
 	},
 	"dependencies": {

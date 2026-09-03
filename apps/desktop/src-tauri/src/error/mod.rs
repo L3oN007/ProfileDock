@@ -25,6 +25,21 @@ pub enum AppError {
     #[error("invalid configuration: {0}")]
     InvalidConfiguration(String),
 
+    #[error("profile not found")]
+    ProfileNotFound,
+
+    #[error("profile already running")]
+    ProfileAlreadyRunning,
+
+    #[error("profile is running")]
+    ProfileRunning,
+
+    #[error("profile is archived")]
+    ProfileArchived,
+
+    #[error("profile is not running")]
+    ProfileNotRunning,
+
     #[error("serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
 }
@@ -47,6 +62,11 @@ impl AppError {
             Self::ProcessLaunchFailed(_) => "PROCESS_LAUNCH_FAILED",
             Self::ProcessNotFound(_) => "PROCESS_NOT_FOUND",
             Self::InvalidConfiguration(_) => "INVALID_CONFIGURATION",
+            Self::ProfileNotFound => "PROFILE_NOT_FOUND",
+            Self::ProfileAlreadyRunning => "PROFILE_ALREADY_RUNNING",
+            Self::ProfileRunning => "PROFILE_RUNNING",
+            Self::ProfileArchived => "PROFILE_ARCHIVED",
+            Self::ProfileNotRunning => "PROFILE_NOT_RUNNING",
             Self::Serialization(_) => "SERIALIZATION_ERROR",
         }
     }

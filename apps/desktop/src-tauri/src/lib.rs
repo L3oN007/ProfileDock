@@ -43,6 +43,17 @@ pub fn run() {
             }
 
             app.manage(app_state);
+
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                loop {
+                    tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+                    if let Some(state) = handle.try_state::<AppState>() {
+                        let _ = state.browser_service.poll_process_exits(&state).await;
+                    }
+                }
+            });
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -52,6 +63,15 @@ pub fn run() {
             commands::system::health_check,
             commands::system::get_browser_status,
             commands::system::set_browser_executable,
+            commands::profile::profile_list,
+            commands::profile::profile_get,
+            commands::profile::profile_create,
+            commands::profile::profile_update,
+            commands::profile::profile_archive,
+            commands::profile::profile_launch,
+            commands::profile::profile_stop,
+            commands::profile::profile_get_instance,
+            commands::profile::profile_list_events,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

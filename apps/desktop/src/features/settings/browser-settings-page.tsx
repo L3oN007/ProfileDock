@@ -7,9 +7,12 @@ import {
 } from "@ProfileDock/ui/components/card";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Label } from "@ProfileDock/ui/components/label";
+import type { ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+
+import { PageShell, panelClassName } from "@/app/layout/page-shell";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { useBrowserStatus } from "@/lib/query/hooks";
 import { setBrowserExecutable } from "@/lib/tauri/browser";
@@ -37,64 +40,56 @@ export function BrowserSettingsPage() {
 	const status = browserQuery.data?.status;
 	const statusColor =
 		status === "detected"
-			? "text-emerald-500"
+			? "text-emerald-400"
 			: status === "invalid"
-				? "text-red-500"
-				: "text-amber-500";
+				? "text-red-400"
+				: "text-amber-400";
 
 	return (
-		<div className="mx-auto flex max-w-2xl flex-col gap-6 p-8">
-			<div>
-				<h1 className="font-semibold text-2xl">Settings</h1>
-				<p className="text-muted-foreground">Application configuration</p>
-			</div>
-
+		<PageShell>
 			<DesktopOnlyBanner />
 
-			<Card>
+			<Card className={panelClassName}>
 				<CardHeader>
 					<CardTitle>Browser</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<div className="grid gap-1 text-sm">
-						<span className="text-muted-foreground">Provider</span>
-						<span>{browserQuery.data?.provider ?? "CloakBrowser"}</span>
-					</div>
+					<SettingRow label="Provider" value={browserQuery.data?.provider ?? "CloakBrowser"} />
+					<SettingRow
+						label="Executable"
+						value={
+							<span className="break-all font-mono text-xs">
+								{browserQuery.data?.executable ?? "Not configured"}
+							</span>
+						}
+					/>
+					<SettingRow
+						label="Status"
+						value={
+							<span className={statusColor}>
+								{!desktop
+									? "Desktop only"
+									: status === "detected"
+										? "Detected"
+										: status === "invalid"
+											? "Invalid"
+											: "Not detected"}
+							</span>
+						}
+					/>
+					<SettingRow label="Version" value={browserQuery.data?.version ?? "—"} />
 
-					<div className="grid gap-1 text-sm">
-						<span className="text-muted-foreground">Executable</span>
-						<span className="break-all font-mono text-xs">
-							{browserQuery.data?.executable ?? "Not configured"}
-						</span>
-					</div>
-
-					<div className="grid gap-1 text-sm">
-						<span className="text-muted-foreground">Status</span>
-						<span className={statusColor}>
-							{!desktop
-								? "● Desktop only"
-								: status === "detected"
-									? "● Detected"
-									: status === "invalid"
-										? "● Invalid"
-										: "● Not detected"}
-						</span>
-					</div>
-
-					<div className="grid gap-1 text-sm">
-						<span className="text-muted-foreground">Version</span>
-						<span>{browserQuery.data?.version ?? "—"}</span>
-					</div>
-
-					<div className="space-y-2 pt-2">
+					<div className="space-y-2 border-[#252a36] border-t pt-4">
 						<Label htmlFor="browser-executable">Change executable</Label>
 						<Input
 							id="browser-executable"
+							className="border-[#252a36] bg-[#0f1117]"
 							placeholder="/path/to/cloak-browser"
 							value={executablePath}
 							onChange={(event) => setExecutablePath(event.target.value)}
 						/>
 						<Button
+							className="bg-sky-600 hover:bg-sky-500"
 							disabled={!desktop || !executablePath || mutation.isPending}
 							onClick={() => mutation.mutate(executablePath)}
 						>
@@ -103,6 +98,21 @@ export function BrowserSettingsPage() {
 					</div>
 				</CardContent>
 			</Card>
+		</PageShell>
+	);
+}
+
+function SettingRow({
+	label,
+	value,
+}: {
+	label: string;
+	value: ReactNode;
+}) {
+	return (
+		<div className="grid gap-1 border-[#252a36] border-b py-2 text-sm last:border-0">
+			<span className="text-[#8b93a1]">{label}</span>
+			<div className="text-[#dfe3ea]">{value}</div>
 		</div>
 	);
 }

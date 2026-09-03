@@ -1,14 +1,22 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use crate::domain::profile::BrowserLaunchRequest;
 use crate::domain::{BrowserDetectionStatus, BrowserStatus};
 use crate::error::AppError;
+use crate::infrastructure::process::{ProcessSpec, ProcessType};
 
 pub trait BrowserProvider: Send + Sync {
     fn name(&self) -> &'static str;
     fn detect(&self, configured_path: Option<&str>) -> Result<Option<PathBuf>, AppError>;
     fn version(&self, executable: &Path) -> Result<Option<String>, AppError>;
     fn validate_executable(&self, path: &Path) -> Result<(), AppError>;
+    fn build_launch_spec(
+        &self,
+        executable: &Path,
+        request: BrowserLaunchRequest,
+        instance_id: String,
+    ) -> Result<ProcessSpec, AppError>;
     fn status(&self, configured_path: Option<&str>) -> Result<BrowserStatus, AppError> {
         let detected = self.detect(configured_path)?;
         let executable = detected
@@ -102,6 +110,38 @@ impl BrowserProvider for CloakBrowserProvider {
         }
 
         Ok(())
+    }
+
+    fn build_launch_spec(
+        &self,
+        executable: &Path,
+        request: BrowserLaunchRequest,
+        instance_id: String,
+    ) -> Result<ProcessSpec, AppError> {
+        self.validate_executable(executable)?;
+
+        let mut args = vec![
+            format!(
+                "--user-data-dir={}",
+                request.user_data_dir.to_string_lossy()
+            ),
+            format!("--download-dir={}", request.download_dir.to_string_lossy()),
+            "--no-first-run".to_string(),
+            "--no-default-browser-check".to_string(),
+        ];
+
+        for url in request.startup_urls {
+            args.push(url);
+        }
+
+        Ok(ProcessSpec {
+            executable: executable.to_path_buf(),
+            args,
+            working_dir: None,
+            process_type: ProcessType::Browser,
+            profile_id: request.profile_id,
+            instance_id,
+        })
     }
 }
 

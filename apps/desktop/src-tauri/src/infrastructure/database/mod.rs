@@ -4,4 +4,7 @@ pub mod repositories;
 
 pub use connection::Database;
 pub use migration::run_migrations;
-pub use repositories::MetadataRepository;
+pub use repositories::{
+    MetadataRepository, SqliteBrowserInstanceRepository, SqliteProfileEventRepository,
+    SqliteProfileRepository,
+};

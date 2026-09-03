@@ -5,8 +5,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@ProfileDock/ui/components/card";
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
+import { PageShell, panelClassName } from "@/app/layout/page-shell";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { useBrowserStatus } from "@/lib/query/hooks";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
@@ -18,56 +20,61 @@ export function BrowsersPage() {
 
 	const statusColor =
 		status === "detected"
-			? "text-emerald-500"
+			? "text-emerald-400"
 			: status === "invalid"
-				? "text-red-500"
-				: "text-amber-500";
+				? "text-red-400"
+				: "text-amber-400";
 
 	return (
-		<div className="mx-auto flex max-w-2xl flex-col gap-6 p-8">
-			<div>
-				<h1 className="font-semibold text-2xl">Browsers</h1>
-				<p className="text-muted-foreground">Installed browser providers</p>
-			</div>
-
+		<PageShell>
 			<DesktopOnlyBanner />
 
-			<Card>
+			<Card className={panelClassName}>
 				<CardHeader>
 					<CardTitle>{browserQuery.data?.provider ?? "CloakBrowser"}</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm">
-					<div className="grid gap-1">
-						<span className="text-muted-foreground">Status</span>
-						<span className={statusColor}>
-							{!desktop
-								? "● Desktop only"
-								: status === "detected"
-									? "● Detected"
-									: status === "invalid"
-										? "● Invalid"
-										: "● Not detected"}
-						</span>
-					</div>
-					<div className="grid gap-1">
-						<span className="text-muted-foreground">Executable</span>
-						<span className="break-all font-mono text-xs">
-							{browserQuery.data?.executable ?? "Not configured"}
-						</span>
-					</div>
-					<div className="grid gap-1">
-						<span className="text-muted-foreground">Version</span>
-						<span>{browserQuery.data?.version ?? "—"}</span>
-					</div>
+					<Row
+						label="Status"
+						value={
+							<span className={statusColor}>
+								{!desktop
+									? "Desktop only"
+									: status === "detected"
+										? "Detected"
+										: status === "invalid"
+											? "Invalid"
+											: "Not detected"}
+							</span>
+						}
+					/>
+					<Row
+						label="Executable"
+						value={
+							<span className="break-all font-mono text-xs">
+								{browserQuery.data?.executable ?? "Not configured"}
+							</span>
+						}
+					/>
+					<Row label="Version" value={browserQuery.data?.version ?? "—"} />
 					<Button
 						variant="outline"
-						className="mt-2"
+						className="mt-2 border-[#252a36]"
 						render={<Link to="/settings" />}
 					>
 						Change executable
 					</Button>
 				</CardContent>
 			</Card>
+		</PageShell>
+	);
+}
+
+function Row({ label, value }: { label: string; value: ReactNode }) {
+	return (
+		<div className="grid gap-1 border-[#252a36] border-b py-2 last:border-0">
+			<span className="text-[#8b93a1]">{label}</span>
+			<div className="text-[#dfe3ea]">{value}</div>
 		</div>
 	);
 }

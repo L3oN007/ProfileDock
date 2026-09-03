@@ -1,6 +1,15 @@
 use std::path::{Path, PathBuf};
 
+use crate::domain::profile::validate_profile_id;
 use crate::error::AppError;
+
+#[derive(Debug, Clone)]
+pub struct ProfilePaths {
+    pub root: PathBuf,
+    pub browser_data: PathBuf,
+    pub downloads: PathBuf,
+    pub cache: PathBuf,
+}
 
 #[derive(Debug, Clone)]
 pub struct AppPaths {
@@ -53,6 +62,48 @@ impl AppPaths {
 
     pub fn log_file(&self) -> PathBuf {
         self.logs.join("profiledock.log")
+    }
+
+    pub fn profile(&self, id: &str) -> Result<ProfilePaths, AppError> {
+        validate_profile_id(id)?;
+        let root = self.profiles.join(id);
+        Ok(ProfilePaths {
+            root: root.clone(),
+            browser_data: root.join("browser-data"),
+            downloads: root.join("downloads"),
+            cache: root.join("cache"),
+        })
+    }
+
+    pub fn create_profile_directories(&self, id: &str) -> Result<ProfilePaths, AppError> {
+        let paths = self.profile(id)?;
+        for dir in [
+            &paths.root,
+            &paths.browser_data,
+            &paths.downloads,
+            &paths.cache,
+        ] {
+            std::fs::create_dir_all(dir)?;
+        }
+
+        let metadata = serde_json::json!({
+            "profile_id": id,
+            "version": 1,
+        });
+        std::fs::write(
+            paths.root.join("profile.json"),
+            serde_json::to_string_pretty(&metadata)?,
+        )?;
+
+        Ok(paths)
+    }
+
+    pub fn remove_profile_directory(&self, id: &str) -> Result<(), AppError> {
+        let paths = self.profile(id)?;
+        if paths.root.exists() {
+            std::fs::remove_dir_all(&paths.root)?;
+        }
+        Ok(())
     }
 
     pub fn to_info(&self) -> crate::domain::AppPathsInfo {
