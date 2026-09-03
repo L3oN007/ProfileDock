@@ -10,7 +10,8 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "check-types": "turbo run check-types",
-    "dev:web": "turbo run dev -F web --",
+    "dev:desktop": "turbo run dev -F @profiledock/desktop --",
+    "desktop:dev": "pnpm --filter @profiledock/desktop desktop:dev",
     "check": "biome check --write ."
   },
   "dependencies": {
