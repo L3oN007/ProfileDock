@@ -9,6 +9,7 @@ import {
 	Activity,
 	FolderTree,
 	LayoutDashboard,
+	Puzzle,
 	Plus,
 	Settings,
 	Shield,
@@ -28,6 +29,7 @@ const organizationNav = [
 	{ to: "/groups", label: "Groups", icon: FolderTree },
 	{ to: "/tags", label: "Tags", icon: Tag },
 	{ to: "/proxies", label: "Proxies", icon: Shield },
+	{ to: "/extensions", label: "Extensions", icon: Puzzle },
 	{ to: "/trash", label: "Trash", icon: Trash2 },
 ] as const;
 

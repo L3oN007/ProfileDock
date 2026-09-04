@@ -1,9 +1,17 @@
 import { Button } from "@ProfileDock/ui/components/button";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Archive, Play, Plus, Search, Square } from "lucide-react";
+import type { RefObject, ReactNode } from "react";
+
+import { ColumnSettings } from "@/features/profiles/components/column-settings";
+import type {
+	ProfileColumnId,
+	ProfileListDensity,
+} from "@/features/profiles/hooks/use-profile-list-preferences";
 
 interface ProfilesToolbarProps {
 	search: string;
+	searchInputRef?: RefObject<HTMLInputElement | null>;
 	onSearchChange: (value: string) => void;
 	selectedCount: number;
 	canOpen: boolean;
@@ -14,10 +22,16 @@ interface ProfilesToolbarProps {
 	onCreate: () => void;
 	isOpening: boolean;
 	isClosing: boolean;
+	columns: ProfileColumnId[];
+	density: ProfileListDensity;
+	onToggleColumn: (columnId: ProfileColumnId) => void;
+	onDensityChange: (density: ProfileListDensity) => void;
+	extra?: ReactNode;
 }
 
 export function ProfilesToolbar({
 	search,
+	searchInputRef,
 	onSearchChange,
 	selectedCount,
 	canOpen,
@@ -28,6 +42,11 @@ export function ProfilesToolbar({
 	onCreate,
 	isOpening,
 	isClosing,
+	columns,
+	density,
+	onToggleColumn,
+	onDensityChange,
+	extra,
 }: ProfilesToolbarProps) {
 	return (
 		<div className="space-y-3 border-[#1e2230] border-b bg-[#12161f] px-4 py-3">
@@ -73,13 +92,24 @@ export function ProfilesToolbar({
 					<Archive className="size-3.5" />
 					Archive
 				</Button>
+
+				<div className="ml-auto flex items-center gap-2">
+					<ColumnSettings
+						columns={columns}
+						density={density}
+						onToggleColumn={onToggleColumn}
+						onDensityChange={onDensityChange}
+					/>
+					{extra}
+				</div>
 			</div>
 
 			<div className="relative max-w-md">
 				<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-[#8b93a1]" />
 				<Input
+					ref={searchInputRef}
 					className="h-8 border-[#252a36] bg-[#0f1117] pl-8"
-					placeholder="Search profiles..."
+					placeholder="Search profiles... (Ctrl+F)"
 					value={search}
 					onChange={(e) => onSearchChange(e.target.value)}
 				/>

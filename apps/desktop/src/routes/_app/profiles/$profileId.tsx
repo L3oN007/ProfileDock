@@ -28,6 +28,7 @@ import {
 	useProfilePreflight,
 } from "@/features/profiles/api/queries";
 import { ProfileBrowserTab } from "@/features/profiles/components/profile-browser-tab";
+import { ProfileCookiesCard } from "@/features/profiles/components/profile-cookies-card";
 import { ProfileStatusBadge } from "@/features/profiles/components/profile-status-badge";
 import { useProfileProxyAssignment } from "@/features/proxies/api/queries";
 import {
@@ -171,8 +172,9 @@ function ProfileDetailPage() {
 					</div>
 				</TabsContent>
 
-				<TabsContent value="browser" className="mt-0">
+				<TabsContent value="browser" className="mt-0 space-y-4">
 					<ProfileBrowserTab profileId={profileId} isRunning={isRunning} />
+					<ProfileCookiesCard profileId={profileId} />
 				</TabsContent>
 
 				<TabsContent value="network" className="mt-0">

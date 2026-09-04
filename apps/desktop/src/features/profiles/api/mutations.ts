@@ -5,12 +5,39 @@ import { browserSettingsApi } from "@/lib/tauri/browser-settings";
 import { profileApi } from "@/lib/tauri/profile";
 import type { AppError } from "@/types/app";
 import type { UpdateBrowserSettingsInput } from "@/types/cloak";
-import type { CreateProfileFullInput, CreateProfileInput, ProfileListQuery, UpdateProfileInput } from "@/types/profile";
+import type { BulkProfileUpdateInput, CreateProfileFullInput, CreateProfileInput, UpdateProfileInput } from "@/types/profile";
 
 import { profileKeys } from "./profile-keys";
 
 function handleError(error: AppError) {
 	toast.error(error.message);
+}
+
+export function useDuplicateProfile() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, name }: { id: string; name?: string }) =>
+			profileApi.duplicate(id, name),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: profileKeys.all });
+			toast.success("Profile duplicated");
+		},
+		onError: handleError,
+	});
+}
+
+export function useBulkUpdateProfiles() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: profileApi.bulkUpdate,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: profileKeys.all });
+			toast.success("Profiles updated");
+		},
+		onError: handleError,
+	});
 }
 
 export function useCreateProfileFull() {

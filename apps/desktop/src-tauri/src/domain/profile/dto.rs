@@ -101,6 +101,12 @@ pub struct DuplicateProfileInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CookieTransferResult {
+    pub path: String,
+    pub count: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActivityEventDto {
     pub id: i64,
     pub profile_id: String,

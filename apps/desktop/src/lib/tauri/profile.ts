@@ -119,6 +119,20 @@ export const profileApi = {
 		return invokeCommand<ActivityEvent[]>("profile_activity_list", { limit });
 	},
 
+	exportCookies(profileId: string, destinationPath: string) {
+		return invokeCommand<{ path: string; count: number }>("profile_cookie_export", {
+			profileId,
+			destinationPath,
+		});
+	},
+
+	importCookies(profileId: string, sourcePath: string) {
+		return invokeCommand<{ path: string; count: number }>("profile_cookie_import", {
+			profileId,
+			sourcePath,
+		});
+	},
+
 	launch(id: string) {
 		return invokeCommand<BrowserInstance>("profile_launch", { id });
 	},

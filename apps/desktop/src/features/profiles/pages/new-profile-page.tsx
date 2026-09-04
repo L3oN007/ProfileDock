@@ -9,7 +9,7 @@ import { Input } from "@ProfileDock/ui/components/input";
 import { Label } from "@ProfileDock/ui/components/label";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { PageShell, panelClassName } from "@/app/layout/page-shell";
 import { useGroups } from "@/features/groups/api/queries";
@@ -18,8 +18,11 @@ import { useProxies } from "@/features/proxies/api/queries";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { CreateProfileFullInput } from "@/types/profile";
+import type { ProxyProtocol } from "@/types/proxy";
 
 type TabId = "general" | "proxy" | "platform" | "browser" | "advanced";
+
+const DRAFT_STORAGE_KEY = "profiledock.new-profile-draft";
 
 const tabs: { id: TabId; label: string }[] = [
 	{ id: "general", label: "General" },
@@ -51,6 +54,28 @@ export function NewProfilePage() {
 	const [form, setForm] = useState<CreateProfileFullInput>(defaultForm);
 	const [tagInput, setTagInput] = useState("");
 	const [startupUrl, setStartupUrl] = useState("");
+	const [draftRestored, setDraftRestored] = useState(false);
+
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+			if (!raw) return;
+			const parsed = JSON.parse(raw) as CreateProfileFullInput;
+			if (parsed && typeof parsed === "object") {
+				setForm({ ...defaultForm, ...parsed });
+				setDraftRestored(true);
+			}
+		} catch {
+			// ignore invalid draft
+		}
+	}, []);
+
+	useEffect(() => {
+		const timer = window.setTimeout(() => {
+			localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(form));
+		}, 400);
+		return () => window.clearTimeout(timer);
+	}, [form]);
 
 	const addTag = () => {
 		const value = tagInput.trim();
@@ -64,7 +89,16 @@ export function NewProfilePage() {
 
 	const handleCreate = async () => {
 		const profile = await createProfile.mutateAsync(form);
+		localStorage.removeItem(DRAFT_STORAGE_KEY);
 		navigate({ to: "/profiles/$profileId", params: { profileId: profile.id } });
+	};
+
+	const clearDraft = () => {
+		setForm(defaultForm);
+		setTagInput("");
+		setStartupUrl("");
+		localStorage.removeItem(DRAFT_STORAGE_KEY);
+		setDraftRestored(false);
 	};
 
 	return (
@@ -79,6 +113,11 @@ export function NewProfilePage() {
 					</p>
 				</div>
 				<div className="flex gap-2">
+					{draftRestored ? (
+						<Button variant="outline" className="border-[#252a36]" onClick={clearDraft}>
+							Clear draft
+						</Button>
+					) : null}
 					<Link
 						to="/profiles"
 						className="inline-flex h-9 items-center justify-center rounded-md border border-[#252a36] px-4 text-sm"
@@ -202,6 +241,7 @@ export function NewProfilePage() {
 									>
 										<option value="none">No Proxy</option>
 										<option value="saved">Saved Proxy</option>
+										<option value="custom">Custom Proxy</option>
 									</select>
 								</Field>
 								{form.proxyMode === "saved" ? (
@@ -221,6 +261,138 @@ export function NewProfilePage() {
 											))}
 										</select>
 									</Field>
+								) : null}
+								{form.proxyMode === "custom" ? (
+									<>
+										<Field label="Proxy name">
+											<Input
+												className="border-[#252a36] bg-[#0f1117]"
+												value={form.customProxy?.name ?? ""}
+												onChange={(e) =>
+													setForm((c) => ({
+														...c,
+														customProxy: {
+															...(c.customProxy ?? {
+																name: "",
+																protocol: "socks5",
+																host: "",
+																port: 1080,
+															}),
+															name: e.target.value,
+														},
+													}))
+												}
+											/>
+										</Field>
+										<Field label="Protocol">
+											<select
+												className="h-9 w-full rounded-md border border-[#252a36] bg-[#0f1117] px-3 text-sm"
+												value={form.customProxy?.protocol ?? "socks5"}
+												onChange={(e) =>
+													setForm((c) => ({
+														...c,
+														customProxy: {
+															...(c.customProxy ?? {
+																name: "",
+																protocol: "socks5",
+																host: "",
+																port: 1080,
+															}),
+															protocol: e.target.value as ProxyProtocol,
+														},
+													}))
+												}
+											>
+												<option value="socks5">SOCKS5</option>
+												<option value="http">HTTP</option>
+												<option value="https">HTTPS</option>
+											</select>
+										</Field>
+										<div className="grid gap-3 sm:grid-cols-2">
+											<Field label="Host">
+												<Input
+													className="border-[#252a36] bg-[#0f1117]"
+													value={form.customProxy?.host ?? ""}
+													onChange={(e) =>
+														setForm((c) => ({
+															...c,
+															customProxy: {
+																...(c.customProxy ?? {
+																	name: "",
+																	protocol: "socks5",
+																	host: "",
+																	port: 1080,
+																}),
+																host: e.target.value,
+															},
+														}))
+													}
+												/>
+											</Field>
+											<Field label="Port">
+												<Input
+													type="number"
+													className="border-[#252a36] bg-[#0f1117]"
+													value={form.customProxy?.port ?? 1080}
+													onChange={(e) =>
+														setForm((c) => ({
+															...c,
+															customProxy: {
+																...(c.customProxy ?? {
+																	name: "",
+																	protocol: "socks5",
+																	host: "",
+																	port: 1080,
+																}),
+																port: Number(e.target.value) || 0,
+															},
+														}))
+													}
+												/>
+											</Field>
+										</div>
+										<Field label="Username (optional)">
+											<Input
+												className="border-[#252a36] bg-[#0f1117]"
+												value={form.customProxy?.username ?? ""}
+												onChange={(e) =>
+													setForm((c) => ({
+														...c,
+														customProxy: {
+															...(c.customProxy ?? {
+																name: "",
+																protocol: "socks5",
+																host: "",
+																port: 1080,
+															}),
+															username: e.target.value || undefined,
+														},
+													}))
+												}
+											/>
+										</Field>
+										<Field label="Password (optional)">
+											<Input
+												type="password"
+												className="border-[#252a36] bg-[#0f1117]"
+												value={form.customProxy?.password ?? ""}
+												onChange={(e) =>
+													setForm((c) => ({
+														...c,
+														customProxy: {
+															...(c.customProxy ?? {
+																name: "",
+																protocol: "socks5",
+																host: "",
+																port: 1080,
+															}),
+															password: e.target.value || undefined,
+														},
+													}))
+												}
+											/>
+										</Field>
+									</>
 								) : null}
 							</>
 						) : null}
@@ -343,7 +515,9 @@ export function NewProfilePage() {
 								form.proxyMode === "saved"
 									? (proxiesQuery.data?.find((p) => p.id === form.proxyId)?.name ??
 										"Not selected")
-									: "None"
+									: form.proxyMode === "custom"
+										? (form.customProxy?.name || "Custom proxy")
+										: "None"
 							}
 						/>
 						<OverviewRow

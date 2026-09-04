@@ -92,6 +92,8 @@ pub fn run() {
             commands::profile::profile_duplicate,
             commands::profile::profile_bulk_update,
             commands::profile::profile_activity_list,
+            commands::cookie::profile_cookie_export,
+            commands::cookie::profile_cookie_import,
             commands::profile::profile_launch,
             commands::profile::profile_stop,
             commands::profile::profile_get_instance,
