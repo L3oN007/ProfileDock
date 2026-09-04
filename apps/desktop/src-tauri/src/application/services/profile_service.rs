@@ -2,8 +2,8 @@ use chrono::Utc;
 use uuid::Uuid;
 
 use crate::domain::profile::{
-    validate_profile_id, CreateProfileInput, Profile, ProfileDisplayState, ProfileDto,
-    ProfileEventDto, ProfileBrowserSettings, UpdateProfileInput,
+    validate_profile_id, CreateProfileInput, Profile, ProfileBrowserSettings, ProfileDisplayState,
+    ProfileDto, ProfileEventDto, UpdateProfileInput,
 };
 use crate::error::AppError;
 use crate::infrastructure::database::{
@@ -231,8 +231,7 @@ impl ProfileService {
         let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
         let tag_repo = SqliteTagRepository::new(state.db.pool().clone());
         let group_repo = SqliteProfileGroupRepository::new(state.db.pool().clone());
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
 
         let active = instance_repo.find_active_by_profile(&profile.id).await?;
         let last_opened = instance_repo.last_stopped_at(&profile.id).await?;

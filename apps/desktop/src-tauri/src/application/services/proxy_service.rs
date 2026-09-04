@@ -12,8 +12,9 @@ use crate::domain::proxy::{
 };
 use crate::error::AppError;
 use crate::infrastructure::database::{
-    SqliteBrowserInstanceRepository, SqliteProfileEventRepository, SqliteProfileProxyAssignmentRepository,
-    SqliteProfileRepository, SqliteProxyCheckRepository, SqliteProxyRepository,
+    SqliteBrowserInstanceRepository, SqliteProfileEventRepository,
+    SqliteProfileProxyAssignmentRepository, SqliteProfileRepository, SqliteProxyCheckRepository,
+    SqliteProxyRepository,
 };
 use crate::infrastructure::network::{proxy_checker::validate_proxy_input, ProxyChecker};
 use crate::state::AppState;
@@ -171,9 +172,7 @@ impl ProxyService {
                         ));
                     }
                     proxy.password_ref = Some(password_secret_key(id));
-                    state
-                        .secret_store
-                        .set(&password_secret_key(id), &value)?;
+                    state.secret_store.set(&password_secret_key(id), &value)?;
                 }
                 CredentialUpdate::Remove => {
                     proxy.password_ref = None;
@@ -251,7 +250,10 @@ impl ProxyService {
             protocol,
             host: input.host.trim().to_string(),
             port: input.port,
-            username: input.username.map(|v| v.trim().to_string()).filter(|v| !v.is_empty()),
+            username: input
+                .username
+                .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty()),
             password: input.password.filter(|v| !v.is_empty()),
         };
 
@@ -265,12 +267,12 @@ impl ProxyService {
         profile_id: &str,
         proxy_id: &str,
     ) -> Result<(), AppError> {
-        self.ensure_profile_proxy_change_allowed(state, profile_id).await?;
+        self.ensure_profile_proxy_change_allowed(state, profile_id)
+            .await?;
 
         let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
         let proxy_repo = SqliteProxyRepository::new(state.db.pool().clone());
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
         let event_repo = SqliteProfileEventRepository::new(state.db.pool().clone());
 
         let profile = profile_repo
@@ -307,14 +309,16 @@ impl ProxyService {
     }
 
     pub async fn unassign(&self, state: &AppState, profile_id: &str) -> Result<(), AppError> {
-        self.ensure_profile_proxy_change_allowed(state, profile_id).await?;
+        self.ensure_profile_proxy_change_allowed(state, profile_id)
+            .await?;
 
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
         let event_repo = SqliteProfileEventRepository::new(state.db.pool().clone());
 
         assignment_repo.unassign(profile_id).await?;
-        event_repo.insert(profile_id, "proxy_unassigned", None).await?;
+        event_repo
+            .insert(profile_id, "proxy_unassigned", None)
+            .await?;
         Ok(())
     }
 
@@ -323,8 +327,7 @@ impl ProxyService {
         state: &AppState,
         profile_id: &str,
     ) -> Result<ProfileProxyAssignmentDto, AppError> {
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
         let proxy_repo = SqliteProxyRepository::new(state.db.pool().clone());
         let check_repo = SqliteProxyCheckRepository::new(state.db.pool().clone());
 
@@ -366,8 +369,7 @@ impl ProxyService {
         state: &AppState,
         proxy_id: &str,
     ) -> Result<Vec<ProxyAssignmentDto>, AppError> {
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
         let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
 
         let assignments = assignment_repo.list_by_proxy(proxy_id).await?;
@@ -406,8 +408,7 @@ impl ProxyService {
         state: &AppState,
         profile_id: &str,
     ) -> Result<Option<ResolvedBrowserProxy>, AppError> {
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
         let proxy_repo = SqliteProxyRepository::new(state.db.pool().clone());
 
         let assignment = assignment_repo.find_by_profile(profile_id).await?;

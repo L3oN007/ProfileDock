@@ -29,10 +29,17 @@ impl ProfileStorageService {
         })
     }
 
-    pub async fn clear_cache(state: &AppState, profile_id: &str) -> Result<ProfileStorageDto, AppError> {
+    pub async fn clear_cache(
+        state: &AppState,
+        profile_id: &str,
+    ) -> Result<ProfileStorageDto, AppError> {
         validate_profile_id(profile_id)?;
         let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
-        if instance_repo.find_active_by_profile(profile_id).await?.is_some() {
+        if instance_repo
+            .find_active_by_profile(profile_id)
+            .await?
+            .is_some()
+        {
             return Err(AppError::ProfileRunning);
         }
 

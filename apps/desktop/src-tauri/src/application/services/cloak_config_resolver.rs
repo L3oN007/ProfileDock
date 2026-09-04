@@ -6,7 +6,8 @@ use crate::domain::device::{DeviceConfigResolver, ProfileDeviceSettings};
 use crate::domain::profile::{DownloadMode, ProfileBrowserSettings};
 use crate::error::AppError;
 use crate::infrastructure::database::{
-    SqliteBrowserSettingsRepository, SqliteProfileProxyAssignmentRepository, SqliteProfileRepository,
+    SqliteBrowserSettingsRepository, SqliteProfileProxyAssignmentRepository,
+    SqliteProfileRepository,
 };
 use crate::infrastructure::filesystem::AppPaths;
 use crate::state::AppState;
@@ -17,11 +18,17 @@ impl CloakConfigResolver {
     pub async fn resolve(
         state: &AppState,
         profile_id: &str,
-    ) -> Result<(CloakLaunchConfig, ProfileBrowserSettings, ProfileDeviceSettings), AppError> {
+    ) -> Result<
+        (
+            CloakLaunchConfig,
+            ProfileBrowserSettings,
+            ProfileDeviceSettings,
+        ),
+        AppError,
+    > {
         let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
         let settings_repo = SqliteBrowserSettingsRepository::new(state.db.pool().clone());
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
 
         let profile = profile_repo
             .find_by_id(profile_id)
@@ -84,12 +91,9 @@ fn resolve_download_dir(
 ) -> Result<PathBuf, AppError> {
     match settings.download_mode {
         DownloadMode::Profile => Ok(paths.profile(profile_id)?.downloads),
-        DownloadMode::Custom => settings
-            .custom_download_dir
-            .clone()
-            .ok_or_else(|| {
-                AppError::CloakConfigInvalid("custom download directory is required".into())
-            }),
+        DownloadMode::Custom => settings.custom_download_dir.clone().ok_or_else(|| {
+            AppError::CloakConfigInvalid("custom download directory is required".into())
+        }),
     }
 }
 

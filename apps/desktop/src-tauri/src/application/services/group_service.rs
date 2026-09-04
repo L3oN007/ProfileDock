@@ -3,9 +3,7 @@ use uuid::Uuid;
 
 use crate::domain::group::{CreateGroupInput, ProfileGroup, ProfileGroupDto, UpdateGroupInput};
 use crate::error::AppError;
-use crate::infrastructure::database::{
-    SqliteProfileGroupRepository, SqliteProfileRepository,
-};
+use crate::infrastructure::database::{SqliteProfileGroupRepository, SqliteProfileRepository};
 use crate::state::AppState;
 
 pub struct GroupService;

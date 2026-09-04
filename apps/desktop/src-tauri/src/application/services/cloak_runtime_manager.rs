@@ -12,8 +12,11 @@ use crate::domain::cloak::{
 };
 use crate::error::AppError;
 use crate::infrastructure::cloak::{
-    checksum::verify_sha256, discovery::{executable_path_for_root, validate_installation_root},
-    downloader::CloakRuntimeDownloader, extractor::extract_archive, release_manifest,
+    checksum::verify_sha256,
+    discovery::{executable_path_for_root, validate_installation_root},
+    downloader::CloakRuntimeDownloader,
+    extractor::extract_archive,
+    release_manifest,
 };
 use crate::infrastructure::database::{
     MetadataRepository, SqliteBrowserInstanceRepository, SqliteCloakRuntimeRepository,
@@ -132,7 +135,11 @@ impl CloakRuntimeManager {
         self.progress.lock().await.clone()
     }
 
-    pub async fn activate(&self, state: &AppState, runtime_id: &str) -> Result<CloakRuntimeDto, AppError> {
+    pub async fn activate(
+        &self,
+        state: &AppState,
+        runtime_id: &str,
+    ) -> Result<CloakRuntimeDto, AppError> {
         Self::ensure_no_running_browsers(state).await?;
 
         let repo = SqliteCloakRuntimeRepository::new(state.db.pool().clone());
@@ -225,7 +232,8 @@ impl CloakRuntimeManager {
         {
             repo.set_active(&existing.id).await?;
             Self::sync_active_runtime(state, &existing).await?;
-            self.set_progress(CloakInstallPhase::Completed, Some(release.version), None).await;
+            self.set_progress(CloakInstallPhase::Completed, Some(release.version), None)
+                .await;
             return Ok(existing.to_dto());
         }
 
@@ -236,7 +244,9 @@ impl CloakRuntimeManager {
         )
         .await;
 
-        let checksums = release_manifest::fetch_checksums(&release.version).await.ok();
+        let checksums = release_manifest::fetch_checksums(&release.version)
+            .await
+            .ok();
         let expected_sha256 = checksums
             .as_ref()
             .and_then(|map| map.get(&release.archive_name).cloned())
@@ -383,14 +393,15 @@ impl CloakRuntimeManager {
         let executable = runtime.executable.to_string_lossy().into_owned();
         metadata.set("browser_executable", &executable).await?;
         metadata
-            .set("cloak_installation_root", &runtime.root_dir.to_string_lossy())
+            .set(
+                "cloak_installation_root",
+                &runtime.root_dir.to_string_lossy(),
+            )
             .await?;
         metadata
             .set("cloak_installation_source", "profiledock_managed")
             .await?;
-        metadata
-            .set("cloak_active_runtime_id", &runtime.id)
-            .await?;
+        metadata.set("cloak_active_runtime_id", &runtime.id).await?;
 
         let mut config = ConfigStore::load(&state.paths.config, &metadata).await?;
         config.browser_executable = Some(executable);

@@ -3,10 +3,10 @@ use chrono::Utc;
 use crate::application::services::{CloakInstallationService, DeviceConsistencyValidator};
 use crate::domain::device::DeviceConfigResolver;
 use crate::domain::device::{
-    CreateProfileDeviceInput, DeviceConfigurationMode, DevicePlatform, EnvironmentMode,
-    GpuMode, GpuSettings, HardwarePresetDto, ProfileDeviceSettings, ResolvedDeviceOverviewDto,
-    UpdateProfileDeviceSettingsInput, HARDWARE_PRESETS, find_preset,
-    validate_device_memory_gb, validate_hardware_concurrency, validate_screen_size,
+    find_preset, validate_device_memory_gb, validate_hardware_concurrency, validate_screen_size,
+    CreateProfileDeviceInput, DeviceConfigurationMode, DevicePlatform, EnvironmentMode, GpuMode,
+    GpuSettings, HardwarePresetDto, ProfileDeviceSettings, ResolvedDeviceOverviewDto,
+    UpdateProfileDeviceSettingsInput, HARDWARE_PRESETS,
 };
 use crate::domain::device::{DeviceValidationResult, ProfileDeviceSettingsDto};
 use crate::error::AppError;
@@ -108,7 +108,10 @@ impl DeviceSettingsService {
     }
 
     pub fn list_presets() -> Vec<HardwarePresetDto> {
-        HARDWARE_PRESETS.iter().map(HardwarePresetDto::from).collect()
+        HARDWARE_PRESETS
+            .iter()
+            .map(HardwarePresetDto::from)
+            .collect()
     }
 
     pub async fn resolve_overview(
@@ -121,8 +124,7 @@ impl DeviceSettingsService {
             .await?
             .is_some();
         let capabilities = CloakInstallationService::get_capabilities(state).await?;
-        let resolved =
-            DeviceConfigResolver::resolve(&settings, &capabilities, has_proxy);
+        let resolved = DeviceConfigResolver::resolve(&settings, &capabilities, has_proxy);
 
         let hardware_concurrency = if settings.mode == DeviceConfigurationMode::Custom {
             resolved
@@ -133,9 +135,7 @@ impl DeviceSettingsService {
         };
 
         let device_memory_gb = if settings.mode == DeviceConfigurationMode::Custom {
-            resolved
-                .device_memory_gb
-                .map(|value| format!("{value} GB"))
+            resolved.device_memory_gb.map(|value| format!("{value} GB"))
         } else {
             Some("Auto".into())
         };
@@ -150,10 +150,7 @@ impl DeviceSettingsService {
         };
 
         let gpu = if settings.mode == DeviceConfigurationMode::Custom {
-            resolved
-                .gpu_vendor
-                .clone()
-                .or_else(|| Some("Auto".into()))
+            resolved.gpu_vendor.clone().or_else(|| Some("Auto".into()))
         } else {
             Some("Auto".into())
         };
@@ -183,7 +180,11 @@ impl DeviceSettingsService {
 
     async fn ensure_not_running(state: &AppState, profile_id: &str) -> Result<(), AppError> {
         let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
-        if instance_repo.find_active_by_profile(profile_id).await?.is_some() {
+        if instance_repo
+            .find_active_by_profile(profile_id)
+            .await?
+            .is_some()
+        {
             return Err(AppError::ProfileRunning);
         }
         Ok(())
@@ -212,7 +213,19 @@ fn apply_create_input(
                 .ok_or_else(|| AppError::InvalidConfiguration("invalid platform".into()))?,
         );
     }
-    apply_custom_fields(settings, input.hardware_preset_id, input.hardware_concurrency, input.device_memory_gb, input.screen_width, input.screen_height, input.timezone_mode, input.timezone, input.locale_mode, input.locale, input.webrtc_mode)?;
+    apply_custom_fields(
+        settings,
+        input.hardware_preset_id,
+        input.hardware_concurrency,
+        input.device_memory_gb,
+        input.screen_width,
+        input.screen_height,
+        input.timezone_mode,
+        input.timezone,
+        input.locale_mode,
+        input.locale,
+        input.webrtc_mode,
+    )?;
     Ok(())
 }
 
@@ -268,9 +281,8 @@ fn apply_custom_fields(
         if preset_id.is_empty() {
             settings.hardware_preset_id = None;
         } else {
-            let preset = find_preset(&preset_id).ok_or_else(|| {
-                AppError::InvalidConfiguration("unknown hardware preset".into())
-            })?;
+            let preset = find_preset(&preset_id)
+                .ok_or_else(|| AppError::InvalidConfiguration("unknown hardware preset".into()))?;
             settings.hardware_preset_id = Some(preset_id);
             settings.platform = Some(preset.platform);
             settings.hardware_concurrency = Some(preset.hardware_concurrency);

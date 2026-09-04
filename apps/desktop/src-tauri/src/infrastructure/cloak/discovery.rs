@@ -62,8 +62,7 @@ pub fn discover_installations() -> Result<Vec<DiscoveredCloakInstallation>, AppE
     discovered.extend(discover_from_cache_dir(&cloak_cache_dir())?);
 
     discovered.sort_by(|left, right| {
-        version_sort_key(right.version.as_deref())
-            .cmp(&version_sort_key(left.version.as_deref()))
+        version_sort_key(right.version.as_deref()).cmp(&version_sort_key(left.version.as_deref()))
     });
     discovered.dedup_by(|left, right| left.executable == right.executable);
 
@@ -210,10 +209,8 @@ mod tests {
 
     #[test]
     fn validate_rejects_incomplete_linux_installation() {
-        let temp = std::env::temp_dir().join(format!(
-            "profiledock-cloak-test-{}",
-            uuid::Uuid::new_v4()
-        ));
+        let temp =
+            std::env::temp_dir().join(format!("profiledock-cloak-test-{}", uuid::Uuid::new_v4()));
         fs::create_dir_all(&temp).unwrap();
         fs::write(temp.join("chrome"), b"").unwrap();
 

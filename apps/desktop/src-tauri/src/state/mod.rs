@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use crate::application::services::{BrowserService, CloakRuntimeManager, ProfileService, ProxyService};
+use crate::application::services::{
+    BrowserService, CloakRuntimeManager, ProfileService, ProxyService,
+};
 use crate::domain::AppConfig;
 use crate::error::AppError;
 use crate::infrastructure::database::Database;

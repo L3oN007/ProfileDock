@@ -15,7 +15,9 @@ pub async fn cloak_runtime_status(
 }
 
 #[tauri::command]
-pub async fn cloak_runtime_list(state: State<'_, AppState>) -> Result<Vec<CloakRuntimeDto>, AppError> {
+pub async fn cloak_runtime_list(
+    state: State<'_, AppState>,
+) -> Result<Vec<CloakRuntimeDto>, AppError> {
     CloakRuntimeManager::list(&state).await
 }
 

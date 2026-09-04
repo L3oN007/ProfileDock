@@ -21,10 +21,7 @@ impl CloakLaunchBuilder {
         let executable = &self.installation.executable;
 
         let mut args = vec![
-            format!(
-                "--user-data-dir={}",
-                config.user_data_dir.to_string_lossy()
-            ),
+            format!("--user-data-dir={}", config.user_data_dir.to_string_lossy()),
             format!("--download-dir={}", config.download_dir.to_string_lossy()),
             "--no-first-run".to_string(),
             "--no-default-browser-check".to_string(),
@@ -45,17 +42,20 @@ impl CloakLaunchBuilder {
 
         if let Some(proxy) = &config.proxy {
             let scheme = proxy.protocol.proxy_scheme();
-            let proxy_server = if let (Some(username), Some(password)) =
-                (&proxy.username, &proxy.password)
-            {
-                format!(
-                    "{scheme}://{username}:{password}@{host}:{port}",
-                    host = proxy.host,
-                    port = proxy.port
-                )
-            } else {
-                format!("{scheme}://{host}:{port}", host = proxy.host, port = proxy.port)
-            };
+            let proxy_server =
+                if let (Some(username), Some(password)) = (&proxy.username, &proxy.password) {
+                    format!(
+                        "{scheme}://{username}:{password}@{host}:{port}",
+                        host = proxy.host,
+                        port = proxy.port
+                    )
+                } else {
+                    format!(
+                        "{scheme}://{host}:{port}",
+                        host = proxy.host,
+                        port = proxy.port
+                    )
+                };
             args.push(format!("--proxy-server={proxy_server}"));
         }
 
@@ -67,9 +67,7 @@ impl CloakLaunchBuilder {
         ));
 
         if let Some(cores) = device.hardware_concurrency {
-            args.push(format!(
-                "--fingerprint-hardware-concurrency={cores}"
-            ));
+            args.push(format!("--fingerprint-hardware-concurrency={cores}"));
         }
         if let Some(memory) = device.device_memory_gb {
             args.push(format!("--fingerprint-device-memory={memory}"));
@@ -131,13 +129,9 @@ mod tests {
             last_checked_at: Utc::now(),
         };
         let builder = CloakLaunchBuilder::new(installation);
-        let device_settings =
-            ProfileDeviceSettings::defaults("profile-1".into(), Utc::now());
-        let device = DeviceConfigResolver::resolve(
-            &device_settings,
-            &CloakCapabilities::default(),
-            false,
-        );
+        let device_settings = ProfileDeviceSettings::defaults("profile-1".into(), Utc::now());
+        let device =
+            DeviceConfigResolver::resolve(&device_settings, &CloakCapabilities::default(), false);
         let config = CloakLaunchConfig {
             profile_id: "profile-1".into(),
             user_data_dir: PathBuf::from("/data/profile/browser-data"),
@@ -156,6 +150,9 @@ mod tests {
         assert!(spec.args.iter().any(|arg| arg.contains("user-data-dir")));
         assert!(spec.args.iter().any(|arg| arg.contains("download-dir")));
         assert!(spec.args.iter().any(|arg| arg == "https://example.com"));
-        assert!(spec.args.iter().any(|arg| arg.starts_with("--fingerprint=")));
+        assert!(spec
+            .args
+            .iter()
+            .any(|arg| arg.starts_with("--fingerprint=")));
     }
 }

@@ -32,9 +32,8 @@ impl ProxyChecker for HttpProxyChecker {
         );
 
         let proxy_url = build_proxy_url(proxy)?;
-        let reqwest_proxy = Proxy::all(&proxy_url).map_err(|_| {
-            AppError::ProxyInvalidHost(proxy.host.clone())
-        })?;
+        let reqwest_proxy =
+            Proxy::all(&proxy_url).map_err(|_| AppError::ProxyInvalidHost(proxy.host.clone()))?;
 
         let client = reqwest::Client::builder()
             .proxy(reqwest_proxy)
@@ -111,7 +110,11 @@ fn build_proxy_url(proxy: &ResolvedProxy) -> Result<String, AppError> {
             "proxy username and password must both be provided".into(),
         ))
     } else {
-        Ok(format!("{scheme}://{host}:{port}", host = proxy.host, port = proxy.port))
+        Ok(format!(
+            "{scheme}://{host}:{port}",
+            host = proxy.host,
+            port = proxy.port
+        ))
     }
 }
 
@@ -154,7 +157,9 @@ mod tests {
 
     #[test]
     fn rejects_mismatched_auth_fields() {
-        assert!(validate_proxy_input("http", "proxy.example.com", 8080, Some("user"), None).is_err());
+        assert!(
+            validate_proxy_input("http", "proxy.example.com", 8080, Some("user"), None).is_err()
+        );
     }
 
     #[test]

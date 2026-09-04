@@ -3,11 +3,11 @@ use std::process::Command;
 
 use chrono::Utc;
 
+use crate::application::services::CloakRuntimeManager;
 use crate::domain::cloak::{
     CloakCapabilities, CloakInstallation, CloakInstallationDto, CloakValidationResult,
     DiscoveredCloakInstallationDto,
 };
-use crate::application::services::CloakRuntimeManager;
 use crate::error::AppError;
 use crate::infrastructure::cloak::{
     cloak_cache_dir, discover_best_installation, discover_installations,
@@ -81,14 +81,11 @@ impl CloakInstallationService {
     ) -> Result<CloakValidationResult, AppError> {
         match Self::resolve_installation(state).await? {
             Some(installation) => {
-                let root_dir = installation
-                    .executable
-                    .parent()
-                    .ok_or_else(|| {
-                        AppError::CloakInstallationInvalid(
-                            "executable must live inside an installation directory".into(),
-                        )
-                    })?;
+                let root_dir = installation.executable.parent().ok_or_else(|| {
+                    AppError::CloakInstallationInvalid(
+                        "executable must live inside an installation directory".into(),
+                    )
+                })?;
                 validate_installation_root(root_dir)?;
 
                 let compatible = Self::is_compatible(installation.version.as_deref());
@@ -143,10 +140,7 @@ impl CloakInstallationService {
         }
 
         if let Some(best) = discover_best_installation()? {
-            return Self::build_installation(
-                best.executable,
-                best.source,
-            );
+            return Self::build_installation(best.executable, best.source);
         }
 
         Ok(None)
@@ -213,7 +207,10 @@ impl CloakInstallationService {
         let metadata = MetadataRepository::new(state.db.pool().clone());
         metadata.set("browser_executable", &executable).await?;
         metadata
-            .set("cloak_installation_root", &discovered.root_dir.to_string_lossy())
+            .set(
+                "cloak_installation_root",
+                &discovered.root_dir.to_string_lossy(),
+            )
             .await?;
         metadata
             .set("cloak_installation_source", discovered.source.as_str())
@@ -303,7 +300,9 @@ impl CloakInstallationService {
         }
     }
 
-    fn to_discovered_dto(installation: DiscoveredCloakInstallation) -> DiscoveredCloakInstallationDto {
+    fn to_discovered_dto(
+        installation: DiscoveredCloakInstallation,
+    ) -> DiscoveredCloakInstallationDto {
         let valid = validate_installation_root(&installation.root_dir).is_ok();
         DiscoveredCloakInstallationDto {
             executable: installation.executable.to_string_lossy().into_owned(),
@@ -321,7 +320,8 @@ mod tests {
 
     #[test]
     fn validate_rejects_missing_executable() {
-        let result = CloakInstallationService::validate_executable(Path::new("/tmp/does-not-exist-cloak"));
+        let result =
+            CloakInstallationService::validate_executable(Path::new("/tmp/does-not-exist-cloak"));
         assert!(matches!(
             result,
             Err(AppError::CloakExecutableNotFound) | Err(AppError::CloakInstallationInvalid(_))

@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::domain::proxy::ResolvedBrowserProxy;
-use crate::domain::profile::{DownloadMode, WindowMode};
 use crate::domain::device::ResolvedDeviceConfig;
+use crate::domain::profile::{DownloadMode, WindowMode};
+use crate::domain::proxy::ResolvedBrowserProxy;
 
 pub const CLOAK_CONFIG_VERSION: u32 = 2;
 

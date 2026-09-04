@@ -33,9 +33,8 @@ pub fn extract_archive(archive_path: &Path, dest_dir: &Path) -> Result<(), AppEr
 
 fn extract_zip(archive_path: &Path, dest_dir: &Path) -> Result<(), AppError> {
     let file = File::open(archive_path)?;
-    let mut archive = ZipArchive::new(file).map_err(|error| {
-        AppError::CloakArchiveInvalid(error.to_string())
-    })?;
+    let mut archive =
+        ZipArchive::new(file).map_err(|error| AppError::CloakArchiveInvalid(error.to_string()))?;
 
     for index in 0..archive.len() {
         let mut entry = archive
@@ -64,9 +63,14 @@ fn extract_tar_gz(archive_path: &Path, dest_dir: &Path) -> Result<(), AppError> 
     let decoder = GzDecoder::new(file);
     let mut archive = Archive::new(decoder);
 
-    for entry in archive.entries().map_err(|error| AppError::CloakArchiveInvalid(error.to_string()))? {
+    for entry in archive
+        .entries()
+        .map_err(|error| AppError::CloakArchiveInvalid(error.to_string()))?
+    {
         let mut entry = entry.map_err(|error| AppError::CloakArchiveInvalid(error.to_string()))?;
-        let path = entry.path().map_err(|error| AppError::CloakArchiveInvalid(error.to_string()))?;
+        let path = entry
+            .path()
+            .map_err(|error| AppError::CloakArchiveInvalid(error.to_string()))?;
         let Some(safe_path) = sanitize_archive_path(path.to_string_lossy().as_ref()) else {
             continue;
         };
@@ -78,9 +82,9 @@ fn extract_tar_gz(archive_path: &Path, dest_dir: &Path) -> Result<(), AppError> 
         if let Some(parent) = output_path.parent() {
             fs::create_dir_all(parent)?;
         }
-        entry.unpack(&output_path).map_err(|error| {
-            AppError::CloakExtractionFailed(error.to_string())
-        })?;
+        entry
+            .unpack(&output_path)
+            .map_err(|error| AppError::CloakExtractionFailed(error.to_string()))?;
     }
 
     Ok(())
@@ -164,10 +168,8 @@ mod tests {
 
     #[test]
     fn extract_zip_rejects_traversal_entries() {
-        let temp = std::env::temp_dir().join(format!(
-            "profiledock-zip-test-{}",
-            uuid::Uuid::new_v4()
-        ));
+        let temp =
+            std::env::temp_dir().join(format!("profiledock-zip-test-{}", uuid::Uuid::new_v4()));
         let archive_path = temp.join("bad.zip");
         let dest_dir = temp.join("out");
         fs::create_dir_all(&temp).unwrap();
@@ -176,13 +178,12 @@ mod tests {
             let file = File::create(&archive_path).unwrap();
             let mut writer = ZipWriter::new(file);
             writer
-                .start_file(
-                    "../escape.txt",
-                    SimpleFileOptions::default(),
-                )
+                .start_file("../escape.txt", SimpleFileOptions::default())
                 .unwrap();
             writer.write_all(b"bad").unwrap();
-            writer.start_file("chrome", SimpleFileOptions::default()).unwrap();
+            writer
+                .start_file("chrome", SimpleFileOptions::default())
+                .unwrap();
             writer.write_all(b"ok").unwrap();
             writer.finish().unwrap();
         }

@@ -1,13 +1,14 @@
 use crate::domain::device::{
-    DeviceConfigurationMode, DevicePlatform, DeviceWarningDto, find_preset,
-    validate_device_memory_gb, validate_hardware_concurrency, validate_screen_size,
-    ProfileDeviceSettings,
+    find_preset, validate_device_memory_gb, validate_hardware_concurrency, validate_screen_size,
+    DeviceConfigurationMode, DevicePlatform, DeviceWarningDto, ProfileDeviceSettings,
 };
 
 pub struct DeviceConsistencyValidator;
 
 impl DeviceConsistencyValidator {
-    pub fn validate(settings: &ProfileDeviceSettings) -> crate::domain::device::DeviceValidationResult {
+    pub fn validate(
+        settings: &ProfileDeviceSettings,
+    ) -> crate::domain::device::DeviceValidationResult {
         let mut warnings = Vec::new();
 
         if settings.mode != DeviceConfigurationMode::Custom {

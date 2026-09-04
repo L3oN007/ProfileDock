@@ -136,9 +136,8 @@ impl ProxyCheckRecord {
 }
 
 pub fn parse_protocol(value: &str) -> Result<ProxyProtocol, crate::error::AppError> {
-    ProxyProtocol::from_str(value).ok_or_else(|| {
-        crate::error::AppError::ProxyInvalidProtocol(value.to_string())
-    })
+    ProxyProtocol::from_str(value)
+        .ok_or_else(|| crate::error::AppError::ProxyInvalidProtocol(value.to_string()))
 }
 
 pub fn username_secret_key(proxy_id: &str) -> String {

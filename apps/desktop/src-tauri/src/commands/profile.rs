@@ -1,13 +1,13 @@
 use tauri::State;
 
 use crate::application::services::ProfileWorkspaceService;
+use crate::domain::cloak::PreflightResult;
 use crate::domain::profile::{
-    ActivityEventDto, BulkProfileUpdateInput, BrowserInstanceDto, CreateProfileFullInput,
+    ActivityEventDto, BrowserInstanceDto, BulkProfileUpdateInput, CreateProfileFullInput,
     CreateProfileInput, DuplicateProfileInput, ProfileBrowserSettingsDto, ProfileDto,
     ProfileEventDto, ProfileListPage, ProfileListQuery, UpdateBrowserSettingsInput,
     UpdateProfileFullInput, UpdateProfileInput,
 };
-use crate::domain::cloak::PreflightResult;
 use crate::error::AppError;
 use crate::state::AppState;
 

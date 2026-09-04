@@ -2,8 +2,8 @@ use tauri::State;
 
 use crate::application::services::DeviceSettingsService;
 use crate::domain::device::{
-    DeviceValidationResult, HardwarePresetDto, ProfileDeviceSettingsDto,
-    ResolvedDeviceOverviewDto, UpdateProfileDeviceSettingsInput,
+    DeviceValidationResult, HardwarePresetDto, ProfileDeviceSettingsDto, ResolvedDeviceOverviewDto,
+    UpdateProfileDeviceSettingsInput,
 };
 use crate::error::AppError;
 use crate::state::AppState;

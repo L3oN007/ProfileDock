@@ -25,11 +25,10 @@ impl SqliteTagRepository {
     }
 
     pub async fn list_all(&self) -> Result<Vec<Tag>, AppError> {
-        let rows = sqlx::query_as::<_, TagRow>(
-            "SELECT id, name, created_at FROM tags ORDER BY name ASC",
-        )
-        .fetch_all(&self.pool)
-        .await?;
+        let rows =
+            sqlx::query_as::<_, TagRow>("SELECT id, name, created_at FROM tags ORDER BY name ASC")
+                .fetch_all(&self.pool)
+                .await?;
         Ok(rows.into_iter().map(TagRow::into_tag).collect())
     }
 
@@ -52,11 +51,10 @@ impl SqliteTagRepository {
     }
 
     pub async fn count_profiles(&self, tag_id: &str) -> Result<i64, AppError> {
-        let count: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM profile_tags WHERE tag_id = ?")
-                .bind(tag_id)
-                .fetch_one(&self.pool)
-                .await?;
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM profile_tags WHERE tag_id = ?")
+            .bind(tag_id)
+            .fetch_one(&self.pool)
+            .await?;
         Ok(count)
     }
 
@@ -98,13 +96,11 @@ impl SqliteTagRepository {
         tag_ids: &[String],
     ) -> Result<(), AppError> {
         for tag_id in tag_ids {
-            sqlx::query(
-                "INSERT OR IGNORE INTO profile_tags (profile_id, tag_id) VALUES (?, ?)",
-            )
-            .bind(profile_id)
-            .bind(tag_id)
-            .execute(&self.pool)
-            .await?;
+            sqlx::query("INSERT OR IGNORE INTO profile_tags (profile_id, tag_id) VALUES (?, ?)")
+                .bind(profile_id)
+                .bind(tag_id)
+                .execute(&self.pool)
+                .await?;
         }
         Ok(())
     }

@@ -4,9 +4,9 @@ use uuid::Uuid;
 use crate::application::queries::profile_list_query::ProfileListQueryService;
 use crate::application::services::{DeviceSettingsService, ProfileService, TagService};
 use crate::domain::profile::{
-    ActivityEventDto, BulkProfileUpdateInput, CreateProfileBrowserInput, CreateProfileFullInput,
-    DuplicateProfileInput, Profile, ProfileBrowserSettings, ProfileDto, ProfileListPage,
-    ProfileListQuery, UpdateProfileFullInput, validate_profile_id,
+    validate_profile_id, ActivityEventDto, BulkProfileUpdateInput, CreateProfileBrowserInput,
+    CreateProfileFullInput, DuplicateProfileInput, Profile, ProfileBrowserSettings, ProfileDto,
+    ProfileListPage, ProfileListQuery, UpdateProfileFullInput,
 };
 use crate::domain::profile::{DownloadMode, WindowMode};
 use crate::error::AppError;
@@ -230,8 +230,7 @@ impl ProfileWorkspaceService {
 
         let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
         let tag_repo = SqliteTagRepository::new(state.db.pool().clone());
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
         let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
 
         let add_tag_ids = if let Some(tags) = input.add_tags {
@@ -254,7 +253,11 @@ impl ProfileWorkspaceService {
             if profile.is_archived {
                 continue;
             }
-            if instance_repo.find_active_by_profile(profile_id).await?.is_some() {
+            if instance_repo
+                .find_active_by_profile(profile_id)
+                .await?
+                .is_some()
+            {
                 return Err(AppError::ProfileRunning);
             }
 
@@ -339,8 +342,7 @@ impl ProfileWorkspaceService {
             .await?
             .ok_or(AppError::ProfileNotFound)?;
 
-        let assignment_repo =
-            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+        let assignment_repo = SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
         let assignment = assignment_repo.find_by_profile(id).await?;
 
         let create_input = CreateProfileFullInput {

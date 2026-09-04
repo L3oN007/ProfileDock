@@ -72,7 +72,10 @@ impl SqliteProfileProxyAssignmentRepository {
         .fetch_all(&self.pool)
         .await?;
 
-        Ok(rows.into_iter().map(AssignmentRow::into_assignment).collect())
+        Ok(rows
+            .into_iter()
+            .map(AssignmentRow::into_assignment)
+            .collect())
     }
 }
 

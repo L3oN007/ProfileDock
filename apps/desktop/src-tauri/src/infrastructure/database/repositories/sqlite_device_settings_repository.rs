@@ -17,10 +17,7 @@ impl SqliteDeviceSettingsRepository {
         Self { pool }
     }
 
-    pub async fn get(
-        &self,
-        profile_id: &str,
-    ) -> Result<Option<ProfileDeviceSettings>, AppError> {
+    pub async fn get(&self, profile_id: &str) -> Result<Option<ProfileDeviceSettings>, AppError> {
         let row = sqlx::query_as::<_, DeviceSettingsRow>(
             "SELECT profile_id, mode, fingerprint_seed, platform, hardware_concurrency,
                     device_memory, screen_width, screen_height, gpu_mode, gpu_vendor,
@@ -117,10 +114,7 @@ impl DeviceSettingsRow {
             mode: DeviceConfigurationMode::from_str(&self.mode)
                 .unwrap_or(DeviceConfigurationMode::Automatic),
             fingerprint_seed: self.fingerprint_seed as u64,
-            platform: self
-                .platform
-                .as_deref()
-                .and_then(DevicePlatform::from_str),
+            platform: self.platform.as_deref().and_then(DevicePlatform::from_str),
             hardware_concurrency: self.hardware_concurrency.map(|value| value as u8),
             device_memory_gb: self.device_memory.map(|value| value as u8),
             screen_width: self.screen_width.map(|value| value as u32),

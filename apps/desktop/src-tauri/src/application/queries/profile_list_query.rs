@@ -38,7 +38,12 @@ impl ProfileListQueryService {
             binds.push(proxy_id.to_string());
         }
 
-        if let Some(search) = query.search.as_deref().map(str::trim).filter(|v| !v.is_empty()) {
+        if let Some(search) = query
+            .search
+            .as_deref()
+            .map(str::trim)
+            .filter(|v| !v.is_empty())
+        {
             where_clauses.push(
                 "(p.name LIKE ? OR p.remark LIKE ? OR p.display_id LIKE ?
                   OR EXISTS (
@@ -55,7 +60,7 @@ impl ProfileListQueryService {
                     JOIN proxies pr ON pr.id = ppa.proxy_id
                     WHERE ppa.profile_id = p.id AND pr.name LIKE ?
                   ))"
-                    .to_string(),
+                .to_string(),
             );
             let pattern = format!("%{search}%");
             binds.extend(std::iter::repeat(pattern).take(6));
@@ -156,10 +161,7 @@ impl ProfileListQueryService {
         list_query = list_query.bind(page_size as i64).bind(offset as i64);
         let rows = list_query.fetch_all(pool).await?;
 
-        let items = rows
-            .into_iter()
-            .map(|row| row.into_profile_dto())
-            .collect();
+        let items = rows.into_iter().map(|row| row.into_profile_dto()).collect();
 
         Ok(ProfileListPage {
             items,
@@ -194,7 +196,14 @@ impl ProfileListRow {
     fn into_profile_dto(self) -> ProfileDto {
         let tags = self
             .tag_names
-            .map(|value| value.split(',').map(str::trim).filter(|v| !v.is_empty()).map(str::to_string).collect())
+            .map(|value| {
+                value
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|v| !v.is_empty())
+                    .map(str::to_string)
+                    .collect()
+            })
             .unwrap_or_default();
 
         ProfileDto {

@@ -82,7 +82,10 @@ impl CookieTransferService {
         })
     }
 
-    fn cookie_file_path(state: &AppState, profile_id: &str) -> Result<std::path::PathBuf, AppError> {
+    fn cookie_file_path(
+        state: &AppState,
+        profile_id: &str,
+    ) -> Result<std::path::PathBuf, AppError> {
         let paths = state.paths.profile(profile_id)?;
         Ok(paths.root.join("cookies-export.json"))
     }
@@ -113,7 +116,8 @@ mod tests {
 
     #[test]
     fn parse_valid_cookie_bundle() {
-        let json = r#"{"version":1,"cookies":[{"name":"sid","value":"abc","domain":".example.com"}]}"#;
+        let json =
+            r#"{"version":1,"cookies":[{"name":"sid","value":"abc","domain":".example.com"}]}"#;
         let bundle = CookieTransferService::parse_bundle(json).unwrap();
         assert_eq!(bundle.cookies.len(), 1);
     }

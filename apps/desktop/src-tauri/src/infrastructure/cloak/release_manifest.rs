@@ -4,8 +4,7 @@ use crate::error::AppError;
 
 pub const PINNED_CLOAK_VERSION: &str = "146.0.7680.177.5";
 const DOWNLOAD_BASE_URL: &str = "https://cloakbrowser.dev";
-const GITHUB_DOWNLOAD_BASE_URL: &str =
-    "https://github.com/CloakHQ/cloakbrowser/releases/download";
+const GITHUB_DOWNLOAD_BASE_URL: &str = "https://github.com/CloakHQ/cloakbrowser/releases/download";
 
 #[derive(Debug, Clone)]
 pub struct CloakRelease {
@@ -48,9 +47,7 @@ pub fn current_platform() -> (&'static str, &'static str) {
 pub fn resolve_release(version: &str) -> Result<CloakRelease, AppError> {
     let (platform, arch) = current_platform();
     let archive_name = archive_name_for_platform(platform);
-    let asset_url = format!(
-        "{DOWNLOAD_BASE_URL}/chromium-v{version}/{archive_name}"
-    );
+    let asset_url = format!("{DOWNLOAD_BASE_URL}/chromium-v{version}/{archive_name}");
 
     let sha256 = embedded_checksum(platform)
         .ok_or_else(|| AppError::CloakRuntimeVersionUnsupported(version.to_string()))?;
@@ -112,7 +109,10 @@ pub fn parse_checksums(text: &str) -> HashMap<String, String> {
             continue;
         };
         if hash.len() == 64 {
-            result.insert(name.trim_start_matches('*').to_string(), hash.to_lowercase());
+            result.insert(
+                name.trim_start_matches('*').to_string(),
+                hash.to_lowercase(),
+            );
         }
     }
     result
@@ -142,7 +142,9 @@ mod tests {
         let text = "version=146.0.7680.177.5\n4a12bcde95fa1bb1beef2b41ab5e5c27c36be78e3be3d0dac8c64d705216670e  cloakbrowser-linux-x64.tar.gz\n";
         let parsed = parse_checksums(text);
         assert_eq!(
-            parsed.get("cloakbrowser-linux-x64.tar.gz").map(String::as_str),
+            parsed
+                .get("cloakbrowser-linux-x64.tar.gz")
+                .map(String::as_str),
             Some("4a12bcde95fa1bb1beef2b41ab5e5c27c36be78e3be3d0dac8c64d705216670e")
         );
     }

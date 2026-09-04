@@ -2,8 +2,7 @@ use tauri::State;
 
 use crate::application::services::CloakInstallationService;
 use crate::domain::cloak::{
-    CloakCapabilities, CloakInstallationDto, CloakValidationResult,
-    DiscoveredCloakInstallationDto,
+    CloakCapabilities, CloakInstallationDto, CloakValidationResult, DiscoveredCloakInstallationDto,
 };
 use crate::error::AppError;
 use crate::state::AppState;
@@ -31,8 +30,8 @@ pub async fn cloak_validate_installation(
 }
 
 #[tauri::command]
-pub async fn cloak_discover_installations(
-) -> Result<Vec<DiscoveredCloakInstallationDto>, AppError> {
+pub async fn cloak_discover_installations() -> Result<Vec<DiscoveredCloakInstallationDto>, AppError>
+{
     CloakInstallationService::discover_installations().await
 }
 

@@ -61,7 +61,10 @@ pub async fn proxy_assign(
     profile_id: String,
     proxy_id: String,
 ) -> Result<(), AppError> {
-    state.proxy_service.assign(&state, &profile_id, &proxy_id).await
+    state
+        .proxy_service
+        .assign(&state, &profile_id, &proxy_id)
+        .await
 }
 
 #[tauri::command]
@@ -77,7 +80,10 @@ pub async fn proxy_get_profile_assignment(
     state: State<'_, AppState>,
     profile_id: String,
 ) -> Result<ProfileProxyAssignmentDto, AppError> {
-    state.proxy_service.get_profile_assignment(&state, &profile_id).await
+    state
+        .proxy_service
+        .get_profile_assignment(&state, &profile_id)
+        .await
 }
 
 #[tauri::command]
@@ -85,7 +91,10 @@ pub async fn proxy_list_assignments(
     state: State<'_, AppState>,
     proxy_id: String,
 ) -> Result<Vec<ProxyAssignmentDto>, AppError> {
-    state.proxy_service.list_assignments(&state, &proxy_id).await
+    state
+        .proxy_service
+        .list_assignments(&state, &proxy_id)
+        .await
 }
 
 #[tauri::command]

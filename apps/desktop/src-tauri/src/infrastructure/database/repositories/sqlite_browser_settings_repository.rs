@@ -2,8 +2,8 @@ use chrono::{DateTime, Utc};
 use sqlx::SqlitePool;
 
 use crate::domain::profile::{
-    DownloadMode, ProfileBrowserSettings, UpdateBrowserSettingsInput, WindowMode,
-    validate_startup_urls,
+    validate_startup_urls, DownloadMode, ProfileBrowserSettings, UpdateBrowserSettingsInput,
+    WindowMode,
 };
 use crate::error::AppError;
 
@@ -104,7 +104,10 @@ impl SqliteBrowserSettingsRepository {
         }
 
         if settings.download_mode == DownloadMode::Custom
-            && settings.custom_download_dir.as_ref().is_none_or(|path| path.as_os_str().is_empty())
+            && settings
+                .custom_download_dir
+                .as_ref()
+                .is_none_or(|path| path.as_os_str().is_empty())
         {
             return Err(AppError::CloakConfigInvalid(
                 "custom download directory is required".into(),
@@ -136,7 +139,8 @@ impl SettingsRow {
         ProfileBrowserSettings {
             profile_id: self.profile_id,
             startup_urls,
-            download_mode: DownloadMode::from_str(&self.download_mode).unwrap_or(DownloadMode::Profile),
+            download_mode: DownloadMode::from_str(&self.download_mode)
+                .unwrap_or(DownloadMode::Profile),
             custom_download_dir: self.custom_download_dir.map(std::path::PathBuf::from),
             window_mode: WindowMode::from_str(&self.window_mode).unwrap_or(WindowMode::Normal),
             restore_session: self.restore_session != 0,
