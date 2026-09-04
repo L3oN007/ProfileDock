@@ -8,7 +8,8 @@ use crate::domain::profile::{
 use crate::error::AppError;
 use crate::infrastructure::database::{
     SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository, SqliteProfileEventRepository,
-    SqliteProfileRepository,
+    SqliteProfileGroupRepository, SqliteProfileProxyAssignmentRepository, SqliteProfileRepository,
+    SqliteProxyRepository, SqliteTagRepository,
 };
 use crate::state::AppState;
 
@@ -36,14 +37,21 @@ impl ProfileService {
         }
 
         let id = Uuid::new_v4().to_string();
+        let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
+        let display_id = profile_repo.allocate_display_id().await?;
         let now = Utc::now();
         let profile = Profile {
             id: id.clone(),
+            display_id: Some(display_id),
             name: name.to_string(),
             description: input
                 .description
                 .map(|d| d.trim().to_string())
                 .filter(|d| !d.is_empty()),
+            group_id: None,
+            remark: None,
+            notes: None,
+            platform_label: None,
             is_archived: false,
             created_at: now,
             updated_at: now,
@@ -82,8 +90,8 @@ impl ProfileService {
         state: &AppState,
         search: Option<String>,
     ) -> Result<Vec<ProfileDto>, AppError> {
-        let repo = SqliteProfileRepository::new(state.db.pool().clone());
-        let profiles = repo.list(false, search.as_deref()).await?;
+        let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
+        let profiles = profile_repo.list(false, search.as_deref()).await?;
         let mut dtos = Vec::with_capacity(profiles.len());
         for profile in profiles {
             dtos.push(self.to_dto(state, profile).await?);
@@ -196,36 +204,75 @@ impl ProfileService {
         })
     }
 
-    async fn to_dto(&self, state: &AppState, profile: Profile) -> Result<ProfileDto, AppError> {
-        let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
-        let active = instance_repo.find_active_by_profile(&profile.id).await?;
-        let last_opened = instance_repo.last_stopped_at(&profile.id).await?;
+    pub fn derive_state(
+        is_archived: bool,
+        active: Option<&crate::domain::profile::BrowserInstance>,
+    ) -> String {
+        if is_archived {
+            return ProfileDisplayState::Archived.as_str().to_string();
+        }
 
-        let state_label = if profile.is_archived {
-            ProfileDisplayState::Archived
-        } else if let Some(instance) = &active {
+        if let Some(instance) = active {
             if instance.state.is_active() {
-                ProfileDisplayState::Running
-            } else if matches!(
+                return ProfileDisplayState::Running.as_str().to_string();
+            }
+            if matches!(
                 instance.state,
                 crate::domain::profile::InstanceState::Failed
             ) {
-                ProfileDisplayState::Error
-            } else {
-                ProfileDisplayState::Ready
+                return ProfileDisplayState::Error.as_str().to_string();
             }
+        }
+
+        ProfileDisplayState::Ready.as_str().to_string()
+    }
+
+    async fn to_dto(&self, state: &AppState, profile: Profile) -> Result<ProfileDto, AppError> {
+        let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
+        let tag_repo = SqliteTagRepository::new(state.db.pool().clone());
+        let group_repo = SqliteProfileGroupRepository::new(state.db.pool().clone());
+        let assignment_repo =
+            SqliteProfileProxyAssignmentRepository::new(state.db.pool().clone());
+
+        let active = instance_repo.find_active_by_profile(&profile.id).await?;
+        let last_opened = instance_repo.last_stopped_at(&profile.id).await?;
+        let tags = tag_repo.list_profile_tag_names(&profile.id).await?;
+        let group_name = if let Some(group_id) = &profile.group_id {
+            group_repo
+                .find_by_id(group_id)
+                .await?
+                .map(|group| group.name)
         } else {
-            ProfileDisplayState::Ready
+            None
+        };
+        let assignment = assignment_repo.find_by_profile(&profile.id).await?;
+        let proxy_id = assignment.as_ref().map(|value| value.proxy_id.clone());
+        let proxy_name = if let Some(proxy_id) = &proxy_id {
+            SqliteProxyRepository::new(state.db.pool().clone())
+                .find_by_id(proxy_id)
+                .await?
+                .map(|proxy| proxy.name)
+        } else {
+            None
         };
 
         Ok(ProfileDto {
             id: profile.id,
+            display_id: profile.display_id,
             name: profile.name,
             description: profile.description,
-            state: state_label.as_str().to_string(),
+            group_id: profile.group_id,
+            group_name,
+            tags,
+            remark: profile.remark,
+            notes: profile.notes,
+            platform_label: profile.platform_label,
+            state: Self::derive_state(profile.is_archived, active.as_ref()),
             is_archived: profile.is_archived,
             pid: active.as_ref().and_then(|i| i.pid),
             instance_id: active.map(|i| i.id),
+            proxy_id,
+            proxy_name,
             last_opened_at: last_opened.map(|dt| dt.to_rfc3339()),
             created_at: profile.created_at.to_rfc3339(),
             updated_at: profile.updated_at.to_rfc3339(),

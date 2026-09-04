@@ -5,12 +5,51 @@ import { browserSettingsApi } from "@/lib/tauri/browser-settings";
 import { profileApi } from "@/lib/tauri/profile";
 import type { AppError } from "@/types/app";
 import type { UpdateBrowserSettingsInput } from "@/types/cloak";
-import type { CreateProfileInput, UpdateProfileInput } from "@/types/profile";
+import type { CreateProfileFullInput, CreateProfileInput, ProfileListQuery, UpdateProfileInput } from "@/types/profile";
 
 import { profileKeys } from "./profile-keys";
 
 function handleError(error: AppError) {
 	toast.error(error.message);
+}
+
+export function useCreateProfileFull() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (input: CreateProfileFullInput) => profileApi.createFull(input),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: profileKeys.all });
+			toast.success("Profile created");
+		},
+		onError: handleError,
+	});
+}
+
+export function useRestoreProfile() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (id: string) => profileApi.restore(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: profileKeys.all });
+			toast.success("Profile restored");
+		},
+		onError: handleError,
+	});
+}
+
+export function useDeleteProfilePermanent() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (id: string) => profileApi.deletePermanent(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: profileKeys.all });
+			toast.success("Profile deleted permanently");
+		},
+		onError: handleError,
+	});
 }
 
 export function useCreateProfile() {

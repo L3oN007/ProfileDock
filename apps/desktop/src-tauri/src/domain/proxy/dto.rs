@@ -61,7 +61,7 @@ pub struct ProxySummaryDto {
     pub health_status: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateProxyInput {
     pub name: String,

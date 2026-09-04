@@ -9,7 +9,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@ProfileDock/ui/components/table";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { MoreHorizontal, Play, Square } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -19,13 +19,11 @@ import {
 	useLaunchProfile,
 	useStopProfile,
 } from "@/features/profiles/api/mutations";
-import { useProfiles } from "@/features/profiles/api/queries";
-import { CreateProfileDialog } from "@/features/profiles/components/create-profile-dialog";
+import { useProfileListPage } from "@/features/profiles/api/queries";
+import { useGroups } from "@/features/groups/api/queries";
 import { ProfileStatusBadge } from "@/features/profiles/components/profile-status-badge";
 import { ProfilesToolbar } from "@/features/profiles/components/profiles-toolbar";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
-import { formatNetworkLocation } from "@/lib/network/ip-api";
-import { useNetworkInfo } from "@/lib/query/network";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { Profile } from "@/types/profile";
 
@@ -46,17 +44,25 @@ function formatRelativeTime(value: string | null) {
 
 export function ProfilesPage() {
 	const desktop = isDesktopRuntime();
+	const navigate = useNavigate();
 	const [search, setSearch] = useState("");
+	const [groupId, setGroupId] = useState<string | undefined>();
+	const [page, setPage] = useState(1);
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
-	const [createOpen, setCreateOpen] = useState(false);
 
-	const profilesQuery = useProfiles(search || undefined);
-	const networkQuery = useNetworkInfo();
+	const profilesQuery = useProfileListPage({
+		search: search || undefined,
+		groupId,
+		page,
+		pageSize: 50,
+	});
+	const groupsQuery = useGroups();
 	const launchProfile = useLaunchProfile();
 	const stopProfile = useStopProfile();
 	const archiveProfile = useArchiveProfile();
 
-	const profiles = profilesQuery.data ?? [];
+	const profiles = profilesQuery.data?.items ?? [];
+	const total = profilesQuery.data?.total ?? 0;
 
 	const selectedProfiles = useMemo(
 		() => profiles.filter((p) => selectedIds.includes(p.id)),
@@ -109,10 +115,28 @@ export function ProfilesPage() {
 				onOpen={handleOpen}
 				onClose={handleClose}
 				onArchive={handleArchive}
-				onCreate={() => setCreateOpen(true)}
+				onCreate={() => navigate({ to: "/profiles/new" })}
 				isOpening={launchProfile.isPending}
 				isClosing={stopProfile.isPending}
 			/>
+
+			<div className="flex flex-wrap items-center gap-2 border-[#1e2230] border-b bg-[#12161f] px-4 py-2">
+				<select
+					className="h-8 rounded-md border border-[#252a36] bg-[#0f1117] px-2 text-sm"
+					value={groupId ?? ""}
+					onChange={(e) => {
+						setGroupId(e.target.value || undefined);
+						setPage(1);
+					}}
+				>
+					<option value="">All groups</option>
+					{(groupsQuery.data ?? []).map((group) => (
+						<option key={group.id} value={group.id}>
+							{group.name}
+						</option>
+					))}
+				</select>
+			</div>
 
 			<div className="flex-1 overflow-auto bg-[#0f1117] p-4">
 				{!desktop ? <DesktopOnlyBanner /> : null}
@@ -139,9 +163,10 @@ export function ProfilesPage() {
 									</TableHead>
 									<TableHead className="w-12">No.</TableHead>
 									<TableHead>Name</TableHead>
+									<TableHead>Group</TableHead>
+									<TableHead>Tags</TableHead>
+									<TableHead>Proxy</TableHead>
 									<TableHead>Status</TableHead>
-									<TableHead>IP</TableHead>
-									<TableHead>Browser</TableHead>
 									<TableHead>Last opened</TableHead>
 									<TableHead>Remark</TableHead>
 									<TableHead className="text-right">Action</TableHead>
@@ -151,7 +176,7 @@ export function ProfilesPage() {
 								{profiles.length === 0 ? (
 									<TableRow>
 										<TableCell
-											colSpan={9}
+											colSpan={10}
 											className="h-24 text-center text-[#8b93a1]"
 										>
 											No profiles yet. Click &quot;New Profile&quot; to create
@@ -164,12 +189,6 @@ export function ProfilesPage() {
 											key={profile.id}
 											index={index}
 											profile={profile}
-											networkIp={networkQuery.data?.ip}
-											networkLocation={
-												networkQuery.data
-													? formatNetworkLocation(networkQuery.data)
-													: undefined
-											}
 											selected={selectedIds.includes(profile.id)}
 											onSelect={(checked) => toggleOne(profile.id, checked)}
 											onLaunch={() => launchProfile.mutate(profile.id)}
@@ -185,11 +204,31 @@ export function ProfilesPage() {
 				)}
 			</div>
 
-			<div className="border-[#1e2230] border-t bg-[#12161f] px-4 py-2 text-[#8b93a1] text-xs">
-				Total {profiles.length}
+			<div className="flex items-center justify-between border-[#1e2230] border-t bg-[#12161f] px-4 py-2 text-[#8b93a1] text-xs">
+				<span>
+					Total {total} · Page {page}
+				</span>
+				<div className="flex gap-2">
+					<Button
+						size="sm"
+						variant="outline"
+						className="border-[#252a36]"
+						disabled={page <= 1}
+						onClick={() => setPage((current) => Math.max(1, current - 1))}
+					>
+						Previous
+					</Button>
+					<Button
+						size="sm"
+						variant="outline"
+						className="border-[#252a36]"
+						disabled={page * 50 >= total}
+						onClick={() => setPage((current) => current + 1)}
+					>
+						Next
+					</Button>
+				</div>
 			</div>
-
-			<CreateProfileDialog open={createOpen} onOpenChange={setCreateOpen} />
 		</PageShell>
 	);
 }
@@ -197,8 +236,6 @@ export function ProfilesPage() {
 function ProfileRow({
 	profile,
 	index,
-	networkIp,
-	networkLocation,
 	selected,
 	onSelect,
 	onLaunch,
@@ -208,8 +245,6 @@ function ProfileRow({
 }: {
 	profile: Profile;
 	index: number;
-	networkIp?: string;
-	networkLocation?: string;
 	selected: boolean;
 	onSelect: (checked: boolean) => void;
 	onLaunch: () => void;
@@ -239,29 +274,23 @@ function ProfileRow({
 				>
 					{profile.name}
 				</Link>
-				{profile.pid ? (
-					<div className="text-[#6f7888] text-[10px]">PID {profile.pid}</div>
+				{profile.display_id ? (
+					<div className="text-[#6f7888] text-[10px]">{profile.display_id}</div>
 				) : null}
 			</TableCell>
+			<TableCell className="text-[#8b93a1]">{profile.group_name ?? "—"}</TableCell>
+			<TableCell className="max-w-[140px] truncate text-[#8b93a1]">
+				{profile.tags.length ? profile.tags.join(", ") : "—"}
+			</TableCell>
+			<TableCell className="text-[#8b93a1]">{profile.proxy_name ?? "—"}</TableCell>
 			<TableCell>
 				<ProfileStatusBadge state={profile.state} />
 			</TableCell>
-			<TableCell>
-				<div className="font-mono text-[#dfe3ea] text-xs">
-					{networkIp ?? "—"}
-				</div>
-				{networkLocation ? (
-					<div className="truncate text-[#6f7888] text-[10px]">
-						{networkLocation}
-					</div>
-				) : null}
-			</TableCell>
-			<TableCell className="text-[#c5cdd8]">CloakBrowser</TableCell>
 			<TableCell className="text-[#8b93a1]">
 				{formatRelativeTime(profile.last_opened_at)}
 			</TableCell>
 			<TableCell className="max-w-[200px] truncate text-[#8b93a1]">
-				{profile.description ?? "—"}
+				{profile.remark ?? profile.description ?? "—"}
 			</TableCell>
 			<TableCell className="text-right">
 				<div className="flex items-center justify-end gap-1">

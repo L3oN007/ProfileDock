@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { browserSettingsApi } from "@/lib/tauri/browser-settings";
 import { profileApi } from "@/lib/tauri/profile";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
+import type { ProfileListQuery } from "@/types/profile";
 
 import { profileKeys } from "./profile-keys";
 
@@ -19,6 +20,26 @@ export function useProfilePreflight(profileId: string, enabled = false) {
 		queryKey: profileKeys.preflight(profileId),
 		queryFn: () => browserSettingsApi.preflight(profileId),
 		enabled: isDesktopRuntime() && Boolean(profileId) && enabled,
+	});
+}
+
+export function useProfileListPage(query: ProfileListQuery) {
+	const desktop = isDesktopRuntime();
+	const queryKey = JSON.stringify(query);
+
+	return useQuery({
+		queryKey: profileKeys.listPage(queryKey),
+		queryFn: () => profileApi.listPage(query),
+		enabled: desktop,
+		refetchInterval: desktop ? 3_000 : false,
+	});
+}
+
+export function useProfileActivity(limit = 100) {
+	return useQuery({
+		queryKey: profileKeys.activity(),
+		queryFn: () => profileApi.listActivity(limit),
+		enabled: isDesktopRuntime(),
 	});
 }
 

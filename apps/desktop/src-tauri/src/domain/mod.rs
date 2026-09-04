@@ -1,6 +1,11 @@
 pub mod cloak;
+pub mod group;
 pub mod profile;
 pub mod proxy;
+pub mod tag;
+
+pub use group::*;
+pub use tag::*;
 
 use serde::{Deserialize, Serialize};
 

@@ -24,8 +24,13 @@ impl ProfileDisplayState {
 #[derive(Debug, Clone)]
 pub struct Profile {
     pub id: String,
+    pub display_id: Option<String>,
     pub name: String,
     pub description: Option<String>,
+    pub group_id: Option<String>,
+    pub remark: Option<String>,
+    pub notes: Option<String>,
+    pub platform_label: Option<String>,
     pub is_archived: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

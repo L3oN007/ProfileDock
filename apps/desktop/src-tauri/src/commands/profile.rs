@@ -1,8 +1,11 @@
 use tauri::State;
 
+use crate::application::services::ProfileWorkspaceService;
 use crate::domain::profile::{
-    BrowserInstanceDto, CreateProfileInput, ProfileBrowserSettingsDto, ProfileDto, ProfileEventDto,
-    UpdateBrowserSettingsInput, UpdateProfileInput,
+    ActivityEventDto, BulkProfileUpdateInput, BrowserInstanceDto, CreateProfileFullInput,
+    CreateProfileInput, DuplicateProfileInput, ProfileBrowserSettingsDto, ProfileDto,
+    ProfileEventDto, ProfileListPage, ProfileListQuery, UpdateBrowserSettingsInput,
+    UpdateProfileFullInput, UpdateProfileInput,
 };
 use crate::domain::cloak::PreflightResult;
 use crate::error::AppError;
@@ -104,4 +107,75 @@ pub async fn profile_list_events(
     id: String,
 ) -> Result<Vec<ProfileEventDto>, AppError> {
     state.profile_service.list_events(&state, &id).await
+}
+
+#[tauri::command]
+pub async fn profile_list_page(
+    state: State<'_, AppState>,
+    query: ProfileListQuery,
+) -> Result<ProfileListPage, AppError> {
+    ProfileWorkspaceService::list_page(&state, query).await
+}
+
+#[tauri::command]
+pub async fn profile_create_full(
+    state: State<'_, AppState>,
+    input: CreateProfileFullInput,
+) -> Result<ProfileDto, AppError> {
+    ProfileWorkspaceService::create_full(&state, input).await
+}
+
+#[tauri::command]
+pub async fn profile_update_full(
+    state: State<'_, AppState>,
+    id: String,
+    input: UpdateProfileFullInput,
+) -> Result<ProfileDto, AppError> {
+    ProfileWorkspaceService::update_full(&state, &id, input).await
+}
+
+#[tauri::command]
+pub async fn profile_bulk_update(
+    state: State<'_, AppState>,
+    input: BulkProfileUpdateInput,
+) -> Result<(), AppError> {
+    ProfileWorkspaceService::bulk_update(&state, input).await
+}
+
+#[tauri::command]
+pub async fn profile_restore(
+    state: State<'_, AppState>,
+    id: String,
+) -> Result<ProfileDto, AppError> {
+    ProfileWorkspaceService::restore(&state, &id).await
+}
+
+#[tauri::command]
+pub async fn profile_delete_permanent(
+    state: State<'_, AppState>,
+    id: String,
+) -> Result<(), AppError> {
+    ProfileWorkspaceService::delete_permanent(&state, &id).await
+}
+
+#[tauri::command]
+pub async fn profile_duplicate(
+    state: State<'_, AppState>,
+    id: String,
+    input: DuplicateProfileInput,
+) -> Result<ProfileDto, AppError> {
+    ProfileWorkspaceService::duplicate(&state, &id, input).await
+}
+
+#[tauri::command]
+pub async fn profile_activity_list(
+    state: State<'_, AppState>,
+    limit: Option<i64>,
+) -> Result<Vec<ActivityEventDto>, AppError> {
+    ProfileWorkspaceService::list_activity(&state, limit).await
+}
+
+#[tauri::command]
+pub async fn profile_move_to_trash(state: State<'_, AppState>, id: String) -> Result<(), AppError> {
+    state.profile_service.archive(&state, &id).await
 }

@@ -5,18 +5,38 @@ import {
 } from "@ProfileDock/ui/components/avatar";
 import { Badge } from "@ProfileDock/ui/components/badge";
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, Plus, Settings, Shield, Users } from "lucide-react";
+import {
+	Activity,
+	FolderTree,
+	LayoutDashboard,
+	Plus,
+	Settings,
+	Shield,
+	Tag,
+	Trash2,
+	Users,
+} from "lucide-react";
+import type { ComponentType, ReactNode } from "react";
 import { AppHeader } from "@/app/layout/app-header";
 import { getUserInitials, useAppUser } from "@/features/auth/session";
 
-const navItems = [
-	{ to: "/", label: "Dashboard", icon: LayoutDashboard },
+const primaryNav = [
 	{ to: "/profiles", label: "Profiles", icon: Users },
+] as const;
+
+const organizationNav = [
+	{ to: "/groups", label: "Groups", icon: FolderTree },
+	{ to: "/tags", label: "Tags", icon: Tag },
 	{ to: "/proxies", label: "Proxies", icon: Shield },
+	{ to: "/trash", label: "Trash", icon: Trash2 },
+] as const;
+
+const systemNav = [
+	{ to: "/activity", label: "Activity", icon: Activity },
 	{ to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: ReactNode }) {
 	const userQuery = useAppUser();
 	const user = userQuery.data;
 
@@ -29,17 +49,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 							PD
 						</div>
 						<div>
-							<p className="font-semibold text-[#eef1f6] text-sm">
-								ProfileDock
-							</p>
-							<p className="text-[#6f7888] text-[10px]">Browser workspace</p>
+							<p className="font-semibold text-[#eef1f6] text-sm">ProfileDock</p>
+							<p className="text-[#6f7888] text-[10px]">Profile workspace</p>
 						</div>
 					</div>
 				</div>
 
 				<div className="p-3">
 					<Link
-						to="/profiles"
+						to="/profiles/new"
 						className="flex w-full items-center justify-center gap-2 rounded-md bg-sky-600 px-3 py-2 font-medium text-sm text-white transition-colors hover:bg-sky-500"
 					>
 						<Plus className="size-4" />
@@ -47,17 +65,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 					</Link>
 				</div>
 
-				<nav className="flex flex-1 flex-col gap-0.5 px-2">
-					{navItems.map(({ to, label, icon: Icon }) => (
-						<Link
-							key={to}
-							to={to}
-							className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[#9aa3b2] text-sm transition-colors hover:bg-[#1e2230] hover:text-white [&.active]:bg-[#1e2230] [&.active]:text-white"
-						>
-							<Icon className="size-4" />
-							{label}
-						</Link>
-					))}
+				<nav className="flex flex-1 flex-col gap-4 px-2">
+					<div className="space-y-0.5">
+						{primaryNav.map(({ to, label, icon: Icon }) => (
+							<NavLink key={to} to={to} label={label} icon={Icon} />
+						))}
+					</div>
+
+					<div>
+						<p className="px-3 py-1 text-[#6f7888] text-[10px] uppercase tracking-wide">
+							Organization
+						</p>
+						<div className="space-y-0.5">
+							{organizationNav.map(({ to, label, icon: Icon }) => (
+								<NavLink key={to} to={to} label={label} icon={Icon} />
+							))}
+						</div>
+					</div>
+
+					<div>
+						<p className="px-3 py-1 text-[#6f7888] text-[10px] uppercase tracking-wide">
+							System
+						</p>
+						<div className="space-y-0.5">
+							<NavLink to="/" label="Dashboard" icon={LayoutDashboard} />
+							{systemNav.map(({ to, label, icon: Icon }) => (
+								<NavLink key={to} to={to} label={label} icon={Icon} />
+							))}
+						</div>
+					</div>
 				</nav>
 
 				{user ? (
@@ -94,5 +130,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 				</main>
 			</div>
 		</div>
+	);
+}
+
+function NavLink({
+	to,
+	label,
+	icon: Icon,
+}: {
+	to: string;
+	label: string;
+	icon: ComponentType<{ className?: string }>;
+}) {
+	return (
+		<Link
+			to={to}
+			className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[#9aa3b2] text-sm transition-colors hover:bg-[#1e2230] hover:text-white [&.active]:bg-[#1e2230] [&.active]:text-white"
+		>
+			<Icon className="size-4" />
+			{label}
+		</Link>
 	);
 }
