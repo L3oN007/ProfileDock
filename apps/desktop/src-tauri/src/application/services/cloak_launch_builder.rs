@@ -1,4 +1,5 @@
 use crate::domain::cloak::{CloakInstallation, CloakLaunchConfig};
+use crate::domain::device::WebRtcMode;
 use crate::domain::profile::WindowMode;
 use crate::error::AppError;
 use crate::infrastructure::process::{ProcessSpec, ProcessType};
@@ -58,6 +59,45 @@ impl CloakLaunchBuilder {
             args.push(format!("--proxy-server={proxy_server}"));
         }
 
+        let device = &config.device;
+        args.push(format!("--fingerprint={}", device.fingerprint_seed));
+        args.push(format!(
+            "--fingerprint-platform={}",
+            device.platform.as_str()
+        ));
+
+        if let Some(cores) = device.hardware_concurrency {
+            args.push(format!(
+                "--fingerprint-hardware-concurrency={cores}"
+            ));
+        }
+        if let Some(memory) = device.device_memory_gb {
+            args.push(format!("--fingerprint-device-memory={memory}"));
+        }
+        if let Some(width) = device.screen_width {
+            args.push(format!("--fingerprint-screen-width={width}"));
+        }
+        if let Some(height) = device.screen_height {
+            args.push(format!("--fingerprint-screen-height={height}"));
+        }
+        if let Some(vendor) = &device.gpu_vendor {
+            args.push(format!("--fingerprint-gpu-vendor={vendor}"));
+        }
+        if let Some(renderer) = &device.gpu_renderer {
+            args.push(format!("--fingerprint-gpu-renderer={renderer}"));
+        }
+        if let Some(timezone) = &device.timezone {
+            args.push(format!("--timezone={timezone}"));
+        }
+        if let Some(locale) = &device.locale {
+            args.push(format!("--locale={locale}"));
+        }
+        match device.webrtc_mode {
+            WebRtcMode::Proxy => args.push("--webrtc-ip=proxy".to_string()),
+            WebRtcMode::Real => args.push("--webrtc-ip=real".to_string()),
+            WebRtcMode::Disabled => args.push("--webrtc-ip=disabled".to_string()),
+        }
+
         Ok(ProcessSpec {
             executable: executable.clone(),
             args,
@@ -78,6 +118,8 @@ mod tests {
     use std::path::Path;
 
     use super::*;
+    use crate::domain::cloak::CloakCapabilities;
+    use crate::domain::device::{DeviceConfigResolver, ProfileDeviceSettings};
     use crate::domain::profile::WindowMode;
 
     #[test]
@@ -89,6 +131,13 @@ mod tests {
             last_checked_at: Utc::now(),
         };
         let builder = CloakLaunchBuilder::new(installation);
+        let device_settings =
+            ProfileDeviceSettings::defaults("profile-1".into(), Utc::now());
+        let device = DeviceConfigResolver::resolve(
+            &device_settings,
+            &CloakCapabilities::default(),
+            false,
+        );
         let config = CloakLaunchConfig {
             profile_id: "profile-1".into(),
             user_data_dir: PathBuf::from("/data/profile/browser-data"),
@@ -99,6 +148,7 @@ mod tests {
             window_mode: WindowMode::Maximized,
             restore_session: true,
             cloak_version: Some("1.0.0".into()),
+            device,
         };
 
         let spec = builder.build(&config, "instance-1".into()).unwrap();
@@ -106,6 +156,6 @@ mod tests {
         assert!(spec.args.iter().any(|arg| arg.contains("user-data-dir")));
         assert!(spec.args.iter().any(|arg| arg.contains("download-dir")));
         assert!(spec.args.iter().any(|arg| arg == "https://example.com"));
-        assert!(spec.args.iter().any(|arg| arg == "--start-maximized"));
+        assert!(spec.args.iter().any(|arg| arg.starts_with("--fingerprint=")));
     }
 }

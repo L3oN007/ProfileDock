@@ -2,7 +2,7 @@ use chrono::Utc;
 use uuid::Uuid;
 
 use crate::application::queries::profile_list_query::ProfileListQueryService;
-use crate::application::services::{ProfileService, TagService};
+use crate::application::services::{DeviceSettingsService, ProfileService, TagService};
 use crate::domain::profile::{
     ActivityEventDto, BulkProfileUpdateInput, CreateProfileBrowserInput, CreateProfileFullInput,
     DuplicateProfileInput, Profile, ProfileBrowserSettings, ProfileDto, ProfileListPage,
@@ -93,6 +93,14 @@ impl ProfileWorkspaceService {
 
         let settings_repo = SqliteBrowserSettingsRepository::new(state.db.pool().clone());
         if let Err(error) = settings_repo.save(&browser_settings).await {
+            let _ = state.paths.remove_profile_directory(&id);
+            let _ = profile_repo.delete_permanent(&id).await;
+            return Err(error);
+        }
+
+        if let Err(error) =
+            DeviceSettingsService::create_defaults(state, &id, input.device.clone()).await
+        {
             let _ = state.paths.remove_profile_directory(&id);
             let _ = profile_repo.delete_permanent(&id).await;
             return Err(error);
@@ -362,6 +370,7 @@ impl ProfileWorkspaceService {
                 window_mode: Some(settings.window_mode.as_str().to_string()),
                 restore_session: Some(settings.restore_session),
             }),
+            device: None,
         };
 
         Self::create_full(state, create_input).await

@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { CloakCapabilities } from "@/types/cloak";
+import type { CreateProfileDeviceInput } from "@/types/device";
 import type { CreateProfileFullInput } from "@/types/profile";
 
 import {
@@ -19,8 +20,16 @@ interface ProfileOverviewSidebarProps {
 	groupName: string;
 	proxySummary: string;
 	capabilities: CloakCapabilities | undefined;
+	previewSeed: number;
+	device: CreateProfileDeviceInput;
 	onRefreshFingerprint: () => void;
 }
+
+const PLATFORM_LABELS: Record<string, string> = {
+	windows: "Windows",
+	macos: "macOS",
+	linux: "Linux",
+};
 
 export function ProfileOverviewSidebar({
 	form,
@@ -29,11 +38,14 @@ export function ProfileOverviewSidebar({
 	groupName,
 	proxySummary,
 	capabilities,
+	previewSeed,
+	device,
 	onRefreshFingerprint,
 }: ProfileOverviewSidebarProps) {
 	const userAgent = previewUserAgent(osFamily, osVersion);
 	const windowMode = form.browser?.windowMode ?? "normal";
 	const downloadMode = form.browser?.downloadMode ?? "profile";
+	const isCustom = device.mode === "custom";
 
 	return (
 		<aside className="xl:sticky xl:top-6">
@@ -58,6 +70,7 @@ export function ProfileOverviewSidebar({
 				</div>
 
 				<dl className="space-y-0">
+					<OverviewSection title="General" />
 					<OverviewRow label="Name" value={form.name || "—"} />
 					<OverviewRow label="Group" value={groupName} />
 					<OverviewRow
@@ -76,20 +89,50 @@ export function ProfileOverviewSidebar({
 							)
 						}
 					/>
+
+					<OverviewSection title="Network" />
+					<OverviewRow label="Proxy" value={proxySummary} />
+
+					<OverviewSection title="Device" />
 					<OverviewRow label="Browser" value="CloakBrowser" />
 					<OverviewRow
-						label="OS"
-						value={buildPlatformLabel(osFamily, osVersion)}
+						label="Platform"
+						value={PLATFORM_LABELS[device.platform ?? "windows"] ?? "Windows"}
 					/>
+					<OverviewRow label="CPU" value={isCustom ? formatCustom(device.hardwareConcurrency, "cores") : "Auto"} />
+					<OverviewRow label="RAM" value={isCustom ? formatCustom(device.deviceMemoryGb, "GB") : "Auto"} />
+					<OverviewRow
+						label="Screen"
+						value={
+							isCustom && device.screenWidth && device.screenHeight
+								? `${device.screenWidth}×${device.screenHeight}`
+								: "Auto"
+						}
+					/>
+					<OverviewRow
+						label="GPU"
+						value={device.hardwarePresetId ? "Preset" : isCustom ? "Custom" : "Auto"}
+					/>
+					<OverviewRow label="Fingerprint seed" value={String(previewSeed)} />
+					<OverviewRow
+						label="Fingerprint"
+						value={device.mode === "automatic" ? "Fixed (automatic)" : "Custom"}
+					/>
+
+					<OverviewSection title="Environment" />
+					<OverviewRow label="Timezone" value={envLabel(device.timezoneMode, device.timezone)} />
+					<OverviewRow label="Locale" value={envLabel(device.localeMode, device.locale)} />
+					<OverviewRow label="WebRTC" value={webrtcLabel(device.webrtcMode)} />
+
+					<OverviewSection title="Browser" />
 					<OverviewRow
 						label="User-Agent"
 						value={
-							<span className="line-clamp-3 font-mono text-[10px] leading-relaxed">
+							<span className="line-clamp-2 font-mono text-[10px] leading-relaxed">
 								{userAgent}
 							</span>
 						}
 					/>
-					<OverviewRow label="Proxy" value={proxySummary} />
 					<OverviewRow
 						label="Window"
 						value={windowMode === "maximized" ? "Maximized" : "Normal"}
@@ -113,19 +156,46 @@ export function ProfileOverviewSidebar({
 						}
 						configurable={capabilities?.custom_download_dir !== false}
 					/>
-					<OverviewRow label="WebRTC" value="CloakBrowser default" />
-					<OverviewRow label="Timezone" value="CloakBrowser default" />
-					<OverviewRow label="Language" value="CloakBrowser default" />
-					<OverviewRow label="Canvas / WebGL" value="CloakBrowser default" />
+					<OverviewRow label="Canvas / WebGL" value="Cloak managed" />
 				</dl>
 
 				<p className="border-border/50 border-t pt-3 text-muted-foreground text-[11px] leading-relaxed">
-					Fingerprint identity is managed by CloakBrowser. ProfileDock configures
-					proxy, startup, window, and download behavior only.
+					OS label ({buildPlatformLabel(osFamily, osVersion)}) is organizational.
+					Device fingerprint is persisted per profile and passed to CloakBrowser at
+					launch.
 				</p>
 			</div>
 		</aside>
 	);
+}
+
+function OverviewSection({ title }: { title: string }) {
+	return (
+		<div className="pt-3 pb-1 first:pt-0">
+			<p className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
+				{title}
+			</p>
+		</div>
+	);
+}
+
+function envLabel(
+	mode: CreateProfileDeviceInput["timezoneMode"],
+	custom?: string,
+) {
+	if (mode === "custom") return custom || "Custom";
+	if (mode === "system") return "System default";
+	return "Based on proxy";
+}
+
+function webrtcLabel(mode: CreateProfileDeviceInput["webrtcMode"]) {
+	if (mode === "real") return "Real";
+	if (mode === "disabled") return "Disabled";
+	return "Based on proxy";
+}
+
+function formatCustom(value: number | undefined, suffix: string) {
+	return value ? `${value} ${suffix}` : "Auto";
 }
 
 function OverviewRow({

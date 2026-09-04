@@ -28,6 +28,7 @@ import {
 	useProfilePreflight,
 } from "@/features/profiles/api/queries";
 import { ProfileBrowserTab } from "@/features/profiles/components/profile-browser-tab";
+import { ProfileDeviceCard } from "@/features/profiles/components/profile-device-card";
 import { ProfileCookiesCard } from "@/features/profiles/components/profile-cookies-card";
 import { ProfileEditCard } from "@/features/profiles/components/profile-edit-card";
 import { ProfileStatusBadge } from "@/features/profiles/components/profile-status-badge";
@@ -124,6 +125,9 @@ function ProfileDetailPage() {
 					<TabsTrigger value="browser" className="rounded-none bg-transparent shadow-none">
 						Browser
 					</TabsTrigger>
+					<TabsTrigger value="device" className="rounded-none bg-transparent shadow-none">
+						Device
+					</TabsTrigger>
 					<TabsTrigger value="network" className="rounded-none bg-transparent shadow-none">
 						Network
 					</TabsTrigger>
@@ -177,6 +181,10 @@ function ProfileDetailPage() {
 				<TabsContent value="browser" className="mt-0 space-y-8">
 					<ProfileBrowserTab profileId={profileId} isRunning={isRunning} />
 					<ProfileCookiesCard profileId={profileId} />
+				</TabsContent>
+
+				<TabsContent value="device" className="mt-0">
+					<ProfileDeviceCard profileId={profileId} isRunning={isRunning} />
 				</TabsContent>
 
 				<TabsContent value="network" className="mt-0">

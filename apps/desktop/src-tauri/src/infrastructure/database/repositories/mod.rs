@@ -1,4 +1,5 @@
 pub mod metadata_repository;
+pub mod sqlite_device_settings_repository;
 pub mod sqlite_cloak_runtime_repository;
 pub mod sqlite_profile_group_repository;
 pub mod sqlite_tag_repository;
@@ -11,6 +12,7 @@ pub mod sqlite_proxy_check_repository;
 pub mod sqlite_proxy_repository;
 
 pub use metadata_repository::MetadataRepository;
+pub use sqlite_device_settings_repository::SqliteDeviceSettingsRepository;
 pub use sqlite_cloak_runtime_repository::SqliteCloakRuntimeRepository;
 pub use sqlite_profile_group_repository::SqliteProfileGroupRepository;
 pub use sqlite_tag_repository::SqliteTagRepository;

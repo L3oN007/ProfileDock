@@ -13,6 +13,7 @@ import type {
 	UpdateProfileInput,
 } from "@/types/profile";
 
+import { deviceApi } from "./device";
 import { invokeCommand } from "./client";
 
 function toListQuery(query: ProfileListQuery) {
@@ -50,6 +51,7 @@ function toCreateFullInput(input: CreateProfileFullInput) {
 					restore_session: input.browser.restoreSession,
 				}
 			: undefined,
+		device: input.device ? deviceApi.toCreatePayload(input.device) : undefined,
 	};
 }
 

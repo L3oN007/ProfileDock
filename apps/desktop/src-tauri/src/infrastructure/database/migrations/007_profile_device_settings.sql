@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS profile_device_settings (
+    profile_id TEXT PRIMARY KEY,
+    mode TEXT NOT NULL DEFAULT 'automatic',
+    fingerprint_seed INTEGER NOT NULL,
+    platform TEXT,
+    hardware_concurrency INTEGER,
+    device_memory INTEGER,
+    screen_width INTEGER,
+    screen_height INTEGER,
+    gpu_mode TEXT NOT NULL DEFAULT 'automatic',
+    gpu_vendor TEXT,
+    gpu_renderer TEXT,
+    hardware_preset_id TEXT,
+    timezone_mode TEXT NOT NULL DEFAULT 'proxy',
+    timezone TEXT,
+    locale_mode TEXT NOT NULL DEFAULT 'proxy',
+    locale TEXT,
+    webrtc_mode TEXT NOT NULL DEFAULT 'proxy',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY(profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);

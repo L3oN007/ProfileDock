@@ -1,3 +1,5 @@
+import type { CreateProfileDeviceInput } from "@/types/device";
+
 export type ProfileState = "ready" | "running" | "error" | "archived";
 
 export interface Profile {
@@ -71,6 +73,7 @@ export interface CreateProfileFullInput {
 		windowMode?: "normal" | "maximized";
 		restoreSession?: boolean;
 	};
+	device?: CreateProfileDeviceInput;
 }
 
 export interface UpdateProfileInput {

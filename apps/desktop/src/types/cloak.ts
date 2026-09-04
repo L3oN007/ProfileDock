@@ -32,6 +32,14 @@ export interface CloakCapabilities {
 	proxy_auth: boolean;
 	extension_loading: boolean;
 	window_configuration: boolean;
+	fingerprint_seed: boolean;
+	hardware_concurrency_override: boolean;
+	device_memory_override: boolean;
+	screen_override: boolean;
+	gpu_override: boolean;
+	timezone_override: boolean;
+	locale_override: boolean;
+	webrtc_ip_override: boolean;
 }
 
 export interface ProfileBrowserSettings {

@@ -160,6 +160,14 @@ impl CloakInstallationService {
             capabilities.proxy = false;
             capabilities.proxy_auth = false;
             capabilities.window_configuration = false;
+            capabilities.fingerprint_seed = false;
+            capabilities.hardware_concurrency_override = false;
+            capabilities.device_memory_override = false;
+            capabilities.screen_override = false;
+            capabilities.gpu_override = false;
+            capabilities.timezone_override = false;
+            capabilities.locale_override = false;
+            capabilities.webrtc_ip_override = false;
         }
         capabilities
     }

@@ -1,3 +1,5 @@
+pub mod device_consistency_validator;
+pub mod device_settings_service;
 pub mod browser_service;
 pub mod cloak_config_resolver;
 pub mod cloak_installation_service;
@@ -13,6 +15,8 @@ pub mod proxy_service;
 pub mod system_service;
 pub mod tag_service;
 
+pub use device_consistency_validator::DeviceConsistencyValidator;
+pub use device_settings_service::DeviceSettingsService;
 pub use browser_service::BrowserService;
 pub use cloak_config_resolver::CloakConfigResolver;
 pub use cloak_installation_service::CloakInstallationService;

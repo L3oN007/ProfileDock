@@ -90,7 +90,7 @@ impl BrowserService {
             .await?
             .ok_or(AppError::CloakExecutableNotFound)?;
 
-        let (launch_config, browser_settings) =
+        let (launch_config, browser_settings, device_settings) =
             CloakConfigResolver::resolve(state, profile_id).await?;
 
         let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
@@ -106,6 +106,7 @@ impl BrowserService {
             &browser_settings.download_mode,
             launch_config.proxy_id.clone(),
             cloak_runtime_id,
+            &device_settings,
         );
         let snapshot_json = serde_json::to_string(&snapshot)?;
 

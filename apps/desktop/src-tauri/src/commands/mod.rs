@@ -1,6 +1,7 @@
 pub mod cloak;
 pub mod cloak_runtime;
 pub mod cookie;
+pub mod device;
 pub mod group;
 pub mod profile;
 pub mod profile_storage;

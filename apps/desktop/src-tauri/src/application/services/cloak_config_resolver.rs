@@ -1,7 +1,8 @@
 use std::path::PathBuf;
 
-use crate::application::services::CloakInstallationService;
+use crate::application::services::{CloakInstallationService, DeviceSettingsService};
 use crate::domain::cloak::CloakLaunchConfig;
+use crate::domain::device::{DeviceConfigResolver, ProfileDeviceSettings};
 use crate::domain::profile::{DownloadMode, ProfileBrowserSettings};
 use crate::error::AppError;
 use crate::infrastructure::database::{
@@ -16,7 +17,7 @@ impl CloakConfigResolver {
     pub async fn resolve(
         state: &AppState,
         profile_id: &str,
-    ) -> Result<(CloakLaunchConfig, ProfileBrowserSettings), AppError> {
+    ) -> Result<(CloakLaunchConfig, ProfileBrowserSettings, ProfileDeviceSettings), AppError> {
         let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
         let settings_repo = SqliteBrowserSettingsRepository::new(state.db.pool().clone());
         let assignment_repo =
@@ -51,6 +52,11 @@ impl CloakConfigResolver {
         };
 
         let installation = CloakInstallationService::resolve_installation(state).await?;
+        let device_settings = DeviceSettingsService::get_or_create(state, profile_id).await?;
+        let capabilities = CloakInstallationService::get_capabilities(state).await?;
+        let has_proxy = resolved_proxy.0.is_some();
+        let resolved_device =
+            DeviceConfigResolver::resolve(&device_settings, &capabilities, has_proxy);
 
         Ok((
             CloakLaunchConfig {
@@ -63,8 +69,10 @@ impl CloakConfigResolver {
                 window_mode: settings.window_mode.clone(),
                 restore_session: settings.restore_session,
                 cloak_version: installation.and_then(|value| value.version),
+                device: resolved_device,
             },
             settings,
+            device_settings,
         ))
     }
 }

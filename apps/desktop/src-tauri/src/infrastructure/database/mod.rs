@@ -6,7 +6,7 @@ pub use connection::Database;
 pub use migration::run_migrations;
 pub use repositories::{
     MetadataRepository, SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository,
-    SqliteCloakRuntimeRepository, SqliteProfileEventRepository, SqliteProfileGroupRepository,
-    SqliteProfileProxyAssignmentRepository, SqliteProfileRepository, SqliteProxyCheckRepository,
-    SqliteProxyRepository, SqliteTagRepository,
+    SqliteCloakRuntimeRepository, SqliteDeviceSettingsRepository, SqliteProfileEventRepository,
+    SqliteProfileGroupRepository, SqliteProfileProxyAssignmentRepository, SqliteProfileRepository,
+    SqliteProxyCheckRepository, SqliteProxyRepository, SqliteTagRepository,
 };

@@ -1,4 +1,5 @@
 pub mod cloak;
+pub mod device;
 pub mod group;
 pub mod profile;
 pub mod proxy;

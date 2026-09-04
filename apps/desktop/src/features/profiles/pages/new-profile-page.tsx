@@ -11,12 +11,13 @@ import { notion } from "@/app/design/system";
 import { PageShell, PageTab, PageTabs, PageTitle } from "@/app/layout/page-shell";
 import { useCloakCapabilities } from "@/features/cloak/api/queries";
 import { useGroups } from "@/features/groups/api/queries";
-import { ProfileFingerprintTab } from "@/features/profiles/components/new-profile/profile-fingerprint-tab";
+import { ProfileDeviceTab, defaultDeviceInput, previewFingerprintSeed } from "@/features/profiles/components/new-profile/profile-device-tab";
 import {
 	ProfileOsPicker,
 	defaultOsSelection,
 } from "@/features/profiles/components/new-profile/profile-os-picker";
 import { ProfileOverviewSidebar } from "@/features/profiles/components/new-profile/profile-overview-sidebar";
+import { useDevicePresets } from "@/features/profiles/api/device-queries";
 import { useCreateProfileFull } from "@/features/profiles/api/mutations";
 import {
 	buildPlatformLabel,
@@ -36,7 +37,7 @@ type TabId =
 	| "general"
 	| "proxy"
 	| "platform"
-	| "fingerprint"
+	| "device"
 	| "browser"
 	| "advanced";
 
@@ -53,7 +54,7 @@ const tabs: { id: TabId; label: string }[] = [
 	{ id: "general", label: "General" },
 	{ id: "proxy", label: "Proxy" },
 	{ id: "platform", label: "Platform" },
-	{ id: "fingerprint", label: "Fingerprint" },
+	{ id: "device", label: "Device" },
 	{ id: "browser", label: "Browser" },
 	{ id: "advanced", label: "Advanced" },
 ];
@@ -72,6 +73,7 @@ const defaultForm: NewProfileDraft = {
 		windowMode: "normal",
 		restoreSession: true,
 	},
+	device: defaultDeviceInput(),
 };
 
 export function NewProfilePage() {
@@ -81,12 +83,13 @@ export function NewProfilePage() {
 	const groupsQuery = useGroups();
 	const proxiesQuery = useProxies();
 	const capabilitiesQuery = useCloakCapabilities();
+	const presetsQuery = useDevicePresets();
 	const [tab, setTab] = useState<TabId>("general");
 	const [form, setForm] = useState<NewProfileDraft>(defaultForm);
 	const [tagInput, setTagInput] = useState("");
 	const [startupUrl, setStartupUrl] = useState("");
 	const [draftRestored, setDraftRestored] = useState(false);
-	const [fingerprintSeed, setFingerprintSeed] = useState(0);
+	const [previewSeed, setPreviewSeed] = useState(() => previewFingerprintSeed());
 
 	const osFamily = form.osFamily ?? defaultOs.osFamily;
 	const osVersion = form.osVersion ?? defaultOs.osVersion;
@@ -211,7 +214,7 @@ export function NewProfilePage() {
 				: "No proxy (local network)";
 
 	const refreshFingerprint = () => {
-		setFingerprintSeed((current) => current + 1);
+		setPreviewSeed(previewFingerprintSeed());
 	};
 
 	return (
@@ -537,11 +540,15 @@ export function NewProfilePage() {
 							/>
 						) : null}
 
-						{tab === "fingerprint" ? (
-							<ProfileFingerprintTab
-								key={fingerprintSeed}
-								form={form}
-								capabilities={capabilitiesQuery.data}
+						{tab === "device" ? (
+							<ProfileDeviceTab
+								device={form.device ?? defaultDeviceInput()}
+								presets={presetsQuery.data ?? []}
+								previewSeed={previewSeed}
+								onDeviceChange={(device) =>
+									setForm((c) => ({ ...c, device }))
+								}
+								onRegenerateSeed={refreshFingerprint}
 							/>
 						) : null}
 
@@ -714,6 +721,8 @@ export function NewProfilePage() {
 					groupName={selectedGroupName}
 					proxySummary={proxySummary}
 					capabilities={capabilitiesQuery.data}
+					previewSeed={previewSeed}
+					device={form.device ?? defaultDeviceInput()}
 					onRefreshFingerprint={refreshFingerprint}
 				/>
 			</div>

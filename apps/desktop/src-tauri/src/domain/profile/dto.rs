@@ -61,6 +61,7 @@ pub struct CreateProfileFullInput {
     pub proxy_id: Option<String>,
     pub custom_proxy: Option<crate::domain::proxy::CreateProxyInput>,
     pub browser: Option<CreateProfileBrowserInput>,
+    pub device: Option<crate::domain::device::CreateProfileDeviceInput>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
