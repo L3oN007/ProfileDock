@@ -3,7 +3,7 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@ProfileDock/ui/components/avatar";
-import { Link } from "@tanstack/react-router";
+import { RouterLink } from "@/components/router-link";
 import {
 	Activity,
 	ChevronDown,
@@ -150,8 +150,9 @@ function NavLink({
 	icon: ComponentType<{ className?: string }>;
 }) {
 	return (
-		<Link
+		<RouterLink
 			to={to}
+			variant="nav"
 			className={notion.navItem}
 			activeProps={{
 				className:
@@ -160,6 +161,6 @@ function NavLink({
 		>
 			<Icon className="size-4 shrink-0 opacity-80" />
 			<span className="truncate">{label}</span>
-		</Link>
+		</RouterLink>
 	);
 }

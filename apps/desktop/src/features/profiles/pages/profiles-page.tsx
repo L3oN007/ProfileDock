@@ -9,9 +9,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@ProfileDock/ui/components/table";
-import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
+import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { MoreHorizontal, Play, Square } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { RouterLink } from "@/components/router-link";
 import { notion } from "@/app/design/system";
 import { PageShell } from "@/app/layout/page-shell";
 import { useGroups } from "@/features/groups/api/queries";
@@ -405,13 +406,13 @@ function ProfileRow({
 			<TableCell className="text-muted-foreground">{index + 1}</TableCell>
 			{visibleColumns.has("name") ? (
 				<TableCell>
-					<Link
+					<RouterLink
 						to="/profiles/$profileId"
 						params={{ profileId: profile.id }}
 						className="font-medium text-foreground hover:text-chart-1"
 					>
 						{profile.name}
-					</Link>
+					</RouterLink>
 					{profile.display_id && !visibleColumns.has("displayId") ? (
 						<div className="text-[10px] text-muted-foreground">
 							{profile.display_id}

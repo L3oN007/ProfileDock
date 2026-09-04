@@ -1,6 +1,6 @@
 import { Button } from "@ProfileDock/ui/components/button";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
-import { Link } from "@tanstack/react-router";
+import { RouterLink } from "@/components/router-link";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 
 import { DetailRow, PageShell, SectionBlock } from "@/app/layout/page-shell";
@@ -112,13 +112,13 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 					<ul className="divide-y divide-border/50">
 						{(assignmentsQuery.data ?? []).map((assignment) => (
 							<li key={assignment.profileId} className="py-2 text-sm">
-								<Link
+								<RouterLink
 									to="/profiles/$profileId"
 									params={{ profileId: assignment.profileId }}
 									className="text-primary hover:underline"
 								>
 									{assignment.profileName}
-								</Link>
+								</RouterLink>
 							</li>
 						))}
 					</ul>

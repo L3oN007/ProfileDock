@@ -5,8 +5,6 @@ import Loader from "./components/loader";
 import { initTauriNavigationGuard } from "./lib/tauri/navigation-guard";
 import { routeTree } from "./routeTree.gen";
 
-initTauriNavigationGuard();
-
 const router = createRouter({
 	routeTree,
 	defaultPreload: "intent",
@@ -14,6 +12,8 @@ const router = createRouter({
 	defaultPendingComponent: () => <Loader />,
 	context: {},
 });
+
+initTauriNavigationGuard(() => router);
 
 declare module "@tanstack/react-router" {
 	interface Register {

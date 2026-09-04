@@ -4,11 +4,15 @@ import type { ComponentProps, MouseEvent } from "react";
 
 type RouterButtonProps = Omit<ComponentProps<typeof Button>, "onClick"> & {
 	to: string;
+	params?: Record<string, string>;
+	search?: Record<string, unknown>;
 	onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 };
 
 export function RouterButton({
 	to,
+	params,
+	search,
 	onClick,
 	...props
 }: RouterButtonProps) {
@@ -20,7 +24,7 @@ export function RouterButton({
 			onClick={(event) => {
 				onClick?.(event);
 				if (!event.defaultPrevented) {
-					void navigate({ to });
+					void navigate({ to, params, search });
 				}
 			}}
 		/>

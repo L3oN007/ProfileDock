@@ -1,5 +1,5 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import { Link } from "@tanstack/react-router";
+import { RouterButton } from "@/components/router-button";
 import { Archive, Copy, Pencil } from "lucide-react";
 
 import {
@@ -23,17 +23,16 @@ export function ProfileRowActions({
 
 	return (
 		<div className="flex flex-col gap-1 rounded-md border border-border bg-card p-1 shadow-lg">
-			<Button
+			<RouterButton
+				to="/profiles/$profileId"
+				params={{ profileId: profile.id }}
 				size="sm"
 				variant="ghost"
 				className="justify-start"
-				render={
-					<Link to="/profiles/$profileId" params={{ profileId: profile.id }} />
-				}
 			>
 				<Pencil className="size-3.5" />
 				Edit
-			</Button>
+			</RouterButton>
 			{onDuplicate ? (
 				<Button
 					size="sm"

@@ -1,13 +1,15 @@
+import type { AnyRouter } from "@tanstack/react-router";
+
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 
-export function initTauriNavigationGuard() {
-	if (!isDesktopRuntime()) {
-		return;
-	}
-
+export function initTauriNavigationGuard(getRouter: () => AnyRouter) {
 	document.addEventListener(
 		"click",
 		(event) => {
+			if (!isDesktopRuntime()) {
+				return;
+			}
+
 			if (event.defaultPrevented || event.button !== 0) {
 				return;
 			}
@@ -47,9 +49,16 @@ export function initTauriNavigationGuard() {
 				return;
 			}
 
-			// Block full-page navigation in the Tauri webview. React router handlers
-			// still run and perform client-side navigation.
 			event.preventDefault();
+			event.stopPropagation();
+
+			const destination = `${url.pathname}${url.search}${url.hash}`;
+			const router = getRouter();
+			const current = `${router.state.location.pathname}${router.state.location.search}${router.state.location.hash}`;
+
+			if (current !== destination) {
+				void router.navigate({ to: destination });
+			}
 		},
 		true,
 	);

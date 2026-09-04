@@ -27,7 +27,7 @@ import {
 	TableRow,
 } from "@ProfileDock/ui/components/table";
 import { cn } from "@ProfileDock/ui/lib/utils";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import {
 	ArrowUpRight,
 	type LucideIcon,
@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { RouterButton } from "@/components/router-button";
 import { notion } from "@/app/design/system";
 import {
 	ContentSection,
@@ -160,6 +161,7 @@ export function OrganizationResourcePage({
 	isDeleting = false,
 	isRenaming = false,
 }: OrganizationResourcePageProps) {
+	const navigate = useNavigate();
 	const [search, setSearch] = useState("");
 	const [sort, setSort] = useState<SortKey>("created_desc");
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -399,19 +401,15 @@ export function OrganizationResourcePage({
 											</TableCell>
 											<TableCell className="text-right">
 												<div className="flex items-center justify-end gap-1">
-													<Button
+													<RouterButton
+														to="/profiles"
+														search={profilesSearch(item.id)}
 														size="sm"
 														variant="outline"
-														render={
-															<Link
-																to="/profiles"
-																search={profilesSearch(item.id)}
-															/>
-														}
 													>
 														<ArrowUpRight className="size-3.5" />
 														View
-													</Button>
+													</RouterButton>
 													<DropdownMenu>
 														<DropdownMenuTrigger
 															render={
@@ -442,11 +440,11 @@ export function OrganizationResourcePage({
 															) : null}
 															<DropdownMenuItem
 																className="gap-2 rounded-sm"
-																render={
-																	<Link
-																		to="/profiles"
-																		search={profilesSearch(item.id)}
-																	/>
+																onClick={() =>
+																	void navigate({
+																		to: "/profiles",
+																		search: profilesSearch(item.id),
+																	})
 																}
 															>
 																<ArrowUpRight className="size-3.5" />

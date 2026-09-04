@@ -6,7 +6,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@ProfileDock/ui/components/table";
-import { Link } from "@tanstack/react-router";
+import { RouterLink } from "@/components/router-link";
 
 import { notion } from "@/app/design/system";
 import {
@@ -54,13 +54,13 @@ export function ActivityPage() {
 											{new Date(event.created_at).toLocaleString()}
 										</TableCell>
 										<TableCell>
-											<Link
+											<RouterLink
 												to="/profiles/$profileId"
 												params={{ profileId: event.profile_id }}
 												className="text-foreground hover:text-primary"
 											>
 												{event.display_id ?? event.profile_name}
-											</Link>
+											</RouterLink>
 										</TableCell>
 										<TableCell className="text-foreground">
 											{event.event_type.replaceAll("_", " ")}

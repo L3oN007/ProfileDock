@@ -1,7 +1,7 @@
 import { Button } from "@ProfileDock/ui/components/button";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
-import { Link } from "@tanstack/react-router";
+import { RouterLink } from "@/components/router-link";
 import { Archive, Plus, RefreshCw, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -140,13 +140,13 @@ function ProxyCard({
 				<div className="flex flex-wrap items-start justify-between gap-3">
 					<div className="min-w-0 flex-1">
 						<div className="flex flex-wrap items-center gap-2">
-							<Link
+							<RouterLink
 								to="/proxies/$proxyId"
 								params={{ proxyId: proxy.id }}
 								className="font-medium text-foreground hover:text-primary"
 							>
 								{proxy.name}
-							</Link>
+							</RouterLink>
 							<ProxyHealthBadge status={proxy.healthStatus} />
 						</div>
 						<p className="mt-1 text-muted-foreground text-xs uppercase">
