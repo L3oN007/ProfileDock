@@ -10,7 +10,8 @@ import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 import { CheckCircle2, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { countryFlag, formatNetworkLocation } from "@/lib/network/ip-api";
+import { CountryFlag } from "@/components/country-flag";
+import { formatNetworkLocation } from "@/lib/network/ip-api";
 import { useNetworkInfo } from "@/lib/query/network";
 
 export function NetworkStatusButton() {
@@ -79,7 +80,7 @@ export function NetworkStatusButton() {
 								label="Area"
 								value={
 									<span className="inline-flex items-center gap-1.5">
-										<span>{countryFlag(info.countryCode)}</span>
+										<CountryFlag code={info.countryCode} />
 										<span>{formatNetworkLocation(info)}</span>
 									</span>
 								}

@@ -2,7 +2,10 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 
 import Loader from "./components/loader";
+import { initTauriNavigationGuard } from "./lib/tauri/navigation-guard";
 import { routeTree } from "./routeTree.gen";
+
+initTauriNavigationGuard();
 
 const router = createRouter({
 	routeTree,

@@ -13,12 +13,13 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@ProfileDock/ui/components/dropdown-menu";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { LogIn, LogOut, Settings, UserRound } from "lucide-react";
 
 import { getUserInitials, useAppUser } from "@/features/auth/session";
 
 export function UserMenu() {
+	const navigate = useNavigate();
 	const userQuery = useAppUser();
 	const user = userQuery.data;
 
@@ -89,7 +90,7 @@ export function UserMenu() {
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className="gap-2"
-							render={<Link to="/settings" />}
+							onClick={() => navigate({ to: "/settings" })}
 						>
 							<Settings className="size-3.5" />
 							Settings

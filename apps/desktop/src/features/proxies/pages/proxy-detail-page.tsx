@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 
 import { DetailRow, PageShell, SectionBlock } from "@/app/layout/page-shell";
+import { RouterButton } from "@/components/router-button";
 import { useCheckProxy } from "@/features/proxies/api/mutations";
 import {
 	useProxy,
@@ -28,9 +29,9 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 	return (
 		<PageShell>
 			<div className="flex items-center gap-3">
-				<Button variant="ghost" size="icon-sm" render={<Link to="/proxies" />}>
+				<RouterButton to="/proxies" variant="ghost" size="icon-sm">
 					<ArrowLeft className="size-4" />
-				</Button>
+				</RouterButton>
 				<div className="flex-1">
 					{proxyQuery.isLoading ? (
 						<Skeleton className="h-7 w-48" />

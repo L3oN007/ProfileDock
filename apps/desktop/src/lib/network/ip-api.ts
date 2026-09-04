@@ -103,13 +103,6 @@ function mapNetworkInfo(data: NetworkInfo): NetworkInfo {
 	};
 }
 
-export function countryFlag(countryCode: string) {
-	if (countryCode?.length !== 2) return "🌐";
-	return countryCode
-		.toUpperCase()
-		.replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
-}
-
 export function formatNetworkLocation(info: NetworkInfo) {
 	const parts = [info.city, info.region, info.country].filter(Boolean);
 	return parts.join(" / ") || info.country;

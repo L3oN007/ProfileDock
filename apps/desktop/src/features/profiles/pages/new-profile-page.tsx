@@ -3,11 +3,12 @@ import { Button } from "@ProfileDock/ui/components/button";
 import { Checkbox } from "@ProfileDock/ui/components/checkbox";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Textarea } from "@ProfileDock/ui/components/textarea";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { notion } from "@/app/design/system";
+import { RouterButton } from "@/components/router-button";
 import {
 	PageShell,
 	PageTab,
@@ -242,9 +243,9 @@ export function NewProfilePage() {
 								Clear draft
 							</Button>
 						) : null}
-						<Button variant="outline" render={<Link to="/profiles" />}>
+						<RouterButton to="/profiles" variant="outline">
 							Cancel
-						</Button>
+						</RouterButton>
 						<Button
 							disabled={
 								!desktop || !form.name.trim() || createProfile.isPending

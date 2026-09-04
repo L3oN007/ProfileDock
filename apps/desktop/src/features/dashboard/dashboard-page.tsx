@@ -1,4 +1,5 @@
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
+import type { ReactNode } from "react";
 
 import {
 	DetailRow,
@@ -9,7 +10,8 @@ import {
 	StatTile,
 } from "@/app/layout/page-shell";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
-import { countryFlag, formatNetworkLocation } from "@/lib/network/ip-api";
+import { CountryFlag } from "@/components/country-flag";
+import { formatNetworkLocation } from "@/lib/network/ip-api";
 import { useBrowserStatus, useHealthCheck } from "@/lib/query/hooks";
 import { useNetworkInfo } from "@/lib/query/network";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
@@ -89,9 +91,12 @@ export function DashboardPage() {
 					loading={networkQuery.isLoading}
 					status={networkQuery.isSuccess ? "ok" : "error"}
 					detail={
-						networkQuery.data
-							? `${countryFlag(networkQuery.data.countryCode)} ${networkQuery.data.ip}`
-							: undefined
+						networkQuery.data ? (
+							<span className="inline-flex items-center gap-1">
+								<CountryFlag code={networkQuery.data.countryCode} />
+								{networkQuery.data.ip}
+							</span>
+						) : undefined
 					}
 				/>
 			</StatsBar>
@@ -107,7 +112,12 @@ export function DashboardPage() {
 						<DetailRow label="ISP" value={networkQuery.data.isp ?? "—"} />
 						<DetailRow
 							label="Country"
-							value={`${countryFlag(networkQuery.data.countryCode)} ${networkQuery.data.country}`}
+							value={
+								<span className="inline-flex items-center gap-1.5">
+									<CountryFlag code={networkQuery.data.countryCode} />
+									{networkQuery.data.country}
+								</span>
+							}
 						/>
 					</div>
 				</SectionBlock>
@@ -125,7 +135,7 @@ function StatusCard({
 	title: string;
 	status: HealthStatus | undefined;
 	loading: boolean;
-	detail?: string;
+	detail?: ReactNode;
 }) {
 	return (
 		<StatTile

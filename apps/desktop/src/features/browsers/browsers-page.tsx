@@ -1,5 +1,4 @@
-import { Button } from "@ProfileDock/ui/components/button";
-import { Link } from "@tanstack/react-router";
+import { RouterButton } from "@/components/router-button";
 
 import {
 	DetailRow,
@@ -60,9 +59,9 @@ export function BrowsersPage() {
 						}
 					/>
 				</div>
-				<Button variant="outline" render={<Link to="/settings" />}>
+				<RouterButton to="/settings" variant="outline">
 					Open settings
-				</Button>
+				</RouterButton>
 			</SectionBlock>
 		</PageShell>
 	);

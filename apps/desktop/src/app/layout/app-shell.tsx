@@ -3,7 +3,6 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@ProfileDock/ui/components/avatar";
-import { Button } from "@ProfileDock/ui/components/button";
 import { Link } from "@tanstack/react-router";
 import {
 	Activity,
@@ -22,6 +21,7 @@ import type { ComponentType, ReactNode } from "react";
 
 import { notion } from "@/app/design/system";
 import { AppHeader } from "@/app/layout/app-header";
+import { RouterButton } from "@/components/router-button";
 import { getUserInitials, useAppUser } from "@/features/auth/session";
 
 const primaryNav = [
@@ -69,14 +69,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 				</div>
 
 				<div className="px-3 pb-2">
-					<Button
+					<RouterButton
+						to="/profiles/new"
 						size="sm"
 						className="h-8 w-full justify-start gap-2 px-2.5 text-[13px]"
-						render={<Link to="/profiles/new" />}
 					>
 						<Plus className="size-3.5" />
 						New profile
-					</Button>
+					</RouterButton>
 				</div>
 
 				<nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-2 pb-4">

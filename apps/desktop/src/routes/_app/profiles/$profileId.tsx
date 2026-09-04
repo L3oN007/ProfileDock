@@ -6,7 +6,7 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "@ProfileDock/ui/components/tabs";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, Play, Square } from "lucide-react";
 import { useState } from "react";
 
@@ -16,6 +16,7 @@ import {
 	PageTitle,
 	SectionBlock,
 } from "@/app/layout/page-shell";
+import { RouterButton } from "@/components/router-button";
 import { useCloakInstallation } from "@/features/cloak/api/queries";
 import {
 	useLaunchProfile,
@@ -78,13 +79,9 @@ function ProfileDetailPage() {
 				description={profile?.display_id ?? profile?.id}
 				actions={
 					<div className="flex items-center gap-2">
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							render={<Link to="/profiles" />}
-						>
+						<RouterButton to="/profiles" variant="ghost" size="icon-sm">
 							<ArrowLeft className="size-4" />
-						</Button>
+						</RouterButton>
 						{profile ? <ProfileStatusBadge state={profile.state} /> : null}
 						{profile ? (
 							isRunning ? (
