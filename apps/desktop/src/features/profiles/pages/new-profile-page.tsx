@@ -8,17 +8,26 @@ import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { notion } from "@/app/design/system";
-import { PageShell, PageTab, PageTabs, PageTitle } from "@/app/layout/page-shell";
+import {
+	PageShell,
+	PageTab,
+	PageTabs,
+	PageTitle,
+} from "@/app/layout/page-shell";
 import { useCloakCapabilities } from "@/features/cloak/api/queries";
 import { useGroups } from "@/features/groups/api/queries";
-import { ProfileDeviceTab, defaultDeviceInput, previewFingerprintSeed } from "@/features/profiles/components/new-profile/profile-device-tab";
-import {
-	ProfileOsPicker,
-	defaultOsSelection,
-} from "@/features/profiles/components/new-profile/profile-os-picker";
-import { ProfileOverviewSidebar } from "@/features/profiles/components/new-profile/profile-overview-sidebar";
 import { useDevicePresets } from "@/features/profiles/api/device-queries";
 import { useCreateProfileFull } from "@/features/profiles/api/mutations";
+import {
+	defaultDeviceInput,
+	ProfileDeviceTab,
+	previewFingerprintSeed,
+} from "@/features/profiles/components/new-profile/profile-device-tab";
+import {
+	defaultOsSelection,
+	ProfileOsPicker,
+} from "@/features/profiles/components/new-profile/profile-os-picker";
+import { ProfileOverviewSidebar } from "@/features/profiles/components/new-profile/profile-overview-sidebar";
 import {
 	buildPlatformLabel,
 	type OsFamily,
@@ -89,7 +98,9 @@ export function NewProfilePage() {
 	const [tagInput, setTagInput] = useState("");
 	const [startupUrl, setStartupUrl] = useState("");
 	const [draftRestored, setDraftRestored] = useState(false);
-	const [previewSeed, setPreviewSeed] = useState(() => previewFingerprintSeed());
+	const [previewSeed, setPreviewSeed] = useState(() =>
+		previewFingerprintSeed(),
+	);
 
 	const osFamily = form.osFamily ?? defaultOs.osFamily;
 	const osVersion = form.osVersion ?? defaultOs.osVersion;
@@ -210,7 +221,7 @@ export function NewProfilePage() {
 			? (proxiesQuery.data?.find((p) => p.id === form.proxyId)?.name ??
 				"Not selected")
 			: form.proxyMode === "custom"
-				? (form.customProxy?.name || "Custom proxy")
+				? form.customProxy?.name || "Custom proxy"
 				: "No proxy (local network)";
 
 	const refreshFingerprint = () => {
@@ -235,7 +246,9 @@ export function NewProfilePage() {
 							Cancel
 						</Button>
 						<Button
-							disabled={!desktop || !form.name.trim() || createProfile.isPending}
+							disabled={
+								!desktop || !form.name.trim() || createProfile.isPending
+							}
 							onClick={handleCreate}
 						>
 							Create profile
@@ -545,9 +558,7 @@ export function NewProfilePage() {
 								device={form.device ?? defaultDeviceInput()}
 								presets={presetsQuery.data ?? []}
 								previewSeed={previewSeed}
-								onDeviceChange={(device) =>
-									setForm((c) => ({ ...c, device }))
-								}
+								onDeviceChange={(device) => setForm((c) => ({ ...c, device }))}
 								onRegenerateSeed={refreshFingerprint}
 							/>
 						) : null}
@@ -679,7 +690,7 @@ export function NewProfilePage() {
 										/>
 									</FormField>
 								) : null}
-								<label className="flex cursor-pointer items-center gap-2.5 py-1">
+								<div className="flex cursor-pointer items-center gap-2.5 py-1">
 									<Checkbox
 										checked={form.browser?.restoreSession ?? true}
 										onCheckedChange={(checked) =>
@@ -695,7 +706,7 @@ export function NewProfilePage() {
 									<span className="text-foreground text-sm">
 										Restore previous session
 									</span>
-								</label>
+								</div>
 							</>
 						) : null}
 

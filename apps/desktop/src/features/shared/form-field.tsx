@@ -16,7 +16,7 @@ export function FormField({
 }) {
 	return (
 		<div className={cn("space-y-1.5", className)}>
-			<label className={notion.fieldLabel}>{label}</label>
+			<span className={notion.fieldLabel}>{label}</span>
 			{children}
 			{hint ? <p className={notion.fieldHint}>{hint}</p> : null}
 		</div>

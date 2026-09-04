@@ -24,7 +24,9 @@ import { notion } from "@/app/design/system";
 import { AppHeader } from "@/app/layout/app-header";
 import { getUserInitials, useAppUser } from "@/features/auth/session";
 
-const primaryNav = [{ to: "/profiles", label: "Profiles", icon: Users }] as const;
+const primaryNav = [
+	{ to: "/profiles", label: "Profiles", icon: Users },
+] as const;
 
 const organizationNav = [
 	{ to: "/groups", label: "Groups", icon: FolderTree },
@@ -130,7 +132,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 			<div className={notion.main}>
 				<AppHeader />
-				<main className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</main>
+				<main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+					{children}
+				</main>
 			</div>
 		</div>
 	);

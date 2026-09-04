@@ -138,8 +138,7 @@ export function ProfileDeviceTab({
 							value={device.hardwarePresetId ?? "__auto__"}
 							onValueChange={(value) =>
 								update({
-									hardwarePresetId:
-										value === "__auto__" ? undefined : value,
+									hardwarePresetId: value === "__auto__" ? undefined : value,
 								})
 							}
 							options={presetOptions}
@@ -220,15 +219,15 @@ export function ProfileDeviceTab({
 						when available.
 					</p>
 				</div>
-					<FormField label="Timezone">
-						<FormSelect
-							value={device.timezoneMode ?? "proxy"}
-							onValueChange={(value) =>
-								update({ timezoneMode: value as EnvironmentMode })
-							}
-							options={ENV_OPTIONS}
-						/>
-					</FormField>
+				<FormField label="Timezone">
+					<FormSelect
+						value={device.timezoneMode ?? "proxy"}
+						onValueChange={(value) =>
+							update({ timezoneMode: value as EnvironmentMode })
+						}
+						options={ENV_OPTIONS}
+					/>
+				</FormField>
 				{device.timezoneMode === "custom" ? (
 					<FormField label="Custom timezone">
 						<Input
@@ -270,10 +269,12 @@ export function ProfileDeviceTab({
 			</section>
 
 			<div className="rounded-lg border border-border/50 bg-surface-inset px-4 py-3">
-				<p className="font-medium text-foreground text-sm">Fingerprint engine</p>
+				<p className="font-medium text-foreground text-sm">
+					Fingerprint engine
+				</p>
 				<p className="mt-1 text-muted-foreground text-xs">
-					Canvas, WebGL, audio, and client rects remain Cloak-managed. ProfileDock
-					does not expose per-signal noise toggles.
+					Canvas, WebGL, audio, and client rects remain Cloak-managed.
+					ProfileDock does not expose per-signal noise toggles.
 				</p>
 			</div>
 		</div>

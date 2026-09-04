@@ -1,9 +1,6 @@
 import { Badge } from "@ProfileDock/ui/components/badge";
 import { cn } from "@ProfileDock/ui/lib/utils";
 import { Apple, Laptop, Monitor } from "lucide-react";
-
-import { FormField } from "@/features/shared/form-field";
-import { FormSelect } from "@/features/shared/form-select";
 import {
 	DEFAULT_OS_FAMILY,
 	DEFAULT_OS_VERSION,
@@ -11,6 +8,8 @@ import {
 	type OsFamily,
 	previewUserAgent,
 } from "@/features/profiles/lib/platform-config";
+import { FormField } from "@/features/shared/form-field";
+import { FormSelect } from "@/features/shared/form-select";
 
 const OS_ICONS: Record<OsFamily, typeof Monitor> = {
 	windows: Monitor,
@@ -60,7 +59,9 @@ export function ProfileOsPicker({
 								)}
 								onClick={() => {
 									onOsFamilyChange(option.id);
-									onOsVersionChange(option.versions[0]?.value ?? DEFAULT_OS_VERSION);
+									onOsVersionChange(
+										option.versions[0]?.value ?? DEFAULT_OS_VERSION,
+									);
 								}}
 							>
 								<Icon className="size-5" />
@@ -81,7 +82,9 @@ export function ProfileOsPicker({
 
 			<div className="space-y-2 rounded-lg border border-border/50 bg-surface px-4 py-3">
 				<div className="flex items-center justify-between gap-2">
-					<p className="font-medium text-foreground text-sm">User-Agent preview</p>
+					<p className="font-medium text-foreground text-sm">
+						User-Agent preview
+					</p>
 					<Badge variant="neutral">Read-only</Badge>
 				</div>
 				<p className="font-mono text-[11px] text-muted-foreground leading-relaxed">

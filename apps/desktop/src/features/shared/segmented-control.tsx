@@ -19,12 +19,11 @@ export function SegmentedControl<T extends string>({
 	className?: string;
 }) {
 	return (
-		<div
+		<fieldset
 			className={cn(
-				"inline-flex flex-wrap gap-1 rounded-lg border border-border/50 bg-surface p-1",
+				"m-0 inline-flex min-w-0 flex-wrap gap-1 rounded-lg border border-border/50 bg-surface p-1",
 				className,
 			)}
-			role="group"
 		>
 			{options.map((option) => {
 				const active = option.value === value;
@@ -46,6 +45,6 @@ export function SegmentedControl<T extends string>({
 					</button>
 				);
 			})}
-		</div>
+		</fieldset>
 	);
 }

@@ -19,10 +19,10 @@ import {
 import { useProxies } from "@/features/proxies/api/queries";
 import { CreateProxyDialog } from "@/features/proxies/components/create-proxy-dialog";
 import { ProxyHealthBadge } from "@/features/proxies/components/proxy-health-badge";
-import { FilterSelect } from "@/features/shared/filter-select";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
+import { FilterSelect } from "@/features/shared/filter-select";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
-import type { Proxy, ProxyHealthStatus } from "@/types/proxy";
+import type { ProxyHealthStatus, Proxy as ProxyRecord } from "@/types/proxy";
 
 const STATUS_OPTIONS = [
 	{ value: "all", label: "All status" },
@@ -129,7 +129,7 @@ function ProxyCard({
 	onArchive,
 	isChecking,
 }: {
-	proxy: Proxy;
+	proxy: ProxyRecord;
 	onCheck: () => void;
 	onArchive: () => void;
 	isChecking: boolean;

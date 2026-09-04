@@ -1,8 +1,4 @@
-import {
-	ContentSection,
-	PageShell,
-	PageTitle,
-} from "@/app/layout/page-shell";
+import { ContentSection, PageShell, PageTitle } from "@/app/layout/page-shell";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 
 export function ExtensionsPage() {

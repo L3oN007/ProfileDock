@@ -1,7 +1,11 @@
 import { Tag } from "lucide-react";
 
 import { OrganizationResourcePage } from "@/features/shared/components/organization-resource-page";
-import { useCreateTag, useDeleteTag, useTags } from "@/features/tags/api/queries";
+import {
+	useCreateTag,
+	useDeleteTag,
+	useTags,
+} from "@/features/tags/api/queries";
 
 const tagsConfig = {
 	title: "Tags",

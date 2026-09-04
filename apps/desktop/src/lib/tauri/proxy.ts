@@ -1,9 +1,9 @@
 import type {
 	CreateProxyInput,
 	ProfileProxyAssignment,
-	Proxy,
 	ProxyAssignment,
 	ProxyCheckResult,
+	Proxy as ProxyRecord,
 	TestProxyInput,
 	UpdateProxyInput,
 } from "@/types/proxy";
@@ -12,19 +12,19 @@ import { invokeCommand } from "./client";
 
 export const proxyApi = {
 	list() {
-		return invokeCommand<Proxy[]>("proxy_list");
+		return invokeCommand<ProxyRecord[]>("proxy_list");
 	},
 
 	get(id: string) {
-		return invokeCommand<Proxy>("proxy_get", { id });
+		return invokeCommand<ProxyRecord>("proxy_get", { id });
 	},
 
 	create(input: CreateProxyInput) {
-		return invokeCommand<Proxy>("proxy_create", { input });
+		return invokeCommand<ProxyRecord>("proxy_create", { input });
 	},
 
 	update(id: string, input: UpdateProxyInput) {
-		return invokeCommand<Proxy>("proxy_update", { id, input });
+		return invokeCommand<ProxyRecord>("proxy_update", { id, input });
 	},
 
 	archive(id: string) {

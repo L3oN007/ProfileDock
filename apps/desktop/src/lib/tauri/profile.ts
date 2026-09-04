@@ -1,7 +1,7 @@
 import type {
 	ActivityEvent,
-	BulkProfileUpdateInput,
 	BrowserInstance,
+	BulkProfileUpdateInput,
 	CreateProfileFullInput,
 	CreateProfileInput,
 	Profile,
@@ -12,9 +12,8 @@ import type {
 	UpdateProfileFullInput,
 	UpdateProfileInput,
 } from "@/types/profile";
-
-import { deviceApi } from "./device";
 import { invokeCommand } from "./client";
+import { deviceApi } from "./device";
 
 function toListQuery(query: ProfileListQuery) {
 	return {
@@ -154,17 +153,23 @@ export const profileApi = {
 	},
 
 	exportCookies(profileId: string, destinationPath: string) {
-		return invokeCommand<{ path: string; count: number }>("profile_cookie_export", {
-			profileId,
-			destinationPath,
-		});
+		return invokeCommand<{ path: string; count: number }>(
+			"profile_cookie_export",
+			{
+				profileId,
+				destinationPath,
+			},
+		);
 	},
 
 	importCookies(profileId: string, sourcePath: string) {
-		return invokeCommand<{ path: string; count: number }>("profile_cookie_import", {
-			profileId,
-			sourcePath,
-		});
+		return invokeCommand<{ path: string; count: number }>(
+			"profile_cookie_import",
+			{
+				profileId,
+				sourcePath,
+			},
+		);
 	},
 
 	getStorage(profileId: string) {

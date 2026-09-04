@@ -1,4 +1,8 @@
-import type { CreateGroupInput, ProfileGroup, UpdateGroupInput } from "@/types/group";
+import type {
+	CreateGroupInput,
+	ProfileGroup,
+	UpdateGroupInput,
+} from "@/types/group";
 
 import { invokeCommand } from "./client";
 

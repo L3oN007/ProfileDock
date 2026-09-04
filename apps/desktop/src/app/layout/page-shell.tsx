@@ -1,7 +1,7 @@
-import { cn } from '@ProfileDock/ui/lib/utils';
-import type { ReactNode } from 'react';
+import { cn } from "@ProfileDock/ui/lib/utils";
+import type { ReactNode } from "react";
 
-import { notion } from '@/app/design/system';
+import { notion } from "@/app/design/system";
 
 export function PageShell({
 	children,
@@ -14,7 +14,7 @@ export function PageShell({
 }) {
 	if (fullBleed) {
 		return (
-			<div className={cn('flex min-h-0 flex-1 flex-col', className)}>
+			<div className={cn("flex min-h-0 flex-1 flex-col", className)}>
 				{children}
 			</div>
 		);
@@ -40,19 +40,19 @@ export function PageTitle({
 	actions?: ReactNode;
 }) {
 	return (
-		<div className='flex flex-wrap items-start justify-between gap-4 pb-4'>
-			<div className='min-w-0 space-y-1'>
-				<h1 className='font-semibold text-2xl text-foreground tracking-tight'>
+		<div className="flex flex-wrap items-start justify-between gap-4 pb-4">
+			<div className="min-w-0 space-y-1">
+				<h1 className="font-semibold text-2xl text-foreground tracking-tight">
 					{title}
 				</h1>
 				{description ? (
-					<p className='max-w-2xl text-muted-foreground text-sm leading-relaxed'>
+					<p className="max-w-2xl text-muted-foreground text-sm leading-relaxed">
 						{description}
 					</p>
 				) : null}
 			</div>
 			{actions ? (
-				<div className='flex shrink-0 flex-wrap items-center gap-2'>
+				<div className="flex shrink-0 flex-wrap items-center gap-2">
 					{actions}
 				</div>
 			) : null}
@@ -85,9 +85,10 @@ export function PageTab({
 }) {
 	return (
 		<button
-			type='button'
+			type="button"
 			className={cn(notion.tabItem, active && notion.tabItemActive)}
-			onClick={onClick}>
+			onClick={onClick}
+		>
 			{children}
 		</button>
 	);
@@ -111,24 +112,21 @@ export function SectionBlock({
 	return (
 		<section
 			className={cn(
-				'space-y-4',
-				inset && cn(notion.surface, 'px-5 py-5'),
+				"space-y-4",
+				inset && cn(notion.surface, "px-5 py-5"),
 				className,
-			)}>
+			)}
+		>
 			{title ? (
-				<div className='flex flex-wrap items-start justify-between gap-3'>
-					<div className='min-w-0 space-y-0.5'>
-						<h2 className='font-medium text-base text-foreground'>
-							{title}
-						</h2>
+				<div className="flex flex-wrap items-start justify-between gap-3">
+					<div className="min-w-0 space-y-0.5">
+						<h2 className="font-medium text-base text-foreground">{title}</h2>
 						{description ? (
-							<p className='text-muted-foreground text-sm'>
-								{description}
-							</p>
+							<p className="text-muted-foreground text-sm">{description}</p>
 						) : null}
 					</div>
 					{actions ? (
-						<div className='flex shrink-0 flex-wrap items-center gap-2'>
+						<div className="flex shrink-0 flex-wrap items-center gap-2">
 							{actions}
 						</div>
 					) : null}
@@ -159,7 +157,8 @@ export function ContentSection({
 			title={title}
 			description={description}
 			actions={actions}
-			className={className}>
+			className={className}
+		>
 			<div className={contentClassName}>{children}</div>
 		</SectionBlock>
 	);
@@ -172,9 +171,7 @@ export function ListRow({
 	children: ReactNode;
 	className?: string;
 }) {
-	return (
-		<div className={cn(notion.listRow, className)}>{children}</div>
-	);
+	return <div className={cn(notion.listRow, className)}>{children}</div>;
 }
 
 export function EmptyState({
@@ -185,12 +182,10 @@ export function EmptyState({
 	description?: string;
 }) {
 	return (
-		<div className='rounded-lg border border-border/60 bg-surface px-6 py-10 text-center'>
-			<p className='font-medium text-foreground text-sm'>{title}</p>
+		<div className="rounded-lg border border-border/60 bg-surface px-6 py-10 text-center">
+			<p className="font-medium text-foreground text-sm">{title}</p>
 			{description ? (
-				<p className='mt-1 text-muted-foreground text-sm'>
-					{description}
-				</p>
+				<p className="mt-1 text-muted-foreground text-sm">{description}</p>
 			) : null}
 		</div>
 	);
@@ -208,13 +203,12 @@ export function DetailRow({
 	return (
 		<div
 			className={cn(
-				'flex items-start justify-between gap-4 border-border/50 border-b py-3 text-sm last:border-0',
+				"flex items-start justify-between gap-4 border-border/50 border-b py-3 text-sm last:border-0",
 				className,
-			)}>
-			<span className='shrink-0 text-muted-foreground'>{label}</span>
-			<span className='min-w-0 text-right text-foreground'>
-				{value}
-			</span>
+			)}
+		>
+			<span className="shrink-0 text-muted-foreground">{label}</span>
+			<span className="min-w-0 text-right text-foreground">{value}</span>
 		</div>
 	);
 }
@@ -230,16 +224,14 @@ export function StatsBar({
 }) {
 	const columnClass =
 		columns === 2
-			? 'sm:grid-cols-2'
+			? "sm:grid-cols-2"
 			: columns === 4
-				? 'sm:grid-cols-2 xl:grid-cols-4'
-				: 'sm:grid-cols-3';
+				? "sm:grid-cols-2 xl:grid-cols-4"
+				: "sm:grid-cols-3";
 
 	return (
 		<div className={cn(notion.statsBar, className)}>
-			<div className={cn(notion.statsBarGrid, columnClass)}>
-				{children}
-			</div>
+			<div className={cn(notion.statsBarGrid, columnClass)}>{children}</div>
 		</div>
 	);
 }
@@ -247,45 +239,46 @@ export function StatsBar({
 export function StatTile({
 	label,
 	value,
-	tone = 'default',
-	variant = 'card',
+	tone = "default",
+	variant = "card",
 	className,
 }: {
 	label: string;
 	value: ReactNode;
-	tone?: 'default' | 'warning' | 'primary';
-	variant?: 'card' | 'segment';
+	tone?: "default" | "warning" | "primary";
+	variant?: "card" | "segment";
 	className?: string;
 }) {
 	const valueClass =
-		tone === 'warning'
-			? 'text-amber-600 dark:text-amber-400'
-			: tone === 'primary'
-				? 'text-primary'
-				: 'text-foreground';
+		tone === "warning"
+			? "text-amber-600 dark:text-amber-400"
+			: tone === "primary"
+				? "text-primary"
+				: "text-foreground";
 
-	const isPrimitive =
-		typeof value === 'string' || typeof value === 'number';
+	const isPrimitive = typeof value === "string" || typeof value === "number";
 
 	return (
 		<div
 			className={cn(
-				variant === 'segment' ? notion.statsBarItem : notion.statTile,
+				variant === "segment" ? notion.statsBarItem : notion.statTile,
 				className,
-			)}>
-			<p className='font-medium text-[11px] text-muted-foreground uppercase tracking-wide'>
+			)}
+		>
+			<p className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
 				{label}
 			</p>
 			{isPrimitive ? (
 				<p
 					className={cn(
-						'mt-1.5 font-semibold text-2xl tracking-tight',
+						"mt-1.5 font-semibold text-2xl tracking-tight",
 						valueClass,
-					)}>
+					)}
+				>
 					{value}
 				</p>
 			) : (
-				<div className='mt-1.5'>{value}</div>
+				<div className="mt-1.5">{value}</div>
 			)}
 		</div>
 	);

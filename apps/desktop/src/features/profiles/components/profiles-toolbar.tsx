@@ -52,7 +52,7 @@ export function ProfilesToolbar({
 	return (
 		<div className="space-y-3 border-border border-b bg-background px-5 py-4">
 			<div className="flex flex-wrap items-center gap-2">
-				<div className="relative min-w-[220px] flex-1 max-w-md">
+				<div className="relative min-w-[220px] max-w-md flex-1">
 					<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						ref={searchInputRef}

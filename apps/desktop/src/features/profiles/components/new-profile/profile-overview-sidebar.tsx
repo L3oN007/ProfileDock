@@ -2,16 +2,14 @@ import { Badge } from "@ProfileDock/ui/components/badge";
 import { Button } from "@ProfileDock/ui/components/button";
 import { RefreshCw } from "lucide-react";
 import type { ReactNode } from "react";
-
+import {
+	buildPlatformLabel,
+	type OsFamily,
+	previewUserAgent,
+} from "@/features/profiles/lib/platform-config";
 import type { CloakCapabilities } from "@/types/cloak";
 import type { CreateProfileDeviceInput } from "@/types/device";
 import type { CreateProfileFullInput } from "@/types/profile";
-
-import {
-	type OsFamily,
-	buildPlatformLabel,
-	previewUserAgent,
-} from "@/features/profiles/lib/platform-config";
 
 interface ProfileOverviewSidebarProps {
 	form: CreateProfileFullInput;
@@ -99,8 +97,20 @@ export function ProfileOverviewSidebar({
 						label="Platform"
 						value={PLATFORM_LABELS[device.platform ?? "windows"] ?? "Windows"}
 					/>
-					<OverviewRow label="CPU" value={isCustom ? formatCustom(device.hardwareConcurrency, "cores") : "Auto"} />
-					<OverviewRow label="RAM" value={isCustom ? formatCustom(device.deviceMemoryGb, "GB") : "Auto"} />
+					<OverviewRow
+						label="CPU"
+						value={
+							isCustom
+								? formatCustom(device.hardwareConcurrency, "cores")
+								: "Auto"
+						}
+					/>
+					<OverviewRow
+						label="RAM"
+						value={
+							isCustom ? formatCustom(device.deviceMemoryGb, "GB") : "Auto"
+						}
+					/>
 					<OverviewRow
 						label="Screen"
 						value={
@@ -111,7 +121,9 @@ export function ProfileOverviewSidebar({
 					/>
 					<OverviewRow
 						label="GPU"
-						value={device.hardwarePresetId ? "Preset" : isCustom ? "Custom" : "Auto"}
+						value={
+							device.hardwarePresetId ? "Preset" : isCustom ? "Custom" : "Auto"
+						}
 					/>
 					<OverviewRow label="Fingerprint seed" value={String(previewSeed)} />
 					<OverviewRow
@@ -120,8 +132,14 @@ export function ProfileOverviewSidebar({
 					/>
 
 					<OverviewSection title="Environment" />
-					<OverviewRow label="Timezone" value={envLabel(device.timezoneMode, device.timezone)} />
-					<OverviewRow label="Locale" value={envLabel(device.localeMode, device.locale)} />
+					<OverviewRow
+						label="Timezone"
+						value={envLabel(device.timezoneMode, device.timezone)}
+					/>
+					<OverviewRow
+						label="Locale"
+						value={envLabel(device.localeMode, device.locale)}
+					/>
 					<OverviewRow label="WebRTC" value={webrtcLabel(device.webrtcMode)} />
 
 					<OverviewSection title="Browser" />
@@ -150,19 +168,17 @@ export function ProfileOverviewSidebar({
 					<OverviewRow
 						label="Downloads"
 						value={
-							downloadMode === "custom"
-								? "Custom directory"
-								: "Profile folder"
+							downloadMode === "custom" ? "Custom directory" : "Profile folder"
 						}
 						configurable={capabilities?.custom_download_dir !== false}
 					/>
 					<OverviewRow label="Canvas / WebGL" value="Cloak managed" />
 				</dl>
 
-				<p className="border-border/50 border-t pt-3 text-muted-foreground text-[11px] leading-relaxed">
-					OS label ({buildPlatformLabel(osFamily, osVersion)}) is organizational.
-					Device fingerprint is persisted per profile and passed to CloakBrowser at
-					launch.
+				<p className="border-border/50 border-t pt-3 text-[11px] text-muted-foreground leading-relaxed">
+					OS label ({buildPlatformLabel(osFamily, osVersion)}) is
+					organizational. Device fingerprint is persisted per profile and passed
+					to CloakBrowser at launch.
 				</p>
 			</div>
 		</aside>

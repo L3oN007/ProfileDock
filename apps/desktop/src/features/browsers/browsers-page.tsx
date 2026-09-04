@@ -47,7 +47,10 @@ export function BrowsersPage() {
 							</span>
 						}
 					/>
-					<DetailRow label="Version" value={browserQuery.data?.version ?? "—"} />
+					<DetailRow
+						label="Version"
+						value={browserQuery.data?.version ?? "—"}
+					/>
 					<DetailRow
 						label="Executable"
 						value={

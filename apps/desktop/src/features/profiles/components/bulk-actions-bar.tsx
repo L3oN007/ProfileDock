@@ -2,11 +2,10 @@ import { Button } from "@ProfileDock/ui/components/button";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Archive, Tag } from "lucide-react";
 import { useState } from "react";
-
+import { notion } from "@/app/design/system";
 import { useGroups } from "@/features/groups/api/queries";
 import { useProxies } from "@/features/proxies/api/queries";
 import { FilterSelect } from "@/features/shared/filter-select";
-import { notion } from "@/app/design/system";
 
 const PICK = "pick";
 
@@ -39,7 +38,9 @@ export function BulkActionsBar({
 
 	return (
 		<div className="flex flex-wrap items-center gap-2 border-border border-b bg-primary/5 px-5 py-2.5">
-			<span className="font-medium text-foreground text-sm">{selectedCount} selected</span>
+			<span className="font-medium text-foreground text-sm">
+				{selectedCount} selected
+			</span>
 
 			<FilterSelect
 				value={groupPick}

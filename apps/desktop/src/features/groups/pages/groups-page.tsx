@@ -1,16 +1,16 @@
 import { FolderTree } from "lucide-react";
-
-import { OrganizationResourcePage } from "@/features/shared/components/organization-resource-page";
 import {
 	useCreateGroup,
 	useDeleteGroup,
 	useGroups,
 	useUpdateGroup,
 } from "@/features/groups/api/queries";
+import { OrganizationResourcePage } from "@/features/shared/components/organization-resource-page";
 
 const groupsConfig = {
 	title: "Groups",
-	description: "Organize profiles into shared groups for filtering and bulk actions.",
+	description:
+		"Organize profiles into shared groups for filtering and bulk actions.",
 	singular: "Group",
 	plural: "groups",
 	createLabel: "New group",

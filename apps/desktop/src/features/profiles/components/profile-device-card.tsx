@@ -6,7 +6,10 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { SectionBlock } from "@/app/layout/page-shell";
-import { deviceKeys, useDevicePresets } from "@/features/profiles/api/device-queries";
+import {
+	deviceKeys,
+	useDevicePresets,
+} from "@/features/profiles/api/device-queries";
 import { ProfileDeviceTab } from "@/features/profiles/components/new-profile/profile-device-tab";
 import { deviceApi } from "@/lib/tauri/device";
 import type { CreateProfileDeviceInput } from "@/types/device";
@@ -35,7 +38,10 @@ function toDraft(
 	};
 }
 
-export function ProfileDeviceCard({ profileId, isRunning }: ProfileDeviceCardProps) {
+export function ProfileDeviceCard({
+	profileId,
+	isRunning,
+}: ProfileDeviceCardProps) {
 	const queryClient = useQueryClient();
 	const presetsQuery = useDevicePresets();
 	const settingsQuery = useQuery({
@@ -58,8 +64,12 @@ export function ProfileDeviceCard({ profileId, isRunning }: ProfileDeviceCardPro
 		mutationFn: (input: CreateProfileDeviceInput) =>
 			deviceApi.update(profileId, input),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: deviceKeys.settings(profileId) });
-			queryClient.invalidateQueries({ queryKey: deviceKeys.overview(profileId) });
+			queryClient.invalidateQueries({
+				queryKey: deviceKeys.settings(profileId),
+			});
+			queryClient.invalidateQueries({
+				queryKey: deviceKeys.overview(profileId),
+			});
 			toast.success("Device settings saved");
 		},
 	});
@@ -67,14 +77,20 @@ export function ProfileDeviceCard({ profileId, isRunning }: ProfileDeviceCardPro
 	const regenerateMutation = useMutation({
 		mutationFn: () => deviceApi.regenerate(profileId),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: deviceKeys.settings(profileId) });
-			queryClient.invalidateQueries({ queryKey: deviceKeys.overview(profileId) });
+			queryClient.invalidateQueries({
+				queryKey: deviceKeys.settings(profileId),
+			});
+			queryClient.invalidateQueries({
+				queryKey: deviceKeys.overview(profileId),
+			});
 			toast.success("Fingerprint seed regenerated");
 		},
 	});
 
 	if (settingsQuery.isLoading || !settingsQuery.data || !device) {
-		return <SectionBlock title="Device">Loading device settings...</SectionBlock>;
+		return (
+			<SectionBlock title="Device">Loading device settings...</SectionBlock>
+		);
 	}
 
 	const previewSeed = settingsQuery.data.fingerprint_seed;
@@ -89,9 +105,13 @@ export function ProfileDeviceCard({ profileId, isRunning }: ProfileDeviceCardPro
 
 			{overviewQuery.data ? (
 				<div className="flex flex-wrap gap-2">
-					<Badge variant="neutral">Seed {overviewQuery.data.fingerprint_seed}</Badge>
+					<Badge variant="neutral">
+						Seed {overviewQuery.data.fingerprint_seed}
+					</Badge>
 					<Badge variant="info">{overviewQuery.data.platform}</Badge>
-					<Badge variant="neutral">{overviewQuery.data.fingerprint_engine}</Badge>
+					<Badge variant="neutral">
+						{overviewQuery.data.fingerprint_engine}
+					</Badge>
 				</div>
 			) : null}
 

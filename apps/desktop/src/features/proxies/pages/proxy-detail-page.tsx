@@ -3,11 +3,7 @@ import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 
-import {
-	DetailRow,
-	PageShell,
-	SectionBlock,
-} from "@/app/layout/page-shell";
+import { DetailRow, PageShell, SectionBlock } from "@/app/layout/page-shell";
 import { useCheckProxy } from "@/features/proxies/api/mutations";
 import {
 	useProxy,
@@ -152,7 +148,9 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 							</li>
 						))}
 						{(checksQuery.data ?? []).length === 0 ? (
-							<li className="py-4 text-muted-foreground text-sm">No checks yet</li>
+							<li className="py-4 text-muted-foreground text-sm">
+								No checks yet
+							</li>
 						) : null}
 					</ul>
 				)}

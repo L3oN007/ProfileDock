@@ -1,6 +1,6 @@
-import { useTags } from "@/features/tags/api/queries";
 import { useProxies } from "@/features/proxies/api/queries";
 import { FilterSelect } from "@/features/shared/filter-select";
+import { useTags } from "@/features/tags/api/queries";
 
 interface ProfileListFiltersProps {
 	groupId?: string;
@@ -42,7 +42,9 @@ export function ProfileListFilters({
 		<div className="flex flex-wrap items-center gap-2 border-border border-b bg-background px-5 py-2.5">
 			<FilterSelect
 				value={groupId ?? ALL}
-				onValueChange={(value) => onGroupChange(value === ALL ? undefined : value)}
+				onValueChange={(value) =>
+					onGroupChange(value === ALL ? undefined : value)
+				}
 				placeholder="All groups"
 				options={[
 					{ value: ALL, label: "All groups" },
@@ -52,7 +54,9 @@ export function ProfileListFilters({
 
 			<FilterSelect
 				value={tagId ?? ALL}
-				onValueChange={(value) => onTagChange(value === ALL ? undefined : value)}
+				onValueChange={(value) =>
+					onTagChange(value === ALL ? undefined : value)
+				}
 				placeholder="All tags"
 				options={[
 					{ value: ALL, label: "All tags" },
@@ -65,7 +69,9 @@ export function ProfileListFilters({
 
 			<FilterSelect
 				value={status ?? ALL}
-				onValueChange={(value) => onStatusChange(value === ALL ? undefined : value)}
+				onValueChange={(value) =>
+					onStatusChange(value === ALL ? undefined : value)
+				}
 				placeholder="All statuses"
 				options={[
 					{ value: ALL, label: "All statuses" },
@@ -77,7 +83,9 @@ export function ProfileListFilters({
 
 			<FilterSelect
 				value={proxyId ?? ALL}
-				onValueChange={(value) => onProxyChange(value === ALL ? undefined : value)}
+				onValueChange={(value) =>
+					onProxyChange(value === ALL ? undefined : value)
+				}
 				placeholder="All proxies"
 				options={[
 					{ value: ALL, label: "All proxies" },

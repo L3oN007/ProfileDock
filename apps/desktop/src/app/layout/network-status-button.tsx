@@ -45,10 +45,7 @@ export function NetworkStatusButton() {
 				</span>
 			</PopoverTrigger>
 
-			<PopoverContent
-				align="end"
-				className="w-80 border-border bg-card p-0"
-			>
+			<PopoverContent align="end" className="w-80 border-border bg-card p-0">
 				<PopoverHeader className="border-border border-b px-4 py-3">
 					<div className="flex items-center justify-between gap-2">
 						<PopoverTitle className="text-sm">Current Network</PopoverTitle>

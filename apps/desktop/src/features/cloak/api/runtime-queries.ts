@@ -1,5 +1,5 @@
-import { listen } from "@tauri-apps/api/event";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -8,7 +8,9 @@ import { cloakRuntimeApi } from "@/lib/tauri/cloak-runtime";
 import type { AppError } from "@/types/app";
 import type { CloakInstallProgress } from "@/types/cloak";
 
-function invalidateRuntimeQueries(queryClient: ReturnType<typeof useQueryClient>) {
+function invalidateRuntimeQueries(
+	queryClient: ReturnType<typeof useQueryClient>,
+) {
 	queryClient.invalidateQueries({ queryKey: cloakKeys.all });
 	queryClient.invalidateQueries({ queryKey: ["browser-status"] });
 	queryClient.invalidateQueries({ queryKey: ["health-check"] });

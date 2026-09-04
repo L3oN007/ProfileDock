@@ -13,13 +13,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@ProfileDock/ui/components/select";
-
+import { SectionBlock } from "@/app/layout/page-shell";
 import {
 	useAssignProxy,
 	useUnassignProxy,
 } from "@/features/proxies/api/mutations";
 import { useProxies } from "@/features/proxies/api/queries";
-import { SectionBlock } from "@/app/layout/page-shell";
 import { ProxyHealthBadge } from "@/features/proxies/components/proxy-health-badge";
 import type { ProfileProxyAssignment } from "@/types/proxy";
 
@@ -133,7 +132,9 @@ export function ProfileNetworkCard({
 	if (isLoading) {
 		return (
 			<SectionBlock title="Network">
-				<p className="text-muted-foreground text-sm">Loading network settings...</p>
+				<p className="text-muted-foreground text-sm">
+					Loading network settings...
+				</p>
 			</SectionBlock>
 		);
 	}
@@ -144,17 +145,23 @@ export function ProfileNetworkCard({
 		<SectionBlock
 			title="Network"
 			actions={
-				<Button size="sm" variant="outline" disabled={isRunning} onClick={onChangeProxy}>
+				<Button
+					size="sm"
+					variant="outline"
+					disabled={isRunning}
+					onClick={onChangeProxy}
+				>
 					{proxy ? "Change proxy" : "Assign proxy"}
 				</Button>
 			}
 			inset
 		>
-
 			{proxy ? (
 				<div className="space-y-2 text-sm">
 					<p className="font-medium text-foreground">{proxy.name}</p>
-					<p className="text-muted-foreground text-xs uppercase">{proxy.protocol}</p>
+					<p className="text-muted-foreground text-xs uppercase">
+						{proxy.protocol}
+					</p>
 					<p className="font-mono text-foreground">
 						{proxy.host}:{proxy.port}
 					</p>

@@ -192,7 +192,9 @@ function Field({
 }) {
 	return (
 		<div className={className}>
-			<Label className="mb-1.5 block text-muted-foreground text-xs">{label}</Label>
+			<Label className="mb-1.5 block text-muted-foreground text-xs">
+				{label}
+			</Label>
 			{children}
 		</div>
 	);

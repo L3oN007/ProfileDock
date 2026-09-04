@@ -56,10 +56,7 @@ export function UserMenu() {
 				</span>
 			</DropdownMenuTrigger>
 
-			<DropdownMenuContent
-				align="end"
-				className="w-56 border-border bg-card"
-			>
+			<DropdownMenuContent align="end" className="w-56 border-border bg-card">
 				<DropdownMenuLabel className="font-normal">
 					<div className="flex items-center gap-3 py-1">
 						<Avatar size="sm">

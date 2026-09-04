@@ -93,20 +93,36 @@ export function ProfileFingerprintTab({
 						value="Runtime default"
 						status="runtime"
 					/>
-					<FingerprintRow label="WebRTC" value="Runtime default" status="runtime" />
+					<FingerprintRow
+						label="WebRTC"
+						value="Runtime default"
+						status="runtime"
+					/>
 					<FingerprintRow
 						label="Timezone / Location"
 						value="Runtime default"
 						status="runtime"
 					/>
-					<FingerprintRow label="Language" value="Runtime default" status="runtime" />
+					<FingerprintRow
+						label="Language"
+						value="Runtime default"
+						status="runtime"
+					/>
 					<FingerprintRow
 						label="Screen resolution"
 						value="Runtime default"
 						status="runtime"
 					/>
-					<FingerprintRow label="Fonts" value="Runtime default" status="runtime" />
-					<FingerprintRow label="Canvas" value="Runtime default" status="runtime" />
+					<FingerprintRow
+						label="Fonts"
+						value="Runtime default"
+						status="runtime"
+					/>
+					<FingerprintRow
+						label="Canvas"
+						value="Runtime default"
+						status="runtime"
+					/>
 					<FingerprintRow
 						label="WebGL / AudioContext"
 						value="Runtime default"
@@ -140,9 +156,7 @@ function FingerprintRow({
 		<div className="flex items-start justify-between gap-4 px-4 py-3">
 			<div className="min-w-0 space-y-0.5">
 				<p className="font-medium text-foreground text-sm">{label}</p>
-				{hint ? (
-					<p className={cn(notion.fieldHint)}>{hint}</p>
-				) : null}
+				{hint ? <p className={cn(notion.fieldHint)}>{hint}</p> : null}
 			</div>
 			<div className="shrink-0 text-right">
 				<p className="text-foreground text-sm">{value}</p>

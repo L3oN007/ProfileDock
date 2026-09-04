@@ -10,7 +10,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Play, Square } from "lucide-react";
 import { useState } from "react";
 
-import { notion } from "@/app/design/system";
 import {
 	DetailRow,
 	PageShell,
@@ -28,8 +27,8 @@ import {
 	useProfilePreflight,
 } from "@/features/profiles/api/queries";
 import { ProfileBrowserTab } from "@/features/profiles/components/profile-browser-tab";
-import { ProfileDeviceCard } from "@/features/profiles/components/profile-device-card";
 import { ProfileCookiesCard } from "@/features/profiles/components/profile-cookies-card";
+import { ProfileDeviceCard } from "@/features/profiles/components/profile-device-card";
 import { ProfileEditCard } from "@/features/profiles/components/profile-edit-card";
 import { ProfileStatusBadge } from "@/features/profiles/components/profile-status-badge";
 import { ProfileStorageCard } from "@/features/profiles/components/profile-storage-card";
@@ -71,11 +70,19 @@ function ProfileDetailPage() {
 	return (
 		<PageShell>
 			<PageTitle
-				title={profileQuery.isLoading ? "Loading profile..." : (profile?.name ?? "Profile")}
+				title={
+					profileQuery.isLoading
+						? "Loading profile..."
+						: (profile?.name ?? "Profile")
+				}
 				description={profile?.display_id ?? profile?.id}
 				actions={
 					<div className="flex items-center gap-2">
-						<Button variant="ghost" size="icon-sm" render={<Link to="/profiles" />}>
+						<Button
+							variant="ghost"
+							size="icon-sm"
+							render={<Link to="/profiles" />}
+						>
 							<ArrowLeft className="size-4" />
 						</Button>
 						{profile ? <ProfileStatusBadge state={profile.state} /> : null}
@@ -91,7 +98,9 @@ function ProfileDetailPage() {
 								</Button>
 							) : (
 								<Button
-									disabled={launchProfile.isPending || preflightQuery.isFetching}
+									disabled={
+										launchProfile.isPending || preflightQuery.isFetching
+									}
 									onClick={handleLaunch}
 								>
 									<Play className="size-3.5" />
@@ -114,31 +123,51 @@ function ProfileDetailPage() {
 				</div>
 			) : null}
 
-			<Tabs defaultValue="overview" className="flex min-h-0 flex-1 flex-col gap-6">
+			<Tabs
+				defaultValue="overview"
+				className="flex min-h-0 flex-1 flex-col gap-6"
+			>
 				<TabsList
 					variant="line"
 					className="h-auto w-full justify-start gap-6 rounded-none border-border/60 border-b bg-transparent p-0"
 				>
-					<TabsTrigger value="overview" className="rounded-none bg-transparent shadow-none">
+					<TabsTrigger
+						value="overview"
+						className="rounded-none bg-transparent shadow-none"
+					>
 						Overview
 					</TabsTrigger>
-					<TabsTrigger value="browser" className="rounded-none bg-transparent shadow-none">
+					<TabsTrigger
+						value="browser"
+						className="rounded-none bg-transparent shadow-none"
+					>
 						Browser
 					</TabsTrigger>
-					<TabsTrigger value="device" className="rounded-none bg-transparent shadow-none">
+					<TabsTrigger
+						value="device"
+						className="rounded-none bg-transparent shadow-none"
+					>
 						Device
 					</TabsTrigger>
-					<TabsTrigger value="network" className="rounded-none bg-transparent shadow-none">
+					<TabsTrigger
+						value="network"
+						className="rounded-none bg-transparent shadow-none"
+					>
 						Network
 					</TabsTrigger>
-					<TabsTrigger value="activity" className="rounded-none bg-transparent shadow-none">
+					<TabsTrigger
+						value="activity"
+						className="rounded-none bg-transparent shadow-none"
+					>
 						Activity
 					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="overview" className="mt-0">
 					<div className="grid gap-8 lg:grid-cols-2">
-						{profile ? <ProfileEditCard profile={profile} /> : (
+						{profile ? (
+							<ProfileEditCard profile={profile} />
+						) : (
 							<Skeleton className="h-64 w-full rounded-xl" />
 						)}
 						<SectionBlock title="Session" inset>
@@ -167,7 +196,10 @@ function ProfileDetailPage() {
 										assignmentQuery.data?.proxy?.name ?? "No proxy assigned"
 									}
 								/>
-								<DetailRow label="PID" value={profile?.pid?.toString() ?? "—"} />
+								<DetailRow
+									label="PID"
+									value={profile?.pid?.toString() ?? "—"}
+								/>
 								<DetailRow
 									label="Last opened"
 									value={profile?.last_opened_at ?? "—"}

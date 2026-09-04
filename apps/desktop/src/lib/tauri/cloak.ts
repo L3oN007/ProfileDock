@@ -25,7 +25,9 @@ export const cloakApi = {
 	},
 
 	discover() {
-		return invokeCommand<DiscoveredCloakInstallation[]>("cloak_discover_installations");
+		return invokeCommand<DiscoveredCloakInstallation[]>(
+			"cloak_discover_installations",
+		);
 	},
 
 	autoConfigure() {

@@ -17,15 +17,20 @@ function run(command, args, options = {}) {
 }
 
 function discoverCachedBinary() {
-	const cacheDir = process.env.CLOAKBROWSER_CACHE_DIR ?? join(homedir(), ".cloakbrowser");
+	const cacheDir =
+		process.env.CLOAKBROWSER_CACHE_DIR ?? join(homedir(), ".cloakbrowser");
 	if (!existsSync(cacheDir)) {
 		return null;
 	}
 
 	const executableName = isWindows ? "chrome.exe" : "chrome";
-	const entries = execFileSync(isWindows ? "cmd.exe" : "ls", isWindows ? ["/c", "dir", "/b", cacheDir] : [cacheDir], {
-		encoding: "utf8",
-	})
+	const entries = execFileSync(
+		isWindows ? "cmd.exe" : "ls",
+		isWindows ? ["/c", "dir", "/b", cacheDir] : [cacheDir],
+		{
+			encoding: "utf8",
+		},
+	)
 		.split(/\r?\n/)
 		.map((line) => line.trim())
 		.filter(Boolean)
@@ -66,10 +71,14 @@ if (binary) {
 	console.log('3. Click "Auto-detect" or paste the path above');
 } else {
 	console.log("Could not auto-detect the CloakBrowser executable path.");
-	console.log("Open Settings → CloakBrowser and use Auto-detect after launching the app.");
+	console.log(
+		"Open Settings → CloakBrowser and use Auto-detect after launching the app.",
+	);
 }
 
 if (isWindows) {
 	console.log("");
-	console.log("Windows note: install and test CloakBrowser with native PowerShell, not WSL.");
+	console.log(
+		"Windows note: install and test CloakBrowser with native PowerShell, not WSL.",
+	);
 }

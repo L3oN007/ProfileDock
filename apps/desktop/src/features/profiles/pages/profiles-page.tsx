@@ -12,9 +12,8 @@ import {
 import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
 import { MoreHorizontal, Play, Square } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-
-import { PageShell } from "@/app/layout/page-shell";
 import { notion } from "@/app/design/system";
+import { PageShell } from "@/app/layout/page-shell";
 import { useGroups } from "@/features/groups/api/queries";
 import {
 	useArchiveProfile,
@@ -243,7 +242,9 @@ export function ProfilesPage() {
 					<div className={notion.tableWrap}>
 						<Table>
 							<TableHeader>
-								<TableRow className={`${notion.tableHead} hover:bg-transparent ${rowDensityClass}`}>
+								<TableRow
+									className={`${notion.tableHead} hover:bg-transparent ${rowDensityClass}`}
+								>
 									<TableHead className="w-10">
 										<Checkbox
 											checked={
@@ -254,18 +255,30 @@ export function ProfilesPage() {
 										/>
 									</TableHead>
 									<TableHead className="w-12">No.</TableHead>
-									{visibleColumns.has("name") ? <TableHead>Name</TableHead> : null}
+									{visibleColumns.has("name") ? (
+										<TableHead>Name</TableHead>
+									) : null}
 									{visibleColumns.has("displayId") ? (
 										<TableHead>Profile ID</TableHead>
 									) : null}
-									{visibleColumns.has("group") ? <TableHead>Group</TableHead> : null}
-									{visibleColumns.has("tags") ? <TableHead>Tags</TableHead> : null}
-									{visibleColumns.has("proxy") ? <TableHead>Proxy</TableHead> : null}
-									{visibleColumns.has("status") ? <TableHead>Status</TableHead> : null}
+									{visibleColumns.has("group") ? (
+										<TableHead>Group</TableHead>
+									) : null}
+									{visibleColumns.has("tags") ? (
+										<TableHead>Tags</TableHead>
+									) : null}
+									{visibleColumns.has("proxy") ? (
+										<TableHead>Proxy</TableHead>
+									) : null}
+									{visibleColumns.has("status") ? (
+										<TableHead>Status</TableHead>
+									) : null}
 									{visibleColumns.has("lastLaunch") ? (
 										<TableHead>Last opened</TableHead>
 									) : null}
-									{visibleColumns.has("remark") ? <TableHead>Remark</TableHead> : null}
+									{visibleColumns.has("remark") ? (
+										<TableHead>Remark</TableHead>
+									) : null}
 									{visibleColumns.has("platform") ? (
 										<TableHead>Platform</TableHead>
 									) : null}
@@ -400,15 +413,21 @@ function ProfileRow({
 						{profile.name}
 					</Link>
 					{profile.display_id && !visibleColumns.has("displayId") ? (
-						<div className="text-muted-foreground text-[10px]">{profile.display_id}</div>
+						<div className="text-[10px] text-muted-foreground">
+							{profile.display_id}
+						</div>
 					) : null}
 				</TableCell>
 			) : null}
 			{visibleColumns.has("displayId") ? (
-				<TableCell className="text-muted-foreground">{profile.display_id ?? "—"}</TableCell>
+				<TableCell className="text-muted-foreground">
+					{profile.display_id ?? "—"}
+				</TableCell>
 			) : null}
 			{visibleColumns.has("group") ? (
-				<TableCell className="text-muted-foreground">{profile.group_name ?? "—"}</TableCell>
+				<TableCell className="text-muted-foreground">
+					{profile.group_name ?? "—"}
+				</TableCell>
 			) : null}
 			{visibleColumns.has("tags") ? (
 				<TableCell className="max-w-[140px] truncate text-muted-foreground">
@@ -416,7 +435,9 @@ function ProfileRow({
 				</TableCell>
 			) : null}
 			{visibleColumns.has("proxy") ? (
-				<TableCell className="text-muted-foreground">{profile.proxy_name ?? "—"}</TableCell>
+				<TableCell className="text-muted-foreground">
+					{profile.proxy_name ?? "—"}
+				</TableCell>
 			) : null}
 			{visibleColumns.has("status") ? (
 				<TableCell>
@@ -467,7 +488,10 @@ function ProfileRow({
 						</Button>
 						{menuOpen ? (
 							<div className="absolute top-8 right-0 z-10">
-								<ProfileRowActions profile={profile} onDuplicate={onDuplicate} />
+								<ProfileRowActions
+									profile={profile}
+									onDuplicate={onDuplicate}
+								/>
 							</div>
 						) : null}
 					</div>

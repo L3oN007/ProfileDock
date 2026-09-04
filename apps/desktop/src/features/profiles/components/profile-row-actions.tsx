@@ -1,8 +1,11 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import { Archive, Copy, Pencil } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { Archive, Copy, Pencil } from "lucide-react";
 
-import { useArchiveProfile, useStopProfile } from "@/features/profiles/api/mutations";
+import {
+	useArchiveProfile,
+	useStopProfile,
+} from "@/features/profiles/api/mutations";
 import type { Profile } from "@/types/profile";
 
 interface ProfileRowActionsProps {
@@ -10,7 +13,10 @@ interface ProfileRowActionsProps {
 	onDuplicate?: () => void;
 }
 
-export function ProfileRowActions({ profile, onDuplicate }: ProfileRowActionsProps) {
+export function ProfileRowActions({
+	profile,
+	onDuplicate,
+}: ProfileRowActionsProps) {
 	const archiveProfile = useArchiveProfile();
 	const stopProfile = useStopProfile();
 	const isRunning = profile.state === "running";
@@ -29,7 +35,12 @@ export function ProfileRowActions({ profile, onDuplicate }: ProfileRowActionsPro
 				Edit
 			</Button>
 			{onDuplicate ? (
-				<Button size="sm" variant="ghost" className="justify-start" onClick={onDuplicate}>
+				<Button
+					size="sm"
+					variant="ghost"
+					className="justify-start"
+					onClick={onDuplicate}
+				>
 					<Copy className="size-3.5" />
 					Duplicate
 				</Button>

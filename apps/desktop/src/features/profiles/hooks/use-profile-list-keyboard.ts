@@ -1,7 +1,9 @@
-import { useEffect, type RefObject } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { type RefObject, useEffect } from "react";
 
-export function useProfileListKeyboard(searchRef: RefObject<HTMLInputElement | null>) {
+export function useProfileListKeyboard(
+	searchRef: RefObject<HTMLInputElement | null>,
+) {
 	const navigate = useNavigate();
 
 	useEffect(() => {

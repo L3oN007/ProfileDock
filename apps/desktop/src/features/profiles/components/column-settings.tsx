@@ -38,10 +38,12 @@ export function ColumnSettings({
 
 			{open ? (
 				<div className="absolute top-10 right-0 z-20 w-56 rounded-md border border-border bg-card p-3 shadow-xl">
-					<p className="mb-2 font-medium text-foreground text-xs">Visible columns</p>
+					<p className="mb-2 font-medium text-foreground text-xs">
+						Visible columns
+					</p>
 					<div className="space-y-2">
 						{PROFILE_COLUMN_OPTIONS.map((column) => (
-							<label
+							<div
 								key={column.id}
 								className="flex items-center gap-2 text-foreground text-sm"
 							>
@@ -50,11 +52,13 @@ export function ColumnSettings({
 									onCheckedChange={() => onToggleColumn(column.id)}
 								/>
 								{column.label}
-							</label>
+							</div>
 						))}
 					</div>
 
-					<p className="mt-4 mb-2 font-medium text-foreground text-xs">Density</p>
+					<p className="mt-4 mb-2 font-medium text-foreground text-xs">
+						Density
+					</p>
 					<div className="flex gap-2">
 						<Button
 							size="sm"

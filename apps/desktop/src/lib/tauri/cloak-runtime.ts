@@ -45,6 +45,8 @@ export const cloakRuntimeApi = {
 	},
 
 	installProgress() {
-		return invokeCommand<CloakInstallProgress>("cloak_runtime_get_install_progress");
+		return invokeCommand<CloakInstallProgress>(
+			"cloak_runtime_get_install_progress",
+		);
 	},
 };

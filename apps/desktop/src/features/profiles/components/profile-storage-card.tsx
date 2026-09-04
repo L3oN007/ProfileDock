@@ -11,7 +11,10 @@ interface ProfileStorageCardProps {
 	isRunning: boolean;
 }
 
-export function ProfileStorageCard({ profileId, isRunning }: ProfileStorageCardProps) {
+export function ProfileStorageCard({
+	profileId,
+	isRunning,
+}: ProfileStorageCardProps) {
 	const storageQuery = useProfileStorage(profileId);
 	const clearCache = useClearProfileCache(profileId);
 	const storage = storageQuery.data;
@@ -26,7 +29,10 @@ export function ProfileStorageCard({ profileId, isRunning }: ProfileStorageCardP
 						label="Browser data"
 						value={formatBytes(storage?.browser_data_bytes ?? 0)}
 					/>
-					<DetailRow label="Cache" value={formatBytes(storage?.cache_bytes ?? 0)} />
+					<DetailRow
+						label="Cache"
+						value={formatBytes(storage?.cache_bytes ?? 0)}
+					/>
 					<DetailRow
 						label="Downloads"
 						value={formatBytes(storage?.downloads_bytes ?? 0)}
@@ -52,8 +58,8 @@ export function ProfileStorageCard({ profileId, isRunning }: ProfileStorageCardP
 				Clear cache
 			</Button>
 			<p className="text-muted-foreground text-xs">
-				Clears only the profile cache folder. Cookies, local storage, and browser
-				data are preserved.
+				Clears only the profile cache folder. Cookies, local storage, and
+				browser data are preserved.
 			</p>
 		</SectionBlock>
 	);

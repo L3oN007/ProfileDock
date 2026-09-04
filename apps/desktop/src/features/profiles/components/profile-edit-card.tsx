@@ -25,7 +25,9 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 	const [groupId, setGroupId] = useState(profile.group_id ?? NONE_VALUE);
 	const [remark, setRemark] = useState(profile.remark ?? "");
 	const [notes, setNotes] = useState(profile.notes ?? "");
-	const [platformLabel, setPlatformLabel] = useState(profile.platform_label ?? "");
+	const [platformLabel, setPlatformLabel] = useState(
+		profile.platform_label ?? "",
+	);
 	const [tags, setTags] = useState<string[]>(profile.tags);
 	const [tagInput, setTagInput] = useState("");
 

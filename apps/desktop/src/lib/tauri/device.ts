@@ -46,10 +46,9 @@ function toUpdateDeviceInput(input: UpdateProfileDeviceSettingsInput) {
 
 export const deviceApi = {
 	get(profileId: string) {
-		return invokeCommand<ProfileDeviceSettings>(
-			"profile_device_settings_get",
-			{ profileId },
-		);
+		return invokeCommand<ProfileDeviceSettings>("profile_device_settings_get", {
+			profileId,
+		});
 	},
 	update(profileId: string, input: UpdateProfileDeviceSettingsInput) {
 		return invokeCommand<ProfileDeviceSettings>(
