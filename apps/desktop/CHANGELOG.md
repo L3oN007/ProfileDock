@@ -1,5 +1,13 @@
 # @profiledock/desktop
 
+## 0.3.1
+
+### Patch Changes
+
+- Fix Windows Tauri navigation opening Chromium tabs when clicking in-app links (Dashboard, Settings, New profile, and other routes). Replace anchor-based routing with RouterLink/RouterButton and add a navigation guard. Fix missing country flags on Windows builds using SVG flag icons.
+- @ProfileDock/env@0.3.1
+  - @ProfileDock/ui@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
