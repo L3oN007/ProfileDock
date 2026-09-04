@@ -136,6 +136,9 @@ pub enum AppError {
     #[error("proxy archived")]
     ProxyArchived,
 
+    #[error("network lookup failed: {0}")]
+    NetworkLookupFailed(String),
+
     #[error("serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
 }
@@ -195,6 +198,7 @@ impl AppError {
             Self::ProxySecretNotFound => "PROXY_SECRET_NOT_FOUND",
             Self::ProxyInUse => "PROXY_IN_USE",
             Self::ProxyArchived => "PROXY_ARCHIVED",
+            Self::NetworkLookupFailed(_) => "NETWORK_LOOKUP_FAILED",
             Self::Serialization(_) => "SERIALIZATION_ERROR",
         }
     }

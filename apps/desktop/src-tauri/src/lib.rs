@@ -64,6 +64,7 @@ pub fn run() {
             commands::system::health_check,
             commands::system::get_browser_status,
             commands::system::set_browser_executable,
+            commands::system::get_network_info,
             commands::cloak::cloak_get_installation,
             commands::cloak::cloak_set_executable,
             commands::cloak::cloak_validate_installation,

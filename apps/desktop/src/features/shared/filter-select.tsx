@@ -27,6 +27,8 @@ export function FilterSelect({
 	placeholder,
 	className,
 }: FilterSelectProps) {
+	const selectedLabel = options.find((option) => option.value === value)?.label;
+
 	return (
 		<Select
 			value={value}
@@ -41,7 +43,7 @@ export function FilterSelect({
 					className,
 				)}
 			>
-				<SelectValue placeholder={placeholder} />
+				<SelectValue placeholder={placeholder}>{selectedLabel}</SelectValue>
 			</SelectTrigger>
 			<SelectContent className="rounded-lg border border-border/80 bg-popover p-1 shadow-lg">
 				{options.map((option) => (

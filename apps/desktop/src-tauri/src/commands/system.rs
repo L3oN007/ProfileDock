@@ -1,8 +1,9 @@
 use tauri::State;
 
 use crate::application::services::SystemService;
-use crate::domain::{AppInfo, AppPathsInfo, BrowserStatus, HealthCheck, SystemInfo};
+use crate::domain::{AppInfo, AppPathsInfo, BrowserStatus, HealthCheck, NetworkInfo, SystemInfo};
 use crate::error::AppError;
+use crate::infrastructure::network::lookup_public_network_info;
 use crate::state::AppState;
 
 #[tauri::command]
@@ -36,4 +37,9 @@ pub async fn set_browser_executable(
     path: String,
 ) -> Result<BrowserStatus, AppError> {
     state.browser_service.set_executable(&state, path).await
+}
+
+#[tauri::command]
+pub async fn get_network_info() -> Result<NetworkInfo, AppError> {
+    lookup_public_network_info().await
 }

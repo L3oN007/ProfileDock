@@ -1,3 +1,5 @@
+import { invokeCommand } from "@/lib/tauri/client";
+import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { NetworkInfo } from "@/types/network";
 
 interface IpWhoResponse {
@@ -27,6 +29,10 @@ interface IpApiCoResponse {
 }
 
 export async function fetchNetworkInfo(): Promise<NetworkInfo> {
+	if (isDesktopRuntime()) {
+		return invokeCommand<NetworkInfo>("get_network_info");
+	}
+
 	try {
 		return await fetchFromIpWho();
 	} catch {

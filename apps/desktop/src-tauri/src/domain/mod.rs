@@ -90,3 +90,16 @@ pub struct BrowserStatus {
     pub executable: Option<String>,
     pub version: Option<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkInfo {
+    pub ip: String,
+    pub country: String,
+    pub country_code: String,
+    pub region: String,
+    pub city: String,
+    pub isp: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+}
