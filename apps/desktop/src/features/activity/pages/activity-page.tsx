@@ -6,8 +6,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@ProfileDock/ui/components/table";
-import { RouterLink } from "@/components/router-link";
-
 import { notion } from "@/app/design/system";
 import {
 	ContentSection,
@@ -15,6 +13,7 @@ import {
 	PageShell,
 	PageTitle,
 } from "@/app/layout/page-shell";
+import { RouterLink } from "@/components/router-link";
 import { useProfileActivity } from "@/features/profiles/api/queries";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 

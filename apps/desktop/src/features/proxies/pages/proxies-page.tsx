@@ -1,10 +1,8 @@
 import { Button } from "@ProfileDock/ui/components/button";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
-import { RouterLink } from "@/components/router-link";
 import { Archive, Plus, RefreshCw, Search } from "lucide-react";
 import { useMemo, useState } from "react";
-
 import { notion } from "@/app/design/system";
 import {
 	ContentSection,
@@ -12,6 +10,7 @@ import {
 	PageShell,
 	PageTitle,
 } from "@/app/layout/page-shell";
+import { RouterLink } from "@/components/router-link";
 import {
 	useArchiveProxy,
 	useCheckProxy,

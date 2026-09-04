@@ -1,6 +1,6 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import { RouterButton } from "@/components/router-button";
 import { Archive, Copy, Pencil } from "lucide-react";
+import { RouterButton } from "@/components/router-button";
 
 import {
 	useArchiveProfile,

@@ -39,8 +39,6 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-
-import { RouterButton } from "@/components/router-button";
 import { notion } from "@/app/design/system";
 import {
 	ContentSection,
@@ -50,6 +48,7 @@ import {
 	StatsBar,
 	StatTile,
 } from "@/app/layout/page-shell";
+import { RouterButton } from "@/components/router-button";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { FilterSelect } from "@/features/shared/filter-select";
 

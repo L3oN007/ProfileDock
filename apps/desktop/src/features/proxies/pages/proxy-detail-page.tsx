@@ -1,10 +1,9 @@
 import { Button } from "@ProfileDock/ui/components/button";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
-import { RouterLink } from "@/components/router-link";
 import { ArrowLeft, RefreshCw } from "lucide-react";
-
 import { DetailRow, PageShell, SectionBlock } from "@/app/layout/page-shell";
 import { RouterButton } from "@/components/router-button";
+import { RouterLink } from "@/components/router-link";
 import { useCheckProxy } from "@/features/proxies/api/mutations";
 import {
 	useProxy,

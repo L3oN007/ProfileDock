@@ -9,8 +9,8 @@ import {
 	StatsBar,
 	StatTile,
 } from "@/app/layout/page-shell";
-import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { CountryFlag } from "@/components/country-flag";
+import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { formatNetworkLocation } from "@/lib/network/ip-api";
 import { useBrowserStatus, useHealthCheck } from "@/lib/query/hooks";
 import { useNetworkInfo } from "@/lib/query/network";

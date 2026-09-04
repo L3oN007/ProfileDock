@@ -12,10 +12,18 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 
 use crate::state::AppState;
 
+fn navigation_guard_plugin<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
+    tauri::plugin::Builder::new("navigation-guard")
+        .on_navigation(|_webview, url| is_internal_navigation_url(url))
+        .js_init_script(include_str!("../scripts/block-anchor-navigation.js"))
+        .build()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(navigation_guard_plugin())
         .setup(|app| {
             let runtime = tokio::runtime::Runtime::new().expect("failed to create tokio runtime");
             let app_state = runtime
@@ -137,6 +145,21 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn is_internal_navigation_url(url: &url::Url) -> bool {
+    matches!(url.scheme(), "tauri" | "http" | "https")
+        && url
+            .host_str()
+            .is_some_and(|host| is_internal_navigation_host(host))
+}
+
+fn is_internal_navigation_host(host: &str) -> bool {
+    host == "localhost"
+        || host == "127.0.0.1"
+        || host == "tauri.localhost"
+        || host.ends_with(".localhost")
+        || host.contains("ipc.localhost")
 }
 
 fn init_logging(log_file: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {

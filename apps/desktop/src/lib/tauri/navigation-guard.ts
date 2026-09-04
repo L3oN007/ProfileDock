@@ -1,15 +1,28 @@
 import type { AnyRouter } from "@tanstack/react-router";
 
+import { isTauriBuild } from "@/lib/tauri/is-tauri-build";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 
+function isInternalAppPath(pathname: string): boolean {
+	if (!pathname.startsWith("/")) {
+		return false;
+	}
+
+	if (pathname.startsWith("/assets/")) {
+		return false;
+	}
+
+	return !/\.[a-z0-9]+$/i.test(pathname);
+}
+
 export function initTauriNavigationGuard(getRouter: () => AnyRouter) {
+	if (!isTauriBuild && !isDesktopRuntime()) {
+		return;
+	}
+
 	document.addEventListener(
 		"click",
 		(event) => {
-			if (!isDesktopRuntime()) {
-				return;
-			}
-
 			if (event.defaultPrevented || event.button !== 0) {
 				return;
 			}
@@ -45,12 +58,16 @@ export function initTauriNavigationGuard(getRouter: () => AnyRouter) {
 				return;
 			}
 
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
 			if (url.origin !== window.location.origin) {
 				return;
 			}
 
-			event.preventDefault();
-			event.stopPropagation();
+			if (!isInternalAppPath(url.pathname)) {
+				return;
+			}
 
 			const destination = `${url.pathname}${url.search}${url.hash}`;
 			const router = getRouter();

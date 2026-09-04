@@ -1,11 +1,10 @@
-import { RouterButton } from "@/components/router-button";
-
 import {
 	DetailRow,
 	PageShell,
 	PageTitle,
 	SectionBlock,
 } from "@/app/layout/page-shell";
+import { RouterButton } from "@/components/router-button";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { useBrowserStatus } from "@/lib/query/hooks";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";

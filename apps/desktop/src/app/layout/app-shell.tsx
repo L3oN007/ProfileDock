@@ -3,7 +3,6 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@ProfileDock/ui/components/avatar";
-import { RouterLink } from "@/components/router-link";
 import {
 	Activity,
 	ChevronDown,
@@ -18,10 +17,10 @@ import {
 	Users,
 } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
-
 import { notion } from "@/app/design/system";
 import { AppHeader } from "@/app/layout/app-header";
 import { RouterButton } from "@/components/router-button";
+import { RouterLink } from "@/components/router-link";
 import { getUserInitials, useAppUser } from "@/features/auth/session";
 
 const primaryNav = [

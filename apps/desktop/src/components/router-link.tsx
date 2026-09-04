@@ -2,6 +2,7 @@ import { cn } from "@ProfileDock/ui/lib/utils";
 import { Link, useMatchRoute, useNavigate } from "@tanstack/react-router";
 import type { MouseEvent, ReactNode } from "react";
 
+import { isTauriBuild } from "@/lib/tauri/is-tauri-build";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 
 const inlineReset =
@@ -33,9 +34,10 @@ export function RouterLink({
 }: RouterLinkProps) {
 	const navigate = useNavigate();
 	const matchRoute = useMatchRoute();
+	const useButtonNavigation = isTauriBuild || isDesktopRuntime();
 	const isActive = Boolean(matchRoute({ to, params, search, fuzzy: false }));
 	const mergedClassName = cn(
-		isDesktopRuntime() && (variant === "nav" ? navReset : inlineReset),
+		useButtonNavigation && (variant === "nav" ? navReset : inlineReset),
 		className,
 		isActive && activeProps?.className,
 	);
@@ -47,9 +49,13 @@ export function RouterLink({
 		}
 	};
 
-	if (isDesktopRuntime()) {
+	if (useButtonNavigation) {
 		return (
-			<button type="button" className={mergedClassName} onClick={handleNavigate}>
+			<button
+				type="button"
+				className={mergedClassName}
+				onClick={handleNavigate}
+			>
 				{children}
 			</button>
 		);
