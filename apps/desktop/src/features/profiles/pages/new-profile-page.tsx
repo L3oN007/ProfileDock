@@ -2,23 +2,49 @@ import { Badge } from "@ProfileDock/ui/components/badge";
 import { Button } from "@ProfileDock/ui/components/button";
 import { Checkbox } from "@ProfileDock/ui/components/checkbox";
 import { Input } from "@ProfileDock/ui/components/input";
+import { Textarea } from "@ProfileDock/ui/components/textarea";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { notion } from "@/app/design/system";
 import { PageShell, PageTab, PageTabs, PageTitle } from "@/app/layout/page-shell";
+import { useCloakCapabilities } from "@/features/cloak/api/queries";
 import { useGroups } from "@/features/groups/api/queries";
+import { ProfileFingerprintTab } from "@/features/profiles/components/new-profile/profile-fingerprint-tab";
+import {
+	ProfileOsPicker,
+	defaultOsSelection,
+} from "@/features/profiles/components/new-profile/profile-os-picker";
+import { ProfileOverviewSidebar } from "@/features/profiles/components/new-profile/profile-overview-sidebar";
 import { useCreateProfileFull } from "@/features/profiles/api/mutations";
+import {
+	buildPlatformLabel,
+	type OsFamily,
+	parsePlatformLabel,
+} from "@/features/profiles/lib/platform-config";
 import { useProxies } from "@/features/proxies/api/queries";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { FormField } from "@/features/shared/form-field";
 import { FormSelect } from "@/features/shared/form-select";
+import { SegmentedControl } from "@/features/shared/segmented-control";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { CreateProfileFullInput } from "@/types/profile";
 import type { ProxyProtocol } from "@/types/proxy";
 
-type TabId = "general" | "proxy" | "platform" | "browser" | "advanced";
+type TabId =
+	| "general"
+	| "proxy"
+	| "platform"
+	| "fingerprint"
+	| "browser"
+	| "advanced";
+
+interface NewProfileDraft extends CreateProfileFullInput {
+	osFamily?: OsFamily;
+	osVersion?: string;
+	cookiesDraft?: string;
+}
 
 const DRAFT_STORAGE_KEY = "profiledock.new-profile-draft";
 const NONE_VALUE = "__none__";
@@ -27,14 +53,19 @@ const tabs: { id: TabId; label: string }[] = [
 	{ id: "general", label: "General" },
 	{ id: "proxy", label: "Proxy" },
 	{ id: "platform", label: "Platform" },
+	{ id: "fingerprint", label: "Fingerprint" },
 	{ id: "browser", label: "Browser" },
 	{ id: "advanced", label: "Advanced" },
 ];
 
-const defaultForm: CreateProfileFullInput = {
+const defaultOs = defaultOsSelection();
+
+const defaultForm: NewProfileDraft = {
 	name: "",
 	tags: [],
 	proxyMode: "none",
+	osFamily: defaultOs.osFamily,
+	osVersion: defaultOs.osVersion,
 	browser: {
 		startupUrls: [],
 		downloadMode: "profile",
@@ -49,11 +80,16 @@ export function NewProfilePage() {
 	const createProfile = useCreateProfileFull();
 	const groupsQuery = useGroups();
 	const proxiesQuery = useProxies();
+	const capabilitiesQuery = useCloakCapabilities();
 	const [tab, setTab] = useState<TabId>("general");
-	const [form, setForm] = useState<CreateProfileFullInput>(defaultForm);
+	const [form, setForm] = useState<NewProfileDraft>(defaultForm);
 	const [tagInput, setTagInput] = useState("");
 	const [startupUrl, setStartupUrl] = useState("");
 	const [draftRestored, setDraftRestored] = useState(false);
+	const [fingerprintSeed, setFingerprintSeed] = useState(0);
+
+	const osFamily = form.osFamily ?? defaultOs.osFamily;
+	const osVersion = form.osVersion ?? defaultOs.osVersion;
 
 	const groupOptions = useMemo(
 		() => [
@@ -66,12 +102,6 @@ export function NewProfilePage() {
 		[groupsQuery.data],
 	);
 
-	const proxyModeOptions = [
-		{ value: "none", label: "No proxy" },
-		{ value: "saved", label: "Saved proxy" },
-		{ value: "custom", label: "Custom proxy" },
-	];
-
 	const protocolOptions = [
 		{ value: "socks5", label: "SOCKS5" },
 		{ value: "http", label: "HTTP" },
@@ -81,6 +111,11 @@ export function NewProfilePage() {
 	const windowModeOptions = [
 		{ value: "normal", label: "Normal" },
 		{ value: "maximized", label: "Maximized" },
+	];
+
+	const downloadModeOptions = [
+		{ value: "profile", label: "Profile downloads folder" },
+		{ value: "custom", label: "Custom directory" },
 	];
 
 	const savedProxyOptions = useMemo(
@@ -98,9 +133,15 @@ export function NewProfilePage() {
 		try {
 			const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
 			if (!raw) return;
-			const parsed = JSON.parse(raw) as CreateProfileFullInput;
+			const parsed = JSON.parse(raw) as NewProfileDraft;
 			if (parsed && typeof parsed === "object") {
-				setForm({ ...defaultForm, ...parsed });
+				const restored = { ...defaultForm, ...parsed };
+				if (!restored.osFamily || !restored.osVersion) {
+					const fromLabel = parsePlatformLabel(restored.platformLabel);
+					restored.osFamily = fromLabel.osFamily;
+					restored.osVersion = fromLabel.osVersion;
+				}
+				setForm(restored);
 				setDraftRestored(true);
 			}
 		} catch {
@@ -133,7 +174,19 @@ export function NewProfilePage() {
 	};
 
 	const handleCreate = async () => {
-		const profile = await createProfile.mutateAsync(form);
+		const {
+			osFamily: draftOsFamily,
+			osVersion: draftOsVersion,
+			cookiesDraft: _cookiesDraft,
+			...payload
+		} = form;
+		const profile = await createProfile.mutateAsync({
+			...payload,
+			platformLabel: buildPlatformLabel(
+				draftOsFamily ?? defaultOs.osFamily,
+				draftOsVersion ?? defaultOs.osVersion,
+			),
+		});
 		localStorage.removeItem(DRAFT_STORAGE_KEY);
 		navigate({ to: "/profiles/$profileId", params: { profileId: profile.id } });
 	};
@@ -155,7 +208,11 @@ export function NewProfilePage() {
 				"Not selected")
 			: form.proxyMode === "custom"
 				? (form.customProxy?.name || "Custom proxy")
-				: "None";
+				: "No proxy (local network)";
+
+	const refreshFingerprint = () => {
+		setFingerprintSeed((current) => current + 1);
+	};
 
 	return (
 		<PageShell>
@@ -163,7 +220,7 @@ export function NewProfilePage() {
 
 			<PageTitle
 				title="New browser profile"
-				description="Configure profile metadata, proxy, and CloakBrowser settings."
+				description="Configure profile identity, proxy, platform, and CloakBrowser launch settings."
 				actions={
 					<div className="flex gap-2">
 						{draftRestored ? (
@@ -184,7 +241,7 @@ export function NewProfilePage() {
 				}
 			/>
 
-			<div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_260px]">
+			<div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_300px]">
 				<div className="space-y-8">
 					<PageTabs>
 						{tabs.map((item) => (
@@ -204,12 +261,16 @@ export function NewProfilePage() {
 								<FormField label="Profile name">
 									<Input
 										className={notion.input}
-										placeholder="e.g. Marketing — US"
+										placeholder="Optional: profile name"
+										maxLength={100}
 										value={form.name}
 										onChange={(e) =>
 											setForm((c) => ({ ...c, name: e.target.value }))
 										}
 									/>
+									<p className="text-muted-foreground text-xs">
+										{form.name.length}/100
+									</p>
 								</FormField>
 								<FormField label="Group">
 									<FormSelect
@@ -221,7 +282,7 @@ export function NewProfilePage() {
 											}))
 										}
 										options={groupOptions}
-										placeholder="Select group"
+										placeholder="Ungrouped"
 									/>
 								</FormField>
 								<FormField
@@ -267,32 +328,52 @@ export function NewProfilePage() {
 										</div>
 									) : null}
 								</FormField>
+								<FormField
+									label="Cookies"
+									hint="Paste cookie JSON here. You can also import from a file on the profile detail page after creation."
+								>
+									<Textarea
+										className={notion.textarea}
+										placeholder="JSON, Netscape, or Name-Value formats are supported."
+										value={form.cookiesDraft ?? ""}
+										onChange={(e) =>
+											setForm((c) => ({ ...c, cookiesDraft: e.target.value }))
+										}
+									/>
+								</FormField>
 								<FormField label="Remark">
-									<Input
-										className={notion.input}
-										placeholder="Optional short note"
+									<Textarea
+										className={notion.textarea}
+										placeholder="Optional note visible in the profile list"
+										maxLength={2000}
 										value={form.remark ?? ""}
 										onChange={(e) =>
 											setForm((c) => ({ ...c, remark: e.target.value }))
 										}
 									/>
+									<p className="text-muted-foreground text-xs">
+										{(form.remark ?? "").length}/2000
+									</p>
 								</FormField>
 							</>
 						) : null}
 
 						{tab === "proxy" ? (
 							<>
-								<FormField label="Proxy mode">
-									<FormSelect
+								<FormField label="Proxy setting">
+									<SegmentedControl
 										value={form.proxyMode ?? "none"}
-										onValueChange={(value) =>
+										onChange={(value) =>
 											setForm((c) => ({
 												...c,
-												proxyMode:
-													value as CreateProfileFullInput["proxyMode"],
+												proxyMode: value,
 											}))
 										}
-										options={proxyModeOptions}
+										options={[
+											{ value: "none", label: "No proxy" },
+											{ value: "saved", label: "Saved proxies" },
+											{ value: "custom", label: "Custom" },
+										]}
 									/>
 								</FormField>
 								{form.proxyMode === "saved" ? (
@@ -311,7 +392,7 @@ export function NewProfilePage() {
 									</FormField>
 								) : null}
 								{form.proxyMode === "custom" ? (
-									<div className="space-y-6">
+									<div className="space-y-6 rounded-lg border border-border/50 bg-surface p-4">
 										<FormField label="Proxy name">
 											<Input
 												className={notion.input}
@@ -444,19 +525,24 @@ export function NewProfilePage() {
 						) : null}
 
 						{tab === "platform" ? (
-							<FormField
-								label="Platform label"
-								hint="Used for filtering and organization in the profile list."
-							>
-								<Input
-									className={notion.input}
-									placeholder="General, QA, Web Testing..."
-									value={form.platformLabel ?? ""}
-									onChange={(e) =>
-										setForm((c) => ({ ...c, platformLabel: e.target.value }))
-									}
-								/>
-							</FormField>
+							<ProfileOsPicker
+								osFamily={osFamily}
+								osVersion={osVersion}
+								onOsFamilyChange={(value) =>
+									setForm((c) => ({ ...c, osFamily: value }))
+								}
+								onOsVersionChange={(value) =>
+									setForm((c) => ({ ...c, osVersion: value }))
+								}
+							/>
+						) : null}
+
+						{tab === "fingerprint" ? (
+							<ProfileFingerprintTab
+								key={fingerprintSeed}
+								form={form}
+								capabilities={capabilitiesQuery.data}
+							/>
 						) : null}
 
 						{tab === "browser" ? (
@@ -513,9 +599,26 @@ export function NewProfilePage() {
 											{(form.browser?.startupUrls ?? []).map((url) => (
 												<li
 													key={url}
-													className="truncate text-muted-foreground text-xs"
+													className="flex items-center justify-between gap-2 truncate text-muted-foreground text-xs"
 												>
-													{url}
+													<span className="truncate">{url}</span>
+													<button
+														type="button"
+														className="shrink-0 text-muted-foreground hover:text-foreground"
+														onClick={() =>
+															setForm((c) => ({
+																...c,
+																browser: {
+																	...c.browser,
+																	startupUrls: (
+																		c.browser?.startupUrls ?? []
+																	).filter((item) => item !== url),
+																},
+															}))
+														}
+													>
+														<X className="size-3" />
+													</button>
 												</li>
 											))}
 										</ul>
@@ -536,6 +639,39 @@ export function NewProfilePage() {
 										options={windowModeOptions}
 									/>
 								</FormField>
+								<FormField label="Download directory">
+									<FormSelect
+										value={form.browser?.downloadMode ?? "profile"}
+										onValueChange={(value) =>
+											setForm((c) => ({
+												...c,
+												browser: {
+													...c.browser,
+													downloadMode: value as "profile" | "custom",
+												},
+											}))
+										}
+										options={downloadModeOptions}
+									/>
+								</FormField>
+								{form.browser?.downloadMode === "custom" ? (
+									<FormField label="Custom download path">
+										<Input
+											className={notion.input}
+											placeholder="/path/to/downloads"
+											value={form.browser?.customDownloadDir ?? ""}
+											onChange={(e) =>
+												setForm((c) => ({
+													...c,
+													browser: {
+														...c.browser,
+														customDownloadDir: e.target.value,
+													},
+												}))
+											}
+										/>
+									</FormField>
+								) : null}
 								<label className="flex cursor-pointer items-center gap-2.5 py-1">
 									<Checkbox
 										checked={form.browser?.restoreSession ?? true}
@@ -558,7 +694,7 @@ export function NewProfilePage() {
 
 						{tab === "advanced" ? (
 							<FormField label="Notes">
-								<textarea
+								<Textarea
 									className={notion.textarea}
 									placeholder="Internal notes about this profile..."
 									value={form.notes ?? ""}
@@ -571,60 +707,16 @@ export function NewProfilePage() {
 					</div>
 				</div>
 
-				<aside className="space-y-5 xl:pt-1">
-					<div>
-						<h2 className="font-medium text-foreground text-sm">Overview</h2>
-						<p className="mt-1 text-muted-foreground text-xs leading-relaxed">
-							Live summary of your configuration.
-						</p>
-					</div>
-					<dl className="space-y-0">
-						<OverviewRow label="Name" value={form.name || "—"} />
-						<OverviewRow label="Group" value={selectedGroupName} />
-						<OverviewRow
-							label="Tags"
-							value={
-								(form.tags ?? []).length > 0 ? (
-									<div className="flex flex-wrap justify-end gap-1">
-										{(form.tags ?? []).map((tag) => (
-											<Badge key={tag} variant="neutral">
-												{tag}
-											</Badge>
-										))}
-									</div>
-								) : (
-									"—"
-								)
-							}
-						/>
-						<OverviewRow label="Browser" value="CloakBrowser" />
-						<OverviewRow label="Proxy" value={proxySummary} />
-						<OverviewRow
-							label="Startup URLs"
-							value={String(form.browser?.startupUrls?.length ?? 0)}
-						/>
-						<OverviewRow
-							label="Restore session"
-							value={form.browser?.restoreSession ? "Enabled" : "Disabled"}
-						/>
-					</dl>
-				</aside>
+				<ProfileOverviewSidebar
+					form={form}
+					osFamily={osFamily}
+					osVersion={osVersion}
+					groupName={selectedGroupName}
+					proxySummary={proxySummary}
+					capabilities={capabilitiesQuery.data}
+					onRefreshFingerprint={refreshFingerprint}
+				/>
 			</div>
 		</PageShell>
-	);
-}
-
-function OverviewRow({
-	label,
-	value,
-}: {
-	label: string;
-	value: ReactNode;
-}) {
-	return (
-		<div className="flex items-start justify-between gap-4 border-border/50 border-b py-3 last:border-0">
-			<dt className="shrink-0 text-muted-foreground text-xs">{label}</dt>
-			<dd className="min-w-0 text-right text-foreground text-xs">{value}</dd>
-		</div>
 	);
 }

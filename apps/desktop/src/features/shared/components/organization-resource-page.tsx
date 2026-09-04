@@ -1,6 +1,6 @@
-import { Badge } from "@ProfileDock/ui/components/badge";
-import { Button } from "@ProfileDock/ui/components/button";
-import { Checkbox } from "@ProfileDock/ui/components/checkbox";
+import { Badge } from '@ProfileDock/ui/components/badge';
+import { Button } from '@ProfileDock/ui/components/button';
+import { Checkbox } from '@ProfileDock/ui/components/checkbox';
 import {
 	Dialog,
 	DialogContent,
@@ -8,16 +8,16 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@ProfileDock/ui/components/dialog";
+} from '@ProfileDock/ui/components/dialog';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@ProfileDock/ui/components/dropdown-menu";
-import { Input } from "@ProfileDock/ui/components/input";
-import { Skeleton } from "@ProfileDock/ui/components/skeleton";
+} from '@ProfileDock/ui/components/dropdown-menu';
+import { Input } from '@ProfileDock/ui/components/input';
+import { Skeleton } from '@ProfileDock/ui/components/skeleton';
 import {
 	Table,
 	TableBody,
@@ -25,9 +25,9 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@ProfileDock/ui/components/table";
-import { cn } from "@ProfileDock/ui/lib/utils";
-import { Link } from "@tanstack/react-router";
+} from '@ProfileDock/ui/components/table';
+import { cn } from '@ProfileDock/ui/lib/utils';
+import { Link } from '@tanstack/react-router';
 import {
 	ArrowUpRight,
 	MoreHorizontal,
@@ -37,10 +37,10 @@ import {
 	Search,
 	Trash2,
 	type LucideIcon,
-} from "lucide-react";
-import { useMemo, useState } from "react";
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-import { notion } from "@/app/design/system";
+import { notion } from '@/app/design/system';
 import {
 	ContentSection,
 	EmptyState,
@@ -48,9 +48,9 @@ import {
 	PageTitle,
 	StatsBar,
 	StatTile,
-} from "@/app/layout/page-shell";
-import { FilterSelect } from "@/features/shared/filter-select";
-import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
+} from '@/app/layout/page-shell';
+import { FilterSelect } from '@/features/shared/filter-select';
+import { DesktopOnlyBanner } from '@/features/shared/desktop-only-banner';
 
 export interface OrganizationResource {
 	id: string;
@@ -69,50 +69,60 @@ export interface OrganizationResourceConfig {
 	emptyTitle: string;
 	emptyDescription: string;
 	Icon: LucideIcon;
-	profilesFilterKey: "groupId" | "tagId";
+	profilesFilterKey: 'groupId' | 'tagId';
 }
 
-type SortKey = "name_asc" | "name_desc" | "profiles_desc" | "created_desc" | "created_asc";
+type SortKey =
+	| 'name_asc'
+	| 'name_desc'
+	| 'profiles_desc'
+	| 'created_desc'
+	| 'created_asc';
 
 const SORT_OPTIONS = [
-	{ value: "name_asc", label: "Name A–Z" },
-	{ value: "name_desc", label: "Name Z–A" },
-	{ value: "profiles_desc", label: "Most profiles" },
-	{ value: "created_desc", label: "Newest first" },
-	{ value: "created_asc", label: "Oldest first" },
+	{ value: 'name_asc', label: 'Name A–Z' },
+	{ value: 'name_desc', label: 'Name Z–A' },
+	{ value: 'profiles_desc', label: 'Most profiles' },
+	{ value: 'created_desc', label: 'Newest first' },
+	{ value: 'created_asc', label: 'Oldest first' },
 ];
 
 function formatDateTime(value: string) {
 	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) return "—";
+	if (Number.isNaN(date.getTime())) return '—';
 	return date.toLocaleString(undefined, {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-		hour: "2-digit",
-		minute: "2-digit",
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
 	});
 }
 
-function sortItems<T extends OrganizationResource>(items: T[], sort: SortKey) {
+function sortItems<T extends OrganizationResource>(
+	items: T[],
+	sort: SortKey,
+) {
 	const next = [...items];
 	switch (sort) {
-		case "name_asc":
+		case 'name_asc':
 			return next.sort((a, b) => a.name.localeCompare(b.name));
-		case "name_desc":
+		case 'name_desc':
 			return next.sort((a, b) => b.name.localeCompare(a.name));
-		case "profiles_desc":
+		case 'profiles_desc':
 			return next.sort((a, b) => b.profile_count - a.profile_count);
-		case "created_asc":
+		case 'created_asc':
 			return next.sort(
 				(a, b) =>
-					new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+					new Date(a.created_at).getTime() -
+					new Date(b.created_at).getTime(),
 			);
-		case "created_desc":
+		case 'created_desc':
 		default:
 			return next.sort(
 				(a, b) =>
-					new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+					new Date(b.created_at).getTime() -
+					new Date(a.created_at).getTime(),
 			);
 	}
 }
@@ -120,13 +130,20 @@ function sortItems<T extends OrganizationResource>(items: T[], sort: SortKey) {
 function StatCard({
 	label,
 	value,
-	tone = "default",
+	tone = 'default',
 }: {
 	label: string;
 	value: string | number;
-	tone?: "default" | "warning" | "primary";
+	tone?: 'default' | 'warning' | 'primary';
 }) {
-	return <StatTile label={label} value={value} tone={tone} variant="segment" />;
+	return (
+		<StatTile
+			label={label}
+			value={value}
+			tone={tone}
+			variant='segment'
+		/>
+	);
 }
 
 interface OrganizationResourcePageProps {
@@ -156,23 +173,23 @@ export function OrganizationResourcePage({
 	isDeleting = false,
 	isRenaming = false,
 }: OrganizationResourcePageProps) {
-	const [search, setSearch] = useState("");
-	const [sort, setSort] = useState<SortKey>("created_desc");
+	const [search, setSearch] = useState('');
+	const [sort, setSort] = useState<SortKey>('created_desc');
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 	const [createOpen, setCreateOpen] = useState(false);
-	const [createName, setCreateName] = useState("");
-	const [renameTarget, setRenameTarget] = useState<OrganizationResource | null>(
-		null,
-	);
-	const [renameName, setRenameName] = useState("");
-	const [deleteTarget, setDeleteTarget] = useState<OrganizationResource | null>(
-		null,
-	);
+	const [createName, setCreateName] = useState('');
+	const [renameTarget, setRenameTarget] =
+		useState<OrganizationResource | null>(null);
+	const [renameName, setRenameName] = useState('');
+	const [deleteTarget, setDeleteTarget] =
+		useState<OrganizationResource | null>(null);
 
 	const filteredItems = useMemo(() => {
 		const query = search.trim().toLowerCase();
 		const matched = query
-			? items.filter((item) => item.name.toLowerCase().includes(query))
+			? items.filter((item) =>
+					item.name.toLowerCase().includes(query),
+				)
 			: items;
 		return sortItems(matched, sort);
 	}, [items, search, sort]);
@@ -182,7 +199,9 @@ export function OrganizationResourcePage({
 			(sum, item) => sum + item.profile_count,
 			0,
 		);
-		const unused = items.filter((item) => item.profile_count === 0).length;
+		const unused = items.filter(
+			(item) => item.profile_count === 0,
+		).length;
 		return {
 			total: items.length,
 			totalProfiles,
@@ -196,12 +215,16 @@ export function OrganizationResourcePage({
 	const someSelected = selectedIds.length > 0;
 
 	const toggleAll = (checked: boolean) => {
-		setSelectedIds(checked ? filteredItems.map((item) => item.id) : []);
+		setSelectedIds(
+			checked ? filteredItems.map((item) => item.id) : [],
+		);
 	};
 
 	const toggleOne = (id: string, checked: boolean) => {
 		setSelectedIds((current) =>
-			checked ? [...current, id] : current.filter((item) => item !== id),
+			checked
+				? [...current, id]
+				: current.filter((item) => item !== id),
 		);
 	};
 
@@ -209,7 +232,7 @@ export function OrganizationResourcePage({
 		const trimmed = createName.trim();
 		if (!trimmed) return;
 		onCreate(trimmed);
-		setCreateName("");
+		setCreateName('');
 		setCreateOpen(false);
 	};
 
@@ -219,7 +242,7 @@ export function OrganizationResourcePage({
 		if (!trimmed) return;
 		onRename(renameTarget.id, trimmed);
 		setRenameTarget(null);
-		setRenameName("");
+		setRenameName('');
 	};
 
 	const handleDelete = () => {
@@ -239,7 +262,7 @@ export function OrganizationResourcePage({
 	};
 
 	const profilesSearch =
-		config.profilesFilterKey === "groupId"
+		config.profilesFilterKey === 'groupId'
 			? (id: string) => ({ groupId: id })
 			: (id: string) => ({ tagId: id });
 
@@ -249,8 +272,8 @@ export function OrganizationResourcePage({
 				title={config.title}
 				description={config.description}
 				actions={
-					<Button size="sm" onClick={() => setCreateOpen(true)}>
-						<Plus className="size-3.5" />
+					<Button size='sm' onClick={() => setCreateOpen(true)}>
+						<Plus className='size-3.5' />
 						{config.createLabel}
 					</Button>
 				}
@@ -258,25 +281,28 @@ export function OrganizationResourcePage({
 			<DesktopOnlyBanner />
 
 			<StatsBar columns={3}>
-				<StatCard label={`Total ${config.plural}`} value={stats.total} />
 				<StatCard
-					label="Profiles linked"
-					value={stats.totalProfiles}
-					tone="primary"
+					label={`Total ${config.plural}`}
+					value={stats.total}
 				/>
 				<StatCard
-					label="Unused"
+					label='Profiles linked'
+					value={stats.totalProfiles}
+					tone='primary'
+				/>
+				<StatCard
+					label='Unused'
 					value={stats.unused}
-					tone={stats.unused > 0 ? "warning" : "default"}
+					tone={stats.unused > 0 ? 'warning' : 'default'}
 				/>
 			</StatsBar>
 
 			<ContentSection
 				title={`All ${config.plural}`}
 				actions={
-					<div className="flex flex-wrap items-center gap-2">
-						<div className="relative min-w-[200px]">
-							<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+					<div className='flex flex-wrap items-center gap-2'>
+						<div className='relative min-w-[200px]'>
+							<Search className='absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground' />
 							<Input
 								className={`${notion.input} pl-8`}
 								placeholder={config.searchPlaceholder}
@@ -290,61 +316,68 @@ export function OrganizationResourcePage({
 							options={SORT_OPTIONS}
 						/>
 						<Button
-							size="sm"
-							variant="outline"
+							size='sm'
+							variant='outline'
 							disabled={isFetching}
-							onClick={onRefresh}
-						>
+							onClick={onRefresh}>
 							<RefreshCw
-								className={cn("size-3.5", isFetching && "animate-spin")}
+								className={cn(
+									'size-3.5',
+									isFetching && 'animate-spin',
+								)}
 							/>
 							Refresh
 						</Button>
 					</div>
 				}
-				contentClassName="p-0"
-			>
+				contentClassName='p-0'>
 				{someSelected ? (
-					<div className="flex flex-wrap items-center justify-between gap-3 border-border/50 border-b bg-muted/20 px-0 py-3">
-						<p className="text-foreground text-sm">
-							<span className="font-medium">{selectedIds.length}</span> selected
+					<div className='flex flex-wrap items-center justify-between gap-3 border-border/50 border-b bg-surface px-0 py-3'>
+						<p className='text-foreground text-sm'>
+							<span className='font-medium'>
+								{selectedIds.length}
+							</span>{' '}
+							selected
 						</p>
 						<Button
-							size="sm"
-							variant="outline"
-							className="text-destructive hover:text-destructive"
+							size='sm'
+							variant='outline'
+							className='text-destructive hover:text-destructive'
 							disabled={isDeleting}
-							onClick={handleBulkDelete}
-						>
-							<Trash2 className="size-3.5" />
+							onClick={handleBulkDelete}>
+							<Trash2 className='size-3.5' />
 							Delete selected
 						</Button>
 					</div>
 				) : null}
 
 				{isLoading ? (
-					<div className="space-y-2 px-5 py-4">
-						<Skeleton className="h-10 w-full rounded-lg" />
-						<Skeleton className="h-10 w-full rounded-lg" />
-						<Skeleton className="h-10 w-full rounded-lg" />
+					<div className='space-y-2 px-5 py-4'>
+						<Skeleton className='h-10 w-full rounded-lg' />
+						<Skeleton className='h-10 w-full rounded-lg' />
+						<Skeleton className='h-10 w-full rounded-lg' />
 					</div>
 				) : filteredItems.length === 0 ? (
-					<div className="px-5 py-4">
+					<div className='px-5 py-4'>
 						<EmptyState
-							title={search ? `No ${config.plural} match your search` : config.emptyTitle}
+							title={
+								search
+									? `No ${config.plural} match your search`
+									: config.emptyTitle
+							}
 							description={
 								search
-									? "Try a different keyword or clear the search filter."
+									? 'Try a different keyword or clear the search filter.'
 									: config.emptyDescription
 							}
 						/>
 					</div>
 				) : (
-					<div className="overflow-hidden rounded-lg">
+					<div className='overflow-hidden rounded-lg'>
 						<Table>
 							<TableHeader>
 								<TableRow className={notion.tableHead}>
-									<TableHead className="w-10">
+									<TableHead className='w-10'>
 										<Checkbox
 											checked={allSelected}
 											onCheckedChange={(checked) =>
@@ -356,14 +389,18 @@ export function OrganizationResourcePage({
 									<TableHead>{config.singular}</TableHead>
 									<TableHead>Profiles</TableHead>
 									<TableHead>Created</TableHead>
-									<TableHead className="w-28 text-right">Actions</TableHead>
+									<TableHead className='w-28 text-right'>
+										Actions
+									</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{filteredItems.map((item) => {
 									const isSelected = selectedIds.includes(item.id);
 									return (
-										<TableRow key={item.id} className={notion.tableRow}>
+										<TableRow
+											key={item.id}
+											className={notion.tableRow}>
 											<TableCell>
 												<Checkbox
 													checked={isSelected}
@@ -374,85 +411,84 @@ export function OrganizationResourcePage({
 												/>
 											</TableCell>
 											<TableCell>
-												<div className="flex items-center gap-2.5">
-													<div className="flex size-7 items-center justify-center rounded-md border border-border/70 bg-muted/50">
-														<config.Icon className="size-3.5 text-muted-foreground" />
+												<div className='flex items-center gap-2.5'>
+													<div className='flex size-7 items-center justify-center rounded-md border border-border/70 bg-surface'>
+														<config.Icon className='size-3.5 text-muted-foreground' />
 													</div>
-													<span className="font-medium text-foreground text-sm">
+													<span className='font-medium text-foreground text-sm'>
 														{item.name}
 													</span>
 												</div>
 											</TableCell>
 											<TableCell>
-												<Badge variant={item.profile_count > 0 ? "info" : "neutral"}>
+												<Badge
+													variant={
+														item.profile_count > 0
+															? 'info'
+															: 'neutral'
+													}>
 													{item.profile_count}
 												</Badge>
 											</TableCell>
-											<TableCell className="text-muted-foreground text-xs">
+											<TableCell className='text-muted-foreground text-xs'>
 												{formatDateTime(item.created_at)}
 											</TableCell>
-											<TableCell className="text-right">
-												<div className="flex items-center justify-end gap-1">
+											<TableCell className='text-right'>
+												<div className='flex items-center justify-end gap-1'>
 													<Button
-														size="sm"
-														variant="outline"
+														size='sm'
+														variant='outline'
 														render={
 															<Link
-																to="/profiles"
+																to='/profiles'
 																search={profilesSearch(item.id)}
 															/>
-														}
-													>
-														<ArrowUpRight className="size-3.5" />
+														}>
+														<ArrowUpRight className='size-3.5' />
 														View
 													</Button>
 													<DropdownMenu>
 														<DropdownMenuTrigger
 															render={
 																<Button
-																	size="icon-sm"
-																	variant="outline"
+																	size='icon-sm'
+																	variant='outline'
 																	aria-label={`Actions for ${item.name}`}
 																/>
-															}
-														>
-															<MoreHorizontal className="size-3.5" />
+															}>
+															<MoreHorizontal className='size-3.5' />
 														</DropdownMenuTrigger>
 														<DropdownMenuContent
-															align="end"
-															className="min-w-40 rounded-md"
-														>
+															align='end'
+															className='min-w-40 rounded-md'>
 															{onRename ? (
 																<DropdownMenuItem
-																	className="gap-2 rounded-sm"
+																	className='gap-2 rounded-sm'
 																	onClick={() => {
 																		setRenameTarget(item);
 																		setRenameName(item.name);
-																	}}
-																>
-																	<Pencil className="size-3.5" />
+																	}}>
+																	<Pencil className='size-3.5' />
 																	Rename
 																</DropdownMenuItem>
 															) : null}
 															<DropdownMenuItem
-																className="gap-2 rounded-sm"
+																className='gap-2 rounded-sm'
 																render={
 																	<Link
-																		to="/profiles"
+																		to='/profiles'
 																		search={profilesSearch(item.id)}
 																	/>
-																}
-															>
-																<ArrowUpRight className="size-3.5" />
+																}>
+																<ArrowUpRight className='size-3.5' />
 																View profiles
 															</DropdownMenuItem>
 															<DropdownMenuSeparator />
 															<DropdownMenuItem
-																variant="destructive"
-																className="gap-2 rounded-sm"
-																onClick={() => setDeleteTarget(item)}
-															>
-																<Trash2 className="size-3.5" />
+																variant='destructive'
+																className='gap-2 rounded-sm'
+																onClick={() => setDeleteTarget(item)}>
+																<Trash2 className='size-3.5' />
 																Delete
 															</DropdownMenuItem>
 														</DropdownMenuContent>
@@ -469,11 +505,12 @@ export function OrganizationResourcePage({
 			</ContentSection>
 
 			<Dialog open={createOpen} onOpenChange={setCreateOpen}>
-				<DialogContent className="rounded-xl sm:max-w-md">
+				<DialogContent className='rounded-xl sm:max-w-md'>
 					<DialogHeader>
 						<DialogTitle>{config.createLabel}</DialogTitle>
 						<DialogDescription>
-							Enter a name for the new {config.singular.toLowerCase()}.
+							Enter a name for the new {config.singular.toLowerCase()}
+							.
 						</DialogDescription>
 					</DialogHeader>
 					<Input
@@ -483,17 +520,18 @@ export function OrganizationResourcePage({
 						value={createName}
 						onChange={(e) => setCreateName(e.target.value)}
 						onKeyDown={(e) => {
-							if (e.key === "Enter") handleCreate();
+							if (e.key === 'Enter') handleCreate();
 						}}
 					/>
 					<DialogFooter>
-						<Button variant="outline" onClick={() => setCreateOpen(false)}>
+						<Button
+							variant='outline'
+							onClick={() => setCreateOpen(false)}>
 							Cancel
 						</Button>
 						<Button
 							disabled={!createName.trim() || isCreating}
-							onClick={handleCreate}
-						>
+							onClick={handleCreate}>
 							Create
 						</Button>
 					</DialogFooter>
@@ -505,13 +543,15 @@ export function OrganizationResourcePage({
 					open={renameTarget != null}
 					onOpenChange={(open) => {
 						if (!open) setRenameTarget(null);
-					}}
-				>
-					<DialogContent className="rounded-xl sm:max-w-md">
+					}}>
+					<DialogContent className='rounded-xl sm:max-w-md'>
 						<DialogHeader>
-							<DialogTitle>Rename {config.singular.toLowerCase()}</DialogTitle>
+							<DialogTitle>
+								Rename {config.singular.toLowerCase()}
+							</DialogTitle>
 							<DialogDescription>
-								Update the name for &ldquo;{renameTarget?.name}&rdquo;.
+								Update the name for &ldquo;{renameTarget?.name}
+								&rdquo;.
 							</DialogDescription>
 						</DialogHeader>
 						<Input
@@ -520,17 +560,18 @@ export function OrganizationResourcePage({
 							value={renameName}
 							onChange={(e) => setRenameName(e.target.value)}
 							onKeyDown={(e) => {
-								if (e.key === "Enter") handleRename();
+								if (e.key === 'Enter') handleRename();
 							}}
 						/>
 						<DialogFooter>
-							<Button variant="outline" onClick={() => setRenameTarget(null)}>
+							<Button
+								variant='outline'
+								onClick={() => setRenameTarget(null)}>
 								Cancel
 							</Button>
 							<Button
 								disabled={!renameName.trim() || isRenaming}
-								onClick={handleRename}
-							>
+								onClick={handleRename}>
 								Save
 							</Button>
 						</DialogFooter>
@@ -542,11 +583,12 @@ export function OrganizationResourcePage({
 				open={deleteTarget != null}
 				onOpenChange={(open) => {
 					if (!open) setDeleteTarget(null);
-				}}
-			>
-				<DialogContent className="rounded-xl sm:max-w-md">
+				}}>
+				<DialogContent className='rounded-xl sm:max-w-md'>
 					<DialogHeader>
-						<DialogTitle>Delete {config.singular.toLowerCase()}?</DialogTitle>
+						<DialogTitle>
+							Delete {config.singular.toLowerCase()}?
+						</DialogTitle>
 						<DialogDescription>
 							{deleteTarget && deleteTarget.profile_count > 0
 								? `"${deleteTarget.name}" is linked to ${deleteTarget.profile_count} profile(s). Deleting will remove the ${config.singular.toLowerCase()} assignment but profiles will remain.`
@@ -554,14 +596,15 @@ export function OrganizationResourcePage({
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
-						<Button variant="outline" onClick={() => setDeleteTarget(null)}>
+						<Button
+							variant='outline'
+							onClick={() => setDeleteTarget(null)}>
 							Cancel
 						</Button>
 						<Button
-							variant="destructive"
+							variant='destructive'
 							disabled={isDeleting}
-							onClick={handleDelete}
-						>
+							onClick={handleDelete}>
 							Delete
 						</Button>
 					</DialogFooter>
