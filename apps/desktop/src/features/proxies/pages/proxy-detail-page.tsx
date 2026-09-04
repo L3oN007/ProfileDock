@@ -42,7 +42,7 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 						<Skeleton className="h-7 w-48" />
 					) : proxy ? (
 						<div className="flex items-center gap-2">
-							<h2 className="font-medium text-[#eef1f6] text-lg">
+							<h2 className="font-medium text-foreground text-lg">
 								{proxy.name}
 							</h2>
 							<ProxyHealthBadge status={proxy.healthStatus} />
@@ -52,7 +52,7 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 				{proxy ? (
 					<Button
 						variant="outline"
-						className="border-[#252a36]"
+						className="border-border"
 						disabled={checkProxy.isPending}
 						onClick={() => checkProxy.mutate(proxy.id)}
 					>
@@ -121,7 +121,7 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 					{assignmentsQuery.isLoading ? (
 						<Skeleton className="h-12 w-full" />
 					) : (assignmentsQuery.data ?? []).length === 0 ? (
-						<p className="text-[#8b93a1] text-sm">
+						<p className="text-muted-foreground text-sm">
 							Not assigned to any profile.
 						</p>
 					) : (
@@ -154,9 +154,9 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 							{(checksQuery.data ?? []).map((check) => (
 								<li
 									key={check.checkedAt}
-									className="flex justify-between gap-4 border-[#252a36] border-b py-2 last:border-0"
+									className="flex justify-between gap-4 border-border border-b py-2 last:border-0"
 								>
-									<span className="text-[#8b93a1]">
+									<span className="text-muted-foreground">
 										{new Date(check.checkedAt).toLocaleString()}
 									</span>
 									<span
@@ -170,7 +170,7 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 								</li>
 							))}
 							{(checksQuery.data ?? []).length === 0 ? (
-								<li className="text-[#8b93a1]">No checks yet</li>
+								<li className="text-muted-foreground">No checks yet</li>
 							) : null}
 						</ul>
 					)}
@@ -182,9 +182,9 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 
 function Row({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="flex justify-between gap-4 border-[#252a36] border-b py-2 last:border-0">
-			<span className="text-[#8b93a1]">{label}</span>
-			<span className="text-right text-[#dfe3ea]">{value}</span>
+		<div className="flex justify-between gap-4 border-border border-b py-2 last:border-0">
+			<span className="text-muted-foreground">{label}</span>
+			<span className="text-right text-foreground">{value}</span>
 		</div>
 	);
 }

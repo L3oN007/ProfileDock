@@ -49,9 +49,9 @@ export function ProfileCookiesCard({ profileId }: ProfileCookiesCardProps) {
 	};
 
 	return (
-		<div className="space-y-3 rounded-md border border-[#252a36] p-3">
-			<p className="font-medium text-[#dfe3ea] text-sm">Cookies</p>
-			<p className="text-[#8b93a1] text-xs">
+		<div className="space-y-3 rounded-md border border-border p-3">
+			<p className="font-medium text-foreground text-sm">Cookies</p>
+			<p className="text-muted-foreground text-xs">
 				Import/export portable JSON cookie bundles. Files are validated before being
 				stored in the profile directory.
 			</p>
@@ -59,7 +59,7 @@ export function ProfileCookiesCard({ profileId }: ProfileCookiesCardProps) {
 				<Button
 					size="sm"
 					variant="outline"
-					className="border-[#252a36]"
+					className="border-border"
 					disabled={!desktop || isWorking}
 					onClick={handleExport}
 				>
@@ -68,7 +68,7 @@ export function ProfileCookiesCard({ profileId }: ProfileCookiesCardProps) {
 				<Button
 					size="sm"
 					variant="outline"
-					className="border-[#252a36]"
+					className="border-border"
 					disabled={!desktop || isWorking}
 					onClick={handleImport}
 				>

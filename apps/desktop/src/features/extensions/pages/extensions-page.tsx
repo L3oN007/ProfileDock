@@ -16,7 +16,7 @@ export function ExtensionsPage() {
 				<CardHeader>
 					<CardTitle>Extensions</CardTitle>
 				</CardHeader>
-				<CardContent className="space-y-3 text-[#8b93a1] text-sm">
+				<CardContent className="space-y-3 text-muted-foreground text-sm">
 					<p>
 						Extensions Library is planned for a future release once CloakBrowser
 						extension-loading support is verified for managed runtimes.

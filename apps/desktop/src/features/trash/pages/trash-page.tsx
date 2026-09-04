@@ -37,16 +37,16 @@ export function TrashPage() {
 				</CardHeader>
 				<CardContent className="space-y-3">
 					{profiles.length === 0 ? (
-						<p className="text-[#8b93a1] text-sm">No archived profiles.</p>
+						<p className="text-muted-foreground text-sm">No archived profiles.</p>
 					) : (
 						profiles.map((profile) => (
 							<div
 								key={profile.id}
-								className="flex items-center justify-between rounded-md border border-[#252a36] p-3"
+								className="flex items-center justify-between rounded-md border border-border p-3"
 							>
 								<div>
-									<p className="text-[#dfe3ea] text-sm">{profile.name}</p>
-									<p className="text-[#8b93a1] text-xs">
+									<p className="text-foreground text-sm">{profile.name}</p>
+									<p className="text-muted-foreground text-xs">
 										{profile.display_id ?? profile.id}
 									</p>
 								</div>
@@ -54,7 +54,7 @@ export function TrashPage() {
 									<Button
 										size="sm"
 										variant="outline"
-										className="border-[#252a36]"
+										className="border-border"
 										onClick={() => restoreProfile.mutate(profile.id)}
 									>
 										Restore
@@ -62,7 +62,7 @@ export function TrashPage() {
 									<Button
 										size="sm"
 										variant="outline"
-										className="border-[#252a36] text-red-400"
+										className="border-border text-red-400"
 										onClick={() => {
 											setConfirmName(profile.name);
 											setConfirmInput("");
@@ -83,18 +83,18 @@ export function TrashPage() {
 						<CardTitle className="text-base">Delete permanently?</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-3">
-						<p className="text-[#8b93a1] text-sm">
+						<p className="text-muted-foreground text-sm">
 							Type <strong>{confirmName}</strong> to confirm permanent deletion.
 						</p>
 						<input
-							className="h-9 w-full rounded-md border border-[#252a36] bg-[#0f1117] px-3 text-sm"
+							className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
 							value={confirmInput}
 							onChange={(e) => setConfirmInput(e.target.value)}
 						/>
 						<div className="flex gap-2">
 							<Button
 								variant="outline"
-								className="border-[#252a36]"
+								className="border-border"
 								onClick={() => setConfirmName(null)}
 							>
 								Cancel

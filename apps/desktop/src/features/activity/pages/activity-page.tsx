@@ -31,7 +31,7 @@ export function ActivityPage() {
 				</CardHeader>
 				<CardContent>
 					{events.length === 0 ? (
-						<p className="text-[#8b93a1] text-sm">No activity yet.</p>
+						<p className="text-muted-foreground text-sm">No activity yet.</p>
 					) : (
 						<Table>
 							<TableHeader>
@@ -44,19 +44,19 @@ export function ActivityPage() {
 							<TableBody>
 								{events.map((event) => (
 									<TableRow key={event.id}>
-										<TableCell className="text-[#8b93a1] text-xs">
+										<TableCell className="text-muted-foreground text-xs">
 											{new Date(event.created_at).toLocaleString()}
 										</TableCell>
 										<TableCell>
 											<Link
 												to="/profiles/$profileId"
 												params={{ profileId: event.profile_id }}
-												className="text-[#dfe3ea] hover:text-sky-400"
+												className="text-foreground hover:text-chart-1"
 											>
 												{event.display_id ?? event.profile_name}
 											</Link>
 										</TableCell>
-										<TableCell className="text-[#dfe3ea]">
+										<TableCell className="text-foreground">
 											{event.event_type.replaceAll("_", " ")}
 										</TableCell>
 									</TableRow>

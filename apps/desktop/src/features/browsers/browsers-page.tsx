@@ -59,7 +59,7 @@ export function BrowsersPage() {
 					<Row label="Version" value={browserQuery.data?.version ?? "—"} />
 					<Button
 						variant="outline"
-						className="mt-2 border-[#252a36]"
+						className="mt-2 border-border"
 						render={<Link to="/settings" />}
 					>
 						Change executable
@@ -72,9 +72,9 @@ export function BrowsersPage() {
 
 function Row({ label, value }: { label: string; value: ReactNode }) {
 	return (
-		<div className="grid gap-1 border-[#252a36] border-b py-2 last:border-0">
-			<span className="text-[#8b93a1]">{label}</span>
-			<div className="text-[#dfe3ea]">{value}</div>
+		<div className="grid gap-1 border-border border-b py-2 last:border-0">
+			<span className="text-muted-foreground">{label}</span>
+			<div className="text-foreground">{value}</div>
 		</div>
 	);
 }

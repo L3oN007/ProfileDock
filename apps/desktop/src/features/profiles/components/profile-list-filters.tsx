@@ -1,5 +1,6 @@
 import { useTags } from "@/features/tags/api/queries";
 import { useProxies } from "@/features/proxies/api/queries";
+import { FilterSelect } from "@/features/shared/filter-select";
 
 interface ProfileListFiltersProps {
 	groupId?: string;
@@ -17,8 +18,7 @@ interface ProfileListFiltersProps {
 	groups: { id: string; name: string }[];
 }
 
-const selectClassName =
-	"h-8 rounded-md border border-[#252a36] bg-[#0f1117] px-2 text-sm";
+const ALL = "all";
 
 export function ProfileListFilters({
 	groupId,
@@ -39,79 +39,82 @@ export function ProfileListFilters({
 	const proxiesQuery = useProxies();
 
 	return (
-		<div className="flex flex-wrap items-center gap-2 border-[#1e2230] border-b bg-[#12161f] px-4 py-2">
-			<select
-				className={selectClassName}
-				value={groupId ?? ""}
-				onChange={(e) => onGroupChange(e.target.value || undefined)}
-			>
-				<option value="">All groups</option>
-				{groups.map((group) => (
-					<option key={group.id} value={group.id}>
-						{group.name}
-					</option>
-				))}
-			</select>
+		<div className="flex flex-wrap items-center gap-2 border-border border-b bg-background px-5 py-2.5">
+			<FilterSelect
+				value={groupId ?? ALL}
+				onValueChange={(value) => onGroupChange(value === ALL ? undefined : value)}
+				placeholder="All groups"
+				options={[
+					{ value: ALL, label: "All groups" },
+					...groups.map((group) => ({ value: group.id, label: group.name })),
+				]}
+			/>
 
-			<select
-				className={selectClassName}
-				value={tagId ?? ""}
-				onChange={(e) => onTagChange(e.target.value || undefined)}
-			>
-				<option value="">All tags</option>
-				{(tagsQuery.data ?? []).map((tag) => (
-					<option key={tag.id} value={tag.id}>
-						{tag.name}
-					</option>
-				))}
-			</select>
+			<FilterSelect
+				value={tagId ?? ALL}
+				onValueChange={(value) => onTagChange(value === ALL ? undefined : value)}
+				placeholder="All tags"
+				options={[
+					{ value: ALL, label: "All tags" },
+					...(tagsQuery.data ?? []).map((tag) => ({
+						value: tag.id,
+						label: tag.name,
+					})),
+				]}
+			/>
 
-			<select
-				className={selectClassName}
-				value={status ?? ""}
-				onChange={(e) => onStatusChange(e.target.value || undefined)}
-			>
-				<option value="">All statuses</option>
-				<option value="ready">Ready</option>
-				<option value="running">Running</option>
-				<option value="archived">Archived</option>
-			</select>
+			<FilterSelect
+				value={status ?? ALL}
+				onValueChange={(value) => onStatusChange(value === ALL ? undefined : value)}
+				placeholder="All statuses"
+				options={[
+					{ value: ALL, label: "All statuses" },
+					{ value: "ready", label: "Ready" },
+					{ value: "running", label: "Running" },
+					{ value: "archived", label: "Archived" },
+				]}
+			/>
 
-			<select
-				className={selectClassName}
-				value={proxyId ?? ""}
-				onChange={(e) => onProxyChange(e.target.value || undefined)}
-			>
-				<option value="">All proxies</option>
-				{(proxiesQuery.data ?? []).map((proxy) => (
-					<option key={proxy.id} value={proxy.id}>
-						{proxy.name}
-					</option>
-				))}
-			</select>
+			<FilterSelect
+				value={proxyId ?? ALL}
+				onValueChange={(value) => onProxyChange(value === ALL ? undefined : value)}
+				placeholder="All proxies"
+				options={[
+					{ value: ALL, label: "All proxies" },
+					...(proxiesQuery.data ?? []).map((proxy) => ({
+						value: proxy.id,
+						label: proxy.name,
+					})),
+				]}
+			/>
 
-			<select
-				className={selectClassName}
+			<div className="mx-1 hidden h-4 w-px bg-border sm:block" />
+
+			<FilterSelect
 				value={sort ?? "created_desc"}
-				onChange={(e) => onSortChange(e.target.value || undefined)}
-			>
-				<option value="created_desc">Newest</option>
-				<option value="name_asc">Name A-Z</option>
-				<option value="name_desc">Name Z-A</option>
-				<option value="updated_desc">Recently updated</option>
-				<option value="last_launch_desc">Last launch</option>
-			</select>
+				onValueChange={onSortChange}
+				placeholder="Sort"
+				options={[
+					{ value: "created_desc", label: "Newest" },
+					{ value: "name_asc", label: "Name A-Z" },
+					{ value: "name_desc", label: "Name Z-A" },
+					{ value: "updated_desc", label: "Recently updated" },
+					{ value: "last_launch_desc", label: "Last launch" },
+				]}
+			/>
 
-			<select
-				className={selectClassName}
-				value={pageSize}
-				onChange={(e) => onPageSizeChange(Number(e.target.value))}
-			>
-				<option value={25}>25 / page</option>
-				<option value={50}>50 / page</option>
-				<option value={100}>100 / page</option>
-				<option value={200}>200 / page</option>
-			</select>
+			<FilterSelect
+				value={String(pageSize)}
+				onValueChange={(value) => onPageSizeChange(Number(value))}
+				placeholder="Page size"
+				className="min-w-[108px]"
+				options={[
+					{ value: "25", label: "25 / page" },
+					{ value: "50", label: "50 / page" },
+					{ value: "100", label: "100 / page" },
+					{ value: "200", label: "200 / page" },
+				]}
+			/>
 		</div>
 	);
 }

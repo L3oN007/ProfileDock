@@ -6,7 +6,7 @@ import {
 } from "@ProfileDock/ui/components/card";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import { PageShell, PageTitle, panelClassName } from "@/app/layout/page-shell";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { countryFlag, formatNetworkLocation } from "@/lib/network/ip-api";
 import { useBrowserStatus, useHealthCheck } from "@/lib/query/hooks";
@@ -52,6 +52,10 @@ export function DashboardPage() {
 
 	return (
 		<PageShell>
+			<PageTitle
+				title="Dashboard"
+				description="System health and network overview for your workspace."
+			/>
 			<DesktopOnlyBanner />
 
 			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -138,7 +142,7 @@ function StatusCard({
 						<StatusDot status={status} />
 						<span>{statusLabel(status)}</span>
 						{detail ? (
-							<span className="truncate text-[#8b93a1]">({detail})</span>
+							<span className="truncate text-muted-foreground">({detail})</span>
 						) : null}
 					</>
 				)}
@@ -149,9 +153,9 @@ function StatusCard({
 
 function InfoRow({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="flex justify-between gap-3 border-[#252a36] border-b py-2 last:border-0">
-			<span className="text-[#8b93a1]">{label}</span>
-			<span className="text-right text-[#dfe3ea]">{value}</span>
+		<div className="flex justify-between gap-3 border-border border-b py-2 last:border-0">
+			<span className="text-muted-foreground">{label}</span>
+			<span className="text-right text-foreground">{value}</span>
 		</div>
 	);
 }

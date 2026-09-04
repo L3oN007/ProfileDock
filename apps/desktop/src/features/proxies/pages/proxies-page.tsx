@@ -48,9 +48,9 @@ export function ProxiesPage() {
 		<PageShell>
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="relative max-w-md flex-1">
-					<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-[#8b93a1]" />
+					<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
 					<Input
-						className="h-8 border-[#252a36] bg-[#12161f] pl-8"
+						className="h-8 border-border bg-muted/30 pl-8"
 						placeholder="Search proxies..."
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
@@ -59,7 +59,7 @@ export function ProxiesPage() {
 
 				<div className="flex items-center gap-2">
 					<select
-						className="h-8 rounded-md border border-[#252a36] bg-[#12161f] px-2 text-sm"
+						className="h-8 rounded-md border border-border bg-muted/30 px-2 text-sm"
 						value={statusFilter}
 						onChange={(e) =>
 							setStatusFilter(e.target.value as "all" | ProxyHealthStatus)
@@ -72,7 +72,7 @@ export function ProxiesPage() {
 					</select>
 
 					<Button
-						className="bg-sky-600 hover:bg-sky-500"
+						className="bg-primary text-primary-foreground hover:bg-primary/90"
 						size="sm"
 						onClick={() => setCreateOpen(true)}
 					>
@@ -91,7 +91,7 @@ export function ProxiesPage() {
 				</div>
 			) : proxies.length === 0 ? (
 				<div className={`rounded-lg p-8 text-center ${panelClassName}`}>
-					<p className="text-[#8b93a1]">
+					<p className="text-muted-foreground">
 						No proxies yet. Add your first proxy.
 					</p>
 				</div>
@@ -133,16 +133,16 @@ function ProxyCard({
 						<Link
 							to="/proxies/$proxyId"
 							params={{ proxyId: proxy.id }}
-							className="font-medium text-[#eef1f6] hover:text-sky-400"
+							className="font-medium text-foreground hover:text-chart-1"
 						>
 							{proxy.name}
 						</Link>
 						<ProxyHealthBadge status={proxy.healthStatus} />
 					</div>
-					<p className="mt-1 text-[#8b93a1] text-xs uppercase">
+					<p className="mt-1 text-muted-foreground text-xs uppercase">
 						{proxy.protocol}
 					</p>
-					<p className="font-mono text-[#c5cdd8] text-sm">
+					<p className="font-mono text-foreground text-sm">
 						{proxy.host}:{proxy.port}
 					</p>
 				</div>
@@ -151,7 +151,7 @@ function ProxyCard({
 					<Button
 						size="sm"
 						variant="outline"
-						className="border-[#252a36]"
+						className="border-border"
 						disabled={isChecking}
 						onClick={onCheck}
 					>
@@ -161,7 +161,7 @@ function ProxyCard({
 					<Button
 						size="sm"
 						variant="outline"
-						className="border-[#252a36]"
+						className="border-border"
 						disabled={proxy.assignedProfileCount > 0}
 						onClick={onArchive}
 					>
@@ -193,8 +193,8 @@ function ProxyCard({
 function Meta({ label, value }: { label: string; value: string }) {
 	return (
 		<div>
-			<p className="text-[#6f7888] text-xs">{label}</p>
-			<p className="text-[#dfe3ea]">{value}</p>
+			<p className="text-muted-foreground text-xs">{label}</p>
+			<p className="text-foreground">{value}</p>
 		</div>
 	);
 }

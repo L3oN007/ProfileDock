@@ -14,10 +14,6 @@ impl SqliteProfileRepository {
         Self { pool }
     }
 
-    pub fn pool(&self) -> &SqlitePool {
-        &self.pool
-    }
-
     pub async fn allocate_display_id(&self) -> Result<String, AppError> {
         let mut tx = self.pool.begin().await?;
         let next_value: i64 =

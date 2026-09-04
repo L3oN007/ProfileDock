@@ -39,7 +39,7 @@ export function UserMenu() {
 					<Button
 						variant="ghost"
 						size="sm"
-						className="h-8 gap-2 px-1.5 hover:bg-[#1e2230]"
+						className="h-8 gap-2 px-1.5 hover:bg-accent"
 					/>
 				}
 			>
@@ -47,18 +47,18 @@ export function UserMenu() {
 					{user.avatarUrl ? (
 						<AvatarImage src={user.avatarUrl} alt={user.name} />
 					) : null}
-					<AvatarFallback className="bg-sky-600/20 text-[11px] text-sky-300">
+					<AvatarFallback className="bg-muted text-[11px] text-foreground">
 						{initials || "G"}
 					</AvatarFallback>
 				</Avatar>
-				<span className="hidden max-w-[120px] truncate text-[#c5cdd8] text-xs md:inline">
+				<span className="hidden max-w-[120px] truncate text-foreground text-xs md:inline">
 					{user.name}
 				</span>
 			</DropdownMenuTrigger>
 
 			<DropdownMenuContent
 				align="end"
-				className="w-56 border-[#252a36] bg-[#161b26]"
+				className="w-56 border-border bg-card"
 			>
 				<DropdownMenuLabel className="font-normal">
 					<div className="flex items-center gap-3 py-1">
@@ -66,13 +66,13 @@ export function UserMenu() {
 							{user.avatarUrl ? (
 								<AvatarImage src={user.avatarUrl} alt={user.name} />
 							) : null}
-							<AvatarFallback className="bg-sky-600/20 text-sky-300">
+							<AvatarFallback className="bg-muted text-foreground">
 								{initials || "G"}
 							</AvatarFallback>
 						</Avatar>
 						<div className="min-w-0 flex-1">
 							<p className="truncate font-medium text-sm">{user.name}</p>
-							<p className="truncate text-[#8b93a1] text-xs">
+							<p className="truncate text-muted-foreground text-xs">
 								{user.email ?? "Not signed in"}
 							</p>
 						</div>
@@ -82,7 +82,7 @@ export function UserMenu() {
 					</Badge>
 				</DropdownMenuLabel>
 
-				<DropdownMenuSeparator className="bg-[#252a36]" />
+				<DropdownMenuSeparator />
 
 				{user.isAuthenticated ? (
 					<>
@@ -97,14 +97,14 @@ export function UserMenu() {
 							<Settings className="size-3.5" />
 							Settings
 						</DropdownMenuItem>
-						<DropdownMenuSeparator className="bg-[#252a36]" />
-						<DropdownMenuItem className="gap-2 text-amber-400">
+						<DropdownMenuSeparator />
+						<DropdownMenuItem className="gap-2 text-destructive">
 							<LogOut className="size-3.5" />
 							Sign out
 						</DropdownMenuItem>
 					</>
 				) : (
-					<DropdownMenuItem className="gap-2 text-sky-400" disabled>
+					<DropdownMenuItem className="gap-2 text-chart-1" disabled>
 						<LogIn className="size-3.5" />
 						Sign in (coming soon)
 					</DropdownMenuItem>

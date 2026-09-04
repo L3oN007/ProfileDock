@@ -1,6 +1,4 @@
 use chrono::{DateTime, Utc};
-
-use crate::domain::proxy::ResolvedBrowserProxy;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -56,13 +54,4 @@ pub struct BrowserInstance {
     pub config_snapshot_json: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone)]
-pub struct BrowserLaunchRequest {
-    pub profile_id: String,
-    pub user_data_dir: std::path::PathBuf,
-    pub download_dir: std::path::PathBuf,
-    pub startup_urls: Vec<String>,
-    pub proxy: Option<ResolvedBrowserProxy>,
 }

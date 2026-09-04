@@ -14,12 +14,12 @@ export function PlaceholderPage({
 		<PageShell>
 			<Card className={panelClassName}>
 				<CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-					<div className="flex size-12 items-center justify-center rounded-full bg-[#1e2230] text-[#8b93a1]">
+					<div className="flex size-12 items-center justify-center rounded-full bg-accent text-muted-foreground">
 						<Construction className="size-5" />
 					</div>
 					<div>
-						<h2 className="font-medium text-[#eef1f6] text-lg">{title}</h2>
-						<p className="mt-1 max-w-md text-[#8b93a1] text-sm">
+						<h2 className="font-medium text-foreground text-lg">{title}</h2>
+						<p className="mt-1 max-w-md text-muted-foreground text-sm">
 							{description}
 						</p>
 					</div>

@@ -75,7 +75,7 @@ export function CreateProxyDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="border-[#252a36] bg-[#161b26] sm:max-w-md">
+			<DialogContent className="border-border bg-card sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>Add Proxy</DialogTitle>
 				</DialogHeader>
@@ -83,7 +83,7 @@ export function CreateProxyDialog({
 				<div className="space-y-4 py-2">
 					<Field label="Name">
 						<Input
-							className="border-[#252a36] bg-[#0f1117]"
+							className="border-border bg-background"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 							placeholder="SG Proxy 01"
@@ -95,7 +95,7 @@ export function CreateProxyDialog({
 							value={protocol}
 							onValueChange={(value) => setProtocol(value as ProxyProtocol)}
 						>
-							<SelectTrigger className="border-[#252a36] bg-[#0f1117]">
+							<SelectTrigger className="border-border bg-background">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
@@ -109,7 +109,7 @@ export function CreateProxyDialog({
 					<div className="grid grid-cols-3 gap-3">
 						<Field label="Host" className="col-span-2">
 							<Input
-								className="border-[#252a36] bg-[#0f1117]"
+								className="border-border bg-background"
 								value={host}
 								onChange={(e) => setHost(e.target.value)}
 								placeholder="proxy.example.com"
@@ -117,7 +117,7 @@ export function CreateProxyDialog({
 						</Field>
 						<Field label="Port">
 							<Input
-								className="border-[#252a36] bg-[#0f1117]"
+								className="border-border bg-background"
 								value={port}
 								onChange={(e) => setPort(e.target.value)}
 								placeholder="1080"
@@ -137,7 +137,7 @@ export function CreateProxyDialog({
 						<div className="grid gap-3">
 							<Field label="Username">
 								<Input
-									className="border-[#252a36] bg-[#0f1117]"
+									className="border-border bg-background"
 									value={username}
 									onChange={(e) => setUsername(e.target.value)}
 								/>
@@ -145,7 +145,7 @@ export function CreateProxyDialog({
 							<Field label="Password">
 								<Input
 									type="password"
-									className="border-[#252a36] bg-[#0f1117]"
+									className="border-border bg-background"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 								/>
@@ -157,7 +157,7 @@ export function CreateProxyDialog({
 				<DialogFooter className="gap-2 sm:justify-between">
 					<Button
 						variant="outline"
-						className="border-[#252a36]"
+						className="border-border"
 						disabled={testProxy.isPending}
 						onClick={handleTest}
 					>
@@ -168,7 +168,7 @@ export function CreateProxyDialog({
 							Cancel
 						</Button>
 						<Button
-							className="bg-sky-600 hover:bg-sky-500"
+							className="bg-primary text-primary-foreground hover:bg-primary/90"
 							disabled={createProxy.isPending || !name || !host}
 							onClick={handleSave}
 						>
@@ -192,7 +192,7 @@ function Field({
 }) {
 	return (
 		<div className={className}>
-			<Label className="mb-1.5 block text-[#8b93a1] text-xs">{label}</Label>
+			<Label className="mb-1.5 block text-muted-foreground text-xs">{label}</Label>
 			{children}
 		</div>
 	);

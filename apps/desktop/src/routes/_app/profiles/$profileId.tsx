@@ -16,7 +16,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Play, Square } from "lucide-react";
 import { useState } from "react";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import { PageShell, PageTitle, panelClassName } from "@/app/layout/page-shell";
 import { useCloakInstallation } from "@/features/cloak/api/queries";
 import {
 	useLaunchProfile,
@@ -69,50 +69,43 @@ function ProfileDetailPage() {
 
 	return (
 		<PageShell>
-			<div className="flex items-center gap-3">
-				<Button variant="ghost" size="icon-sm" render={<Link to="/profiles" />}>
-					<ArrowLeft className="size-4" />
-				</Button>
-				<div className="flex-1">
-					{profileQuery.isLoading ? (
-						<Skeleton className="h-7 w-48" />
-					) : profile ? (
-						<>
-							<h2 className="font-medium text-[#eef1f6] text-lg">
-								{profile.name}
-							</h2>
-							<ProfileStatusBadge state={profile.state} />
-						</>
-					) : null}
-				</div>
-				{profile ? (
-					isRunning ? (
-						<Button
-							variant="outline"
-							className="border-[#252a36]"
-							disabled={stopProfile.isPending}
-							onClick={() => stopProfile.mutate(profile.id)}
-						>
-							<Square className="size-3.5" />
-							Stop Browser
+			<PageTitle
+				title={profileQuery.isLoading ? "Loading profile..." : (profile?.name ?? "Profile")}
+				description={profile?.display_id ?? profile?.id}
+				actions={
+					<div className="flex items-center gap-2">
+						<Button variant="ghost" size="icon-sm" render={<Link to="/profiles" />}>
+							<ArrowLeft className="size-4" />
 						</Button>
-					) : (
-						<Button
-							className="bg-sky-600 hover:bg-sky-500"
-							disabled={launchProfile.isPending || preflightQuery.isFetching}
-							onClick={handleLaunch}
-						>
-							<Play className="size-3.5" />
-							Launch
-						</Button>
-					)
-				) : null}
-			</div>
+						{profile ? <ProfileStatusBadge state={profile.state} /> : null}
+						{profile ? (
+							isRunning ? (
+								<Button
+									variant="outline"
+									disabled={stopProfile.isPending}
+									onClick={() => stopProfile.mutate(profile.id)}
+								>
+									<Square className="size-3.5" />
+									Stop
+								</Button>
+							) : (
+								<Button
+									disabled={launchProfile.isPending || preflightQuery.isFetching}
+									onClick={handleLaunch}
+								>
+									<Play className="size-3.5" />
+									Launch
+								</Button>
+							)
+						) : null}
+					</div>
+				}
+			/>
 
 			<DesktopOnlyBanner />
 
 			{preflightQuery.data && !preflightQuery.data.ready ? (
-				<div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-red-200 text-sm">
+				<div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive text-sm">
 					Preflight failed.{" "}
 					{preflightQuery.data.warnings
 						.map((warning) => warning.message)
@@ -124,19 +117,41 @@ function ProfileDetailPage() {
 				defaultValue="overview"
 				className="flex min-h-0 flex-1 flex-col gap-4"
 			>
-				<TabsList className="w-fit bg-[#161b26]">
-					<TabsTrigger value="overview">Overview</TabsTrigger>
-					<TabsTrigger value="browser">Browser</TabsTrigger>
-					<TabsTrigger value="network">Network</TabsTrigger>
-					<TabsTrigger value="activity">Activity</TabsTrigger>
+				<TabsList className="h-auto w-fit gap-1 bg-transparent p-0">
+					<TabsTrigger
+						value="overview"
+						className="rounded-md px-3 py-1.5 text-sm data-active:bg-accent data-active:shadow-none"
+					>
+						Overview
+					</TabsTrigger>
+					<TabsTrigger
+						value="browser"
+						className="rounded-md px-3 py-1.5 text-sm data-active:bg-accent data-active:shadow-none"
+					>
+						Browser
+					</TabsTrigger>
+					<TabsTrigger
+						value="network"
+						className="rounded-md px-3 py-1.5 text-sm data-active:bg-accent data-active:shadow-none"
+					>
+						Network
+					</TabsTrigger>
+					<TabsTrigger
+						value="activity"
+						className="rounded-md px-3 py-1.5 text-sm data-active:bg-accent data-active:shadow-none"
+					>
+						Activity
+					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="overview" className="mt-0">
 					<div className="grid gap-4 lg:grid-cols-2">
-						{profile ? <ProfileEditCard profile={profile} /> : null}
+						{profile ? <ProfileEditCard profile={profile} /> : (
+							<Skeleton className="h-64 w-full" />
+						)}
 						<Card className={panelClassName}>
 							<CardHeader>
-								<CardTitle>Session</CardTitle>
+								<CardTitle className="text-base">Session</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-2 text-sm">
 								<Row
@@ -192,7 +207,7 @@ function ProfileDetailPage() {
 				<TabsContent value="activity" className="mt-0">
 					<Card className={panelClassName}>
 						<CardHeader>
-							<CardTitle>Activity</CardTitle>
+							<CardTitle className="text-base">Activity</CardTitle>
 						</CardHeader>
 						<CardContent>
 							{eventsQuery.isLoading ? (
@@ -201,16 +216,16 @@ function ProfileDetailPage() {
 								<ul className="space-y-2 text-sm">
 									{(eventsQuery.data ?? []).map((event) => (
 										<li key={event.id} className="flex justify-between gap-4">
-											<span className="text-[#8b93a1]">
+											<span className="text-muted-foreground">
 												{formatEvent(event.event_type)}
 											</span>
-											<span className="shrink-0 text-[#8b93a1] text-xs">
+											<span className="shrink-0 text-muted-foreground text-xs">
 												{new Date(event.created_at).toLocaleString()}
 											</span>
 										</li>
 									))}
 									{(eventsQuery.data ?? []).length === 0 ? (
-										<li className="text-[#8b93a1]">No activity yet</li>
+										<li className="text-muted-foreground">No activity yet</li>
 									) : null}
 								</ul>
 							)}
@@ -232,9 +247,9 @@ function ProfileDetailPage() {
 
 function Row({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="flex justify-between gap-4 border-[#252a36] border-b py-2 last:border-0">
-			<span className="text-[#8b93a1]">{label}</span>
-			<span className="text-right text-[#dfe3ea]">{value}</span>
+		<div className="flex justify-between gap-4 border-border border-b py-2 last:border-0">
+			<span className="text-muted-foreground">{label}</span>
+			<span className="text-right text-foreground">{value}</span>
 		</div>
 	);
 }

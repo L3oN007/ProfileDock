@@ -64,7 +64,7 @@ export function AssignProxyDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="border-[#252a36] bg-[#161b26] sm:max-w-md">
+			<DialogContent className="border-border bg-card sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>Change Proxy</DialogTitle>
 				</DialogHeader>
@@ -81,7 +81,7 @@ export function AssignProxyDialog({
 								if (value) handleAssign(value);
 							}}
 						>
-							<SelectTrigger className="border-[#252a36] bg-[#0f1117]">
+							<SelectTrigger className="border-border bg-background">
 								<SelectValue placeholder="Select proxy" />
 							</SelectTrigger>
 							<SelectContent>
@@ -100,7 +100,7 @@ export function AssignProxyDialog({
 					{assignment?.proxy && !isRunning ? (
 						<Button
 							variant="outline"
-							className="border-[#252a36]"
+							className="border-border"
 							onClick={handleUnassign}
 						>
 							Unassign
@@ -131,8 +131,8 @@ export function ProfileNetworkCard({
 }: ProfileNetworkCardProps) {
 	if (isLoading) {
 		return (
-			<div className="rounded-lg border border-[#252a36] bg-[#161b26] p-4">
-				<p className="text-[#8b93a1] text-sm">Loading network settings...</p>
+			<div className="rounded-lg border border-border bg-card p-4">
+				<p className="text-muted-foreground text-sm">Loading network settings...</p>
 			</div>
 		);
 	}
@@ -140,13 +140,13 @@ export function ProfileNetworkCard({
 	const proxy = assignment?.proxy;
 
 	return (
-		<div className="rounded-lg border border-[#252a36] bg-[#161b26] p-4">
+		<div className="rounded-lg border border-border bg-card p-4">
 			<div className="flex items-center justify-between gap-3">
-				<h3 className="font-medium text-[#eef1f6]">Network</h3>
+				<h3 className="font-medium text-foreground">Network</h3>
 				<Button
 					size="sm"
 					variant="outline"
-					className="border-[#252a36]"
+					className="border-border"
 					disabled={isRunning}
 					onClick={onChangeProxy}
 				>
@@ -156,15 +156,15 @@ export function ProfileNetworkCard({
 
 			{proxy ? (
 				<div className="mt-3 space-y-2 text-sm">
-					<p className="font-medium text-[#dfe3ea]">{proxy.name}</p>
-					<p className="text-[#8b93a1] text-xs uppercase">{proxy.protocol}</p>
-					<p className="font-mono text-[#c5cdd8]">
+					<p className="font-medium text-foreground">{proxy.name}</p>
+					<p className="text-muted-foreground text-xs uppercase">{proxy.protocol}</p>
+					<p className="font-mono text-foreground">
 						{proxy.host}:{proxy.port}
 					</p>
 					<ProxyHealthBadge status={proxy.healthStatus} />
 				</div>
 			) : (
-				<p className="mt-3 text-[#8b93a1] text-sm">No proxy assigned</p>
+				<p className="mt-3 text-muted-foreground text-sm">No proxy assigned</p>
 			)}
 		</div>
 	);

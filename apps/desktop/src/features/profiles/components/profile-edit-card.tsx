@@ -67,21 +67,21 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 			<CardContent className="space-y-4">
 				<Field label="Display ID">
 					<Input
-						className="border-[#252a36] bg-[#0f1117]"
+						className="border-border bg-background"
 						value={profile.display_id ?? profile.id}
 						disabled
 					/>
 				</Field>
 				<Field label="Name">
 					<Input
-						className="border-[#252a36] bg-[#0f1117]"
+						className="border-border bg-background"
 						value={name}
 						onChange={(e) => setName(e.target.value)}
 					/>
 				</Field>
 				<Field label="Group">
 					<select
-						className="h-9 w-full rounded-md border border-[#252a36] bg-[#0f1117] px-3 text-sm"
+						className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
 						value={groupId}
 						onChange={(e) => setGroupId(e.target.value)}
 					>
@@ -95,7 +95,7 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 				</Field>
 				<Field label="Platform label">
 					<Input
-						className="border-[#252a36] bg-[#0f1117]"
+						className="border-border bg-background"
 						value={platformLabel}
 						onChange={(e) => setPlatformLabel(e.target.value)}
 					/>
@@ -103,7 +103,7 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 				<Field label="Tags">
 					<div className="flex gap-2">
 						<Input
-							className="border-[#252a36] bg-[#0f1117]"
+							className="border-border bg-background"
 							value={tagInput}
 							onChange={(e) => setTagInput(e.target.value)}
 							onKeyDown={(e) => {
@@ -113,7 +113,7 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 								}
 							}}
 						/>
-						<Button variant="outline" className="border-[#252a36]" onClick={addTag}>
+						<Button variant="outline" className="border-border" onClick={addTag}>
 							Add
 						</Button>
 					</div>
@@ -122,7 +122,7 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 							<button
 								key={tag}
 								type="button"
-								className="rounded-full bg-[#1e2230] px-2 py-1 text-[#dfe3ea] text-xs"
+								className="rounded-full bg-accent px-2 py-1 text-foreground text-xs"
 								onClick={() => setTags((current) => current.filter((item) => item !== tag))}
 							>
 								{tag} ×
@@ -132,21 +132,21 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 				</Field>
 				<Field label="Remark">
 					<Input
-						className="border-[#252a36] bg-[#0f1117]"
+						className="border-border bg-background"
 						value={remark}
 						onChange={(e) => setRemark(e.target.value)}
 					/>
 				</Field>
 				<Field label="Notes">
 					<textarea
-						className="min-h-28 w-full rounded-md border border-[#252a36] bg-[#0f1117] p-3 text-sm"
+						className="min-h-28 w-full rounded-md border border-border bg-background p-3 text-sm"
 						value={notes}
 						onChange={(e) => setNotes(e.target.value)}
 					/>
 				</Field>
 				<div className="flex justify-end">
 					<Button
-						className="bg-sky-600 hover:bg-sky-500"
+						className="bg-primary text-primary-foreground hover:bg-primary/90"
 						disabled={!name.trim() || updateProfile.isPending}
 						onClick={handleSave}
 					>
@@ -167,7 +167,7 @@ function Field({
 }) {
 	return (
 		<div className="space-y-2">
-			<Label className="text-[#8b93a1]">{label}</Label>
+			<Label className="text-muted-foreground">{label}</Label>
 			{children}
 		</div>
 	);

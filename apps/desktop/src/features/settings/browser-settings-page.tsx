@@ -83,18 +83,18 @@ export function BrowserSettingsPage() {
 					{installProgress &&
 					installProgress.phase !== "completed" &&
 					installProgress.phase !== "failed" ? (
-						<div className="space-y-2 rounded-md border border-[#252a36] bg-[#0f1117] p-3 text-sm">
-							<p className="font-medium text-[#dfe3ea]">
+						<div className="space-y-2 rounded-md border border-border bg-background p-3 text-sm">
+							<p className="font-medium text-foreground">
 								Installing {installProgress.version ?? "CloakBrowser"}
 							</p>
-							<p className="text-[#8b93a1] capitalize">
+							<p className="text-muted-foreground capitalize">
 								{installProgress.phase}
 								{installProgress.message ? ` · ${installProgress.message}` : ""}
 							</p>
 							{installProgress.percent != null ? (
 								<div className="h-2 overflow-hidden rounded-full bg-[#252a36]">
 									<div
-										className="h-full bg-sky-500 transition-all"
+										className="h-full bg-chart-1 transition-all"
 										style={{ width: `${installProgress.percent}%` }}
 									/>
 								</div>
@@ -104,7 +104,7 @@ export function BrowserSettingsPage() {
 
 					<div className="flex flex-wrap gap-2">
 						<Button
-							className="bg-sky-600 hover:bg-sky-500"
+							className="bg-primary text-primary-foreground hover:bg-primary/90"
 							disabled={!desktop || installRuntime.isPending}
 							onClick={() => installRuntime.mutate(undefined)}
 						>
@@ -113,17 +113,17 @@ export function BrowserSettingsPage() {
 					</div>
 
 					{(runtimeListQuery.data ?? []).length > 0 ? (
-						<div className="space-y-2 border-[#252a36] border-t pt-4">
-							<p className="font-medium text-[#dfe3ea] text-sm">Installed versions</p>
+						<div className="space-y-2 border-border border-t pt-4">
+							<p className="font-medium text-foreground text-sm">Installed versions</p>
 							<ul className="space-y-2">
 								{(runtimeListQuery.data ?? []).map((runtime) => (
 									<li
 										key={runtime.id}
-										className="rounded-md border border-[#252a36] p-3 text-sm"
+										className="rounded-md border border-border p-3 text-sm"
 									>
 										<div className="flex items-start justify-between gap-3">
 											<div>
-												<p className="text-[#dfe3ea]">
+												<p className="text-foreground">
 													{runtime.version}
 													{runtime.active ? (
 														<span className="ml-2 text-emerald-400 text-xs">
@@ -131,7 +131,7 @@ export function BrowserSettingsPage() {
 														</span>
 													) : null}
 												</p>
-												<p className="font-mono text-[#8b93a1] text-xs">
+												<p className="font-mono text-muted-foreground text-xs">
 													{runtime.root_dir}
 												</p>
 											</div>
@@ -140,7 +140,7 @@ export function BrowserSettingsPage() {
 													<Button
 														size="sm"
 														variant="outline"
-														className="border-[#252a36]"
+														className="border-border"
 														disabled={
 															!desktop ||
 															activateRuntime.isPending ||
@@ -155,7 +155,7 @@ export function BrowserSettingsPage() {
 													<Button
 														size="sm"
 														variant="outline"
-														className="border-[#252a36] text-red-400"
+														className="border-border text-red-400"
 														disabled={
 															!desktop ||
 															removeRuntime.isPending ||
@@ -223,23 +223,23 @@ export function BrowserSettingsPage() {
 						}
 					/>
 
-					<div className="space-y-2 rounded-md border border-[#252a36] bg-[#0f1117] p-3 text-sm">
-						<p className="font-medium text-[#dfe3ea]">Development setup</p>
-						<p className="text-[#8b93a1]">
+					<div className="space-y-2 rounded-md border border-border bg-background p-3 text-sm">
+						<p className="font-medium text-foreground">Development setup</p>
+						<p className="text-muted-foreground">
 							Ubuntu/Linux: <code className="text-xs">pnpm cloak:setup:linux</code>
 						</p>
-						<p className="text-[#8b93a1]">
+						<p className="text-muted-foreground">
 							Windows PowerShell:{" "}
 							<code className="text-xs">pnpm cloak:setup:windows</code>
 						</p>
-						<p className="text-[#8b93a1] text-xs">
+						<p className="text-muted-foreground text-xs">
 							Use native Windows PowerShell for CloakBrowser on Windows, not WSL.
 						</p>
 					</div>
 
 					{capabilitiesQuery.data ? (
-						<div className="space-y-2 border-[#252a36] border-t pt-4">
-							<p className="font-medium text-[#dfe3ea] text-sm">Capabilities</p>
+						<div className="space-y-2 border-border border-t pt-4">
+							<p className="font-medium text-foreground text-sm">Capabilities</p>
 							<CapabilityRow
 								label="Startup URLs"
 								supported={capabilitiesQuery.data.startup_urls}
@@ -260,29 +260,29 @@ export function BrowserSettingsPage() {
 					) : null}
 
 					{(discoveredQuery.data ?? []).length > 0 ? (
-						<div className="space-y-2 border-[#252a36] border-t pt-4">
-							<p className="font-medium text-[#dfe3ea] text-sm">
+						<div className="space-y-2 border-border border-t pt-4">
+							<p className="font-medium text-foreground text-sm">
 								Discovered installations
 							</p>
 							<ul className="space-y-2">
 								{(discoveredQuery.data ?? []).map((item) => (
 									<li
 										key={item.executable}
-										className="rounded-md border border-[#252a36] p-3 text-sm"
+										className="rounded-md border border-border p-3 text-sm"
 									>
 										<div className="flex items-start justify-between gap-3">
 											<div className="min-w-0">
-												<p className="truncate font-mono text-[#dfe3ea] text-xs">
+												<p className="truncate font-mono text-foreground text-xs">
 													{item.executable}
 												</p>
-												<p className="text-[#8b93a1] text-xs">
+												<p className="text-muted-foreground text-xs">
 													{item.version ?? "unknown version"} · {item.source}
 												</p>
 											</div>
 											<Button
 												size="sm"
 												variant="outline"
-												className="shrink-0 border-[#252a36]"
+												className="shrink-0 border-border"
 												disabled={!desktop || !item.valid || setExecutable.isPending}
 												onClick={() => setExecutable.mutate(item.executable)}
 											>
@@ -295,25 +295,25 @@ export function BrowserSettingsPage() {
 						</div>
 					) : null}
 
-					<div className="space-y-2 border-[#252a36] border-t pt-4">
+					<div className="space-y-2 border-border border-t pt-4">
 						<Label htmlFor="browser-executable">Manual executable path</Label>
 						<Input
 							id="browser-executable"
-							className="border-[#252a36] bg-[#0f1117]"
+							className="border-border bg-background"
 							placeholder="~/.cloakbrowser/chromium-.../chrome"
 							value={executablePath}
 							onChange={(event) => setExecutablePath(event.target.value)}
 						/>
 						<div className="flex flex-wrap gap-2">
 							<Button
-								className="bg-sky-600 hover:bg-sky-500"
+								className="bg-primary text-primary-foreground hover:bg-primary/90"
 								disabled={!desktop || autoConfigure.isPending}
 								onClick={() => autoConfigure.mutate()}
 							>
 								Auto-detect
 							</Button>
 							<Button
-								className="bg-sky-600 hover:bg-sky-500"
+								className="bg-primary text-primary-foreground hover:bg-primary/90"
 								disabled={
 									!desktop || !executablePath || setExecutable.isPending
 								}
@@ -323,7 +323,7 @@ export function BrowserSettingsPage() {
 							</Button>
 							<Button
 								variant="outline"
-								className="border-[#252a36]"
+								className="border-border"
 								disabled={!desktop || validateInstallation.isPending}
 								onClick={() => validateInstallation.mutate()}
 							>
@@ -339,9 +339,9 @@ export function BrowserSettingsPage() {
 
 function SettingRow({ label, value }: { label: string; value: ReactNode }) {
 	return (
-		<div className="grid gap-1 border-[#252a36] border-b py-2 text-sm last:border-0">
-			<span className="text-[#8b93a1]">{label}</span>
-			<div className="text-[#dfe3ea]">{value}</div>
+		<div className="grid gap-1 border-border border-b py-2 text-sm last:border-0">
+			<span className="text-muted-foreground">{label}</span>
+			<div className="text-foreground">{value}</div>
 		</div>
 	);
 }
@@ -355,8 +355,8 @@ function CapabilityRow({
 }) {
 	return (
 		<div className="flex justify-between text-sm">
-			<span className="text-[#8b93a1]">{label}</span>
-			<span className={supported ? "text-emerald-400" : "text-[#8b93a1]"}>
+			<span className="text-muted-foreground">{label}</span>
+			<span className={supported ? "text-emerald-400" : "text-muted-foreground"}>
 				{supported ? "Supported" : "Unsupported"}
 			</span>
 		</div>

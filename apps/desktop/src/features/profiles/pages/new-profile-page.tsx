@@ -11,7 +11,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import { PageShell, PageTitle, panelClassName } from "@/app/layout/page-shell";
+import { notion } from "@/app/design/system";
 import { useGroups } from "@/features/groups/api/queries";
 import { useCreateProfileFull } from "@/features/profiles/api/mutations";
 import { useProxies } from "@/features/proxies/api/queries";
@@ -105,62 +106,58 @@ export function NewProfilePage() {
 		<PageShell>
 			<DesktopOnlyBanner />
 
-			<div className="mb-4 flex items-center justify-between">
-				<div>
-					<h1 className="font-semibold text-[#eef1f6] text-xl">New Browser Profile</h1>
-					<p className="text-[#8b93a1] text-sm">
-						Configure profile metadata, proxy, and CloakBrowser settings.
-					</p>
-				</div>
-				<div className="flex gap-2">
-					{draftRestored ? (
-						<Button variant="outline" className="border-[#252a36]" onClick={clearDraft}>
-							Clear draft
+			<PageTitle
+				title="New browser profile"
+				description="Configure profile metadata, proxy, and CloakBrowser settings."
+				actions={
+					<div className="flex gap-2">
+						{draftRestored ? (
+							<Button variant="outline" onClick={clearDraft}>
+								Clear draft
+							</Button>
+						) : null}
+						<Link
+							to="/profiles"
+							className="inline-flex h-9 items-center justify-center rounded-md border border-border px-4 text-sm transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-accent"
+						>
+							Cancel
+						</Link>
+						<Button
+							disabled={!desktop || !form.name.trim() || createProfile.isPending}
+							onClick={handleCreate}
+						>
+							Create profile
 						</Button>
-					) : null}
-					<Link
-						to="/profiles"
-						className="inline-flex h-9 items-center justify-center rounded-md border border-[#252a36] px-4 text-sm"
-					>
-						Cancel
-					</Link>
-					<Button
-						className="bg-sky-600 hover:bg-sky-500"
-						disabled={!desktop || !form.name.trim() || createProfile.isPending}
-						onClick={handleCreate}
-					>
-						Create Profile
-					</Button>
-				</div>
-			</div>
+					</div>
+				}
+			/>
 
-			<div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+			<div className="grid gap-6 xl:grid-cols-[1fr_320px]">
 				<Card className={panelClassName}>
-					<CardHeader className="border-[#252a36] border-b pb-3">
-						<div className="flex flex-wrap gap-2">
+					<CardHeader className="border-border border-b px-0 pb-0">
+						<div className="flex flex-wrap gap-1 px-4">
 							{tabs.map((item) => (
-								<Button
+								<button
 									key={item.id}
-									size="sm"
-									variant={tab === item.id ? "default" : "outline"}
-									className={
+									type="button"
+									className={`border-b-2 px-3 py-2.5 text-sm transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
 										tab === item.id
-											? "bg-sky-600 hover:bg-sky-500"
-											: "border-[#252a36]"
-									}
+											? "border-foreground font-medium text-foreground"
+											: "border-transparent text-muted-foreground hover:text-foreground"
+									}`}
 									onClick={() => setTab(item.id)}
 								>
 									{item.label}
-								</Button>
+								</button>
 							))}
 						</div>
 					</CardHeader>
-					<CardContent className="space-y-4 pt-4">
+					<CardContent className="space-y-4 pt-6">
 						{tab === "general" ? (
 							<>
 								<Field label="Profile name">
 									<Input
-										className="border-[#252a36] bg-[#0f1117]"
+										className={notion.input}
 										value={form.name}
 										onChange={(e) =>
 											setForm((c) => ({ ...c, name: e.target.value }))
@@ -169,7 +166,7 @@ export function NewProfilePage() {
 								</Field>
 								<Field label="Group">
 									<select
-										className="h-9 w-full rounded-md border border-[#252a36] bg-[#0f1117] px-3 text-sm"
+										className={`h-9 w-full ${notion.select}`}
 										value={form.groupId ?? ""}
 										onChange={(e) =>
 											setForm((c) => ({
@@ -189,7 +186,7 @@ export function NewProfilePage() {
 								<Field label="Tags">
 									<div className="flex gap-2">
 										<Input
-											className="border-[#252a36] bg-[#0f1117]"
+											className={notion.input}
 											value={tagInput}
 											onChange={(e) => setTagInput(e.target.value)}
 											onKeyDown={(e) => {
@@ -199,7 +196,7 @@ export function NewProfilePage() {
 												}
 											}}
 										/>
-										<Button variant="outline" className="border-[#252a36]" onClick={addTag}>
+										<Button variant="outline" className="border-border" onClick={addTag}>
 											Add
 										</Button>
 									</div>
@@ -207,7 +204,7 @@ export function NewProfilePage() {
 										{(form.tags ?? []).map((tag) => (
 											<span
 												key={tag}
-												className="rounded-full bg-[#1e2230] px-2 py-1 text-[#dfe3ea] text-xs"
+												className="rounded-full bg-accent px-2 py-1 text-foreground text-xs"
 											>
 												{tag}
 											</span>
@@ -216,7 +213,7 @@ export function NewProfilePage() {
 								</Field>
 								<Field label="Remark">
 									<Input
-										className="border-[#252a36] bg-[#0f1117]"
+										className={notion.input}
 										value={form.remark ?? ""}
 										onChange={(e) =>
 											setForm((c) => ({ ...c, remark: e.target.value }))
@@ -230,7 +227,7 @@ export function NewProfilePage() {
 							<>
 								<Field label="Proxy mode">
 									<select
-										className="h-9 w-full rounded-md border border-[#252a36] bg-[#0f1117] px-3 text-sm"
+										className={`h-9 w-full ${notion.select}`}
 										value={form.proxyMode ?? "none"}
 										onChange={(e) =>
 											setForm((c) => ({
@@ -247,7 +244,7 @@ export function NewProfilePage() {
 								{form.proxyMode === "saved" ? (
 									<Field label="Saved proxy">
 										<select
-											className="h-9 w-full rounded-md border border-[#252a36] bg-[#0f1117] px-3 text-sm"
+											className={`h-9 w-full ${notion.select}`}
 											value={form.proxyId ?? ""}
 											onChange={(e) =>
 												setForm((c) => ({ ...c, proxyId: e.target.value }))
@@ -266,7 +263,7 @@ export function NewProfilePage() {
 									<>
 										<Field label="Proxy name">
 											<Input
-												className="border-[#252a36] bg-[#0f1117]"
+												className={notion.input}
 												value={form.customProxy?.name ?? ""}
 												onChange={(e) =>
 													setForm((c) => ({
@@ -286,7 +283,7 @@ export function NewProfilePage() {
 										</Field>
 										<Field label="Protocol">
 											<select
-												className="h-9 w-full rounded-md border border-[#252a36] bg-[#0f1117] px-3 text-sm"
+												className={`h-9 w-full ${notion.select}`}
 												value={form.customProxy?.protocol ?? "socks5"}
 												onChange={(e) =>
 													setForm((c) => ({
@@ -311,7 +308,7 @@ export function NewProfilePage() {
 										<div className="grid gap-3 sm:grid-cols-2">
 											<Field label="Host">
 												<Input
-													className="border-[#252a36] bg-[#0f1117]"
+													className={notion.input}
 													value={form.customProxy?.host ?? ""}
 													onChange={(e) =>
 														setForm((c) => ({
@@ -332,7 +329,7 @@ export function NewProfilePage() {
 											<Field label="Port">
 												<Input
 													type="number"
-													className="border-[#252a36] bg-[#0f1117]"
+													className={notion.input}
 													value={form.customProxy?.port ?? 1080}
 													onChange={(e) =>
 														setForm((c) => ({
@@ -353,7 +350,7 @@ export function NewProfilePage() {
 										</div>
 										<Field label="Username (optional)">
 											<Input
-												className="border-[#252a36] bg-[#0f1117]"
+												className={notion.input}
 												value={form.customProxy?.username ?? ""}
 												onChange={(e) =>
 													setForm((c) => ({
@@ -374,7 +371,7 @@ export function NewProfilePage() {
 										<Field label="Password (optional)">
 											<Input
 												type="password"
-												className="border-[#252a36] bg-[#0f1117]"
+												className={notion.input}
 												value={form.customProxy?.password ?? ""}
 												onChange={(e) =>
 													setForm((c) => ({
@@ -400,7 +397,7 @@ export function NewProfilePage() {
 						{tab === "platform" ? (
 							<Field label="Platform label">
 								<Input
-									className="border-[#252a36] bg-[#0f1117]"
+									className={notion.input}
 									placeholder="General, QA, Web Testing..."
 									value={form.platformLabel ?? ""}
 									onChange={(e) =>
@@ -415,14 +412,14 @@ export function NewProfilePage() {
 								<Field label="Startup URLs">
 									<div className="flex gap-2">
 										<Input
-											className="border-[#252a36] bg-[#0f1117]"
+											className={notion.input}
 											placeholder="https://example.com"
 											value={startupUrl}
 											onChange={(e) => setStartupUrl(e.target.value)}
 										/>
 										<Button
 											variant="outline"
-											className="border-[#252a36]"
+											className="border-border"
 											onClick={() => {
 												const value = startupUrl.trim();
 												if (!value) return;
@@ -445,7 +442,7 @@ export function NewProfilePage() {
 								</Field>
 								<Field label="Window mode">
 									<select
-										className="h-9 w-full rounded-md border border-[#252a36] bg-[#0f1117] px-3 text-sm"
+										className={`h-9 w-full ${notion.select}`}
 										value={form.browser?.windowMode ?? "normal"}
 										onChange={(e) =>
 											setForm((c) => ({
@@ -483,7 +480,7 @@ export function NewProfilePage() {
 						{tab === "advanced" ? (
 							<Field label="Notes">
 								<textarea
-									className="min-h-28 w-full rounded-md border border-[#252a36] bg-[#0f1117] p-3 text-sm"
+									className={notion.textarea}
 									value={form.notes ?? ""}
 									onChange={(e) =>
 										setForm((c) => ({ ...c, notes: e.target.value }))
@@ -544,7 +541,7 @@ function Field({
 }) {
 	return (
 		<div className="space-y-2">
-			<Label className="text-[#8b93a1]">{label}</Label>
+			<Label className="text-muted-foreground">{label}</Label>
 			{children}
 		</div>
 	);
@@ -552,9 +549,9 @@ function Field({
 
 function OverviewRow({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="flex justify-between gap-3 border-[#252a36] border-b pb-2 last:border-0">
-			<span className="text-[#8b93a1]">{label}</span>
-			<span className="text-right text-[#dfe3ea]">{value}</span>
+		<div className="flex justify-between gap-3 border-border border-b pb-2 last:border-0">
+			<span className="text-muted-foreground">{label}</span>
+			<span className="text-right text-foreground">{value}</span>
 		</div>
 	);
 }

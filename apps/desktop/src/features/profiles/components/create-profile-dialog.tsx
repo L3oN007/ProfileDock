@@ -38,7 +38,7 @@ export function CreateProfileDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="border-[#252a36] bg-[#161b26] sm:max-w-md">
+			<DialogContent className="border-border bg-card sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>Create Profile</DialogTitle>
 				</DialogHeader>

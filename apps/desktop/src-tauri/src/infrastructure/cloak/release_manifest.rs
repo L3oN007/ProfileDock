@@ -20,21 +20,29 @@ pub struct CloakRelease {
 pub fn current_platform() -> (&'static str, &'static str) {
     #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
     {
-        return ("windows", "x86_64");
+        ("windows", "x86_64")
     }
     #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
     {
-        return ("linux", "x86_64");
+        ("linux", "x86_64")
     }
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     {
-        return ("macos", "aarch64");
+        ("macos", "aarch64")
     }
     #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
     {
-        return ("macos", "x86_64");
+        ("macos", "x86_64")
     }
-    ("unknown", "unknown")
+    #[cfg(not(any(
+        all(target_os = "windows", target_arch = "x86_64"),
+        all(target_os = "linux", target_arch = "x86_64"),
+        all(target_os = "macos", target_arch = "aarch64"),
+        all(target_os = "macos", target_arch = "x86_64")
+    )))]
+    {
+        ("unknown", "unknown")
+    }
 }
 
 pub fn resolve_release(version: &str) -> Result<CloakRelease, AppError> {

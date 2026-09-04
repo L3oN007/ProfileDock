@@ -13,7 +13,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { MoreHorizontal, Play, Square } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import { PageShell } from "@/app/layout/page-shell";
+import { notion } from "@/app/design/system";
 import { useGroups } from "@/features/groups/api/queries";
 import {
 	useArchiveProfile,
@@ -221,7 +222,7 @@ export function ProfilesPage() {
 				groups={groupsQuery.data ?? []}
 			/>
 
-			<div className="flex-1 overflow-auto bg-[#0f1117] p-4">
+			<div className="flex-1 overflow-auto bg-background px-5 py-4">
 				{!desktop ? <DesktopOnlyBanner /> : null}
 
 				{profilesQuery.isLoading ? (
@@ -231,10 +232,10 @@ export function ProfilesPage() {
 						<Skeleton className="h-10 w-full" />
 					</div>
 				) : (
-					<div className={`overflow-hidden rounded-lg ${panelClassName}`}>
+					<div className={notion.tableWrap}>
 						<Table>
 							<TableHeader>
-								<TableRow className={`border-[#252a36] hover:bg-transparent ${rowDensityClass}`}>
+								<TableRow className={`${notion.tableHead} hover:bg-transparent ${rowDensityClass}`}>
 									<TableHead className="w-10">
 										<Checkbox
 											checked={
@@ -268,7 +269,7 @@ export function ProfilesPage() {
 									<TableRow>
 										<TableCell
 											colSpan={tableColumnCount}
-											className="h-24 text-center text-[#8b93a1]"
+											className="h-24 text-center text-muted-foreground"
 										>
 											No profiles yet. Click &quot;New Profile&quot; to create
 											one.
@@ -309,7 +310,7 @@ export function ProfilesPage() {
 				)}
 			</div>
 
-			<div className="flex items-center justify-between border-[#1e2230] border-t bg-[#12161f] px-4 py-2 text-[#8b93a1] text-xs">
+			<div className="flex items-center justify-between border-border border-t bg-background px-5 py-3 text-muted-foreground text-xs">
 				<span>
 					Total {total} · Page {page}
 				</span>
@@ -317,7 +318,7 @@ export function ProfilesPage() {
 					<Button
 						size="sm"
 						variant="outline"
-						className="border-[#252a36]"
+						className="border-border"
 						disabled={page <= 1}
 						onClick={() => setPage((current) => Math.max(1, current - 1))}
 					>
@@ -326,7 +327,7 @@ export function ProfilesPage() {
 					<Button
 						size="sm"
 						variant="outline"
-						className="border-[#252a36]"
+						className="border-border"
 						disabled={page * pageSize >= total}
 						onClick={() => setPage((current) => current + 1)}
 					>
@@ -372,7 +373,7 @@ function ProfileRow({
 	return (
 		<TableRow
 			data-state={selected ? "selected" : undefined}
-			className={`border-[#252a36] hover:bg-[#1a1f2b] ${rowDensityClass}`}
+			className={`${notion.tableRow} ${rowDensityClass}`}
 		>
 			<TableCell>
 				<Checkbox
@@ -380,34 +381,34 @@ function ProfileRow({
 					onCheckedChange={(c) => onSelect(c === true)}
 				/>
 			</TableCell>
-			<TableCell className="text-[#8b93a1]">{index + 1}</TableCell>
+			<TableCell className="text-muted-foreground">{index + 1}</TableCell>
 			{visibleColumns.has("name") ? (
 				<TableCell>
 					<Link
 						to="/profiles/$profileId"
 						params={{ profileId: profile.id }}
-						className="font-medium text-[#eef1f6] hover:text-sky-400"
+						className="font-medium text-foreground hover:text-chart-1"
 					>
 						{profile.name}
 					</Link>
 					{profile.display_id && !visibleColumns.has("displayId") ? (
-						<div className="text-[#6f7888] text-[10px]">{profile.display_id}</div>
+						<div className="text-muted-foreground text-[10px]">{profile.display_id}</div>
 					) : null}
 				</TableCell>
 			) : null}
 			{visibleColumns.has("displayId") ? (
-				<TableCell className="text-[#8b93a1]">{profile.display_id ?? "—"}</TableCell>
+				<TableCell className="text-muted-foreground">{profile.display_id ?? "—"}</TableCell>
 			) : null}
 			{visibleColumns.has("group") ? (
-				<TableCell className="text-[#8b93a1]">{profile.group_name ?? "—"}</TableCell>
+				<TableCell className="text-muted-foreground">{profile.group_name ?? "—"}</TableCell>
 			) : null}
 			{visibleColumns.has("tags") ? (
-				<TableCell className="max-w-[140px] truncate text-[#8b93a1]">
+				<TableCell className="max-w-[140px] truncate text-muted-foreground">
 					{profile.tags.length ? profile.tags.join(", ") : "—"}
 				</TableCell>
 			) : null}
 			{visibleColumns.has("proxy") ? (
-				<TableCell className="text-[#8b93a1]">{profile.proxy_name ?? "—"}</TableCell>
+				<TableCell className="text-muted-foreground">{profile.proxy_name ?? "—"}</TableCell>
 			) : null}
 			{visibleColumns.has("status") ? (
 				<TableCell>
@@ -415,17 +416,17 @@ function ProfileRow({
 				</TableCell>
 			) : null}
 			{visibleColumns.has("lastLaunch") ? (
-				<TableCell className="text-[#8b93a1]">
+				<TableCell className="text-muted-foreground">
 					{formatRelativeTime(profile.last_opened_at)}
 				</TableCell>
 			) : null}
 			{visibleColumns.has("remark") ? (
-				<TableCell className="max-w-[200px] truncate text-[#8b93a1]">
+				<TableCell className="max-w-[200px] truncate text-muted-foreground">
 					{profile.remark ?? profile.description ?? "—"}
 				</TableCell>
 			) : null}
 			{visibleColumns.has("platform") ? (
-				<TableCell className="text-[#8b93a1]">
+				<TableCell className="text-muted-foreground">
 					{profile.platform_label ?? "—"}
 				</TableCell>
 			) : null}
@@ -444,7 +445,7 @@ function ProfileRow({
 					) : (
 						<Button
 							size="sm"
-							className="bg-sky-600 hover:bg-sky-500"
+							className="bg-primary text-primary-foreground hover:bg-primary/90"
 							disabled={isLaunching || profile.state === "archived"}
 							onClick={onLaunch}
 						>

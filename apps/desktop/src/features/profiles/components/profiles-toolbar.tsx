@@ -1,8 +1,9 @@
 import { Button } from "@ProfileDock/ui/components/button";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Archive, Play, Plus, Search, Square } from "lucide-react";
-import type { RefObject, ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 
+import { notion } from "@/app/design/system";
 import { ColumnSettings } from "@/features/profiles/components/column-settings";
 import type {
 	ProfileColumnId,
@@ -49,51 +50,52 @@ export function ProfilesToolbar({
 	extra,
 }: ProfilesToolbarProps) {
 	return (
-		<div className="space-y-3 border-[#1e2230] border-b bg-[#12161f] px-4 py-3">
+		<div className="space-y-3 border-border border-b bg-background px-5 py-4">
 			<div className="flex flex-wrap items-center gap-2">
-				<Button
-					size="sm"
-					onClick={onCreate}
-					className="bg-sky-600 hover:bg-sky-500"
-				>
-					<Plus className="size-3.5" />
-					New Profile
-				</Button>
+				<div className="relative min-w-[220px] flex-1 max-w-md">
+					<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+					<Input
+						ref={searchInputRef}
+						className={`${notion.input} pl-8`}
+						placeholder="Search profiles"
+						value={search}
+						onChange={(e) => onSearchChange(e.target.value)}
+					/>
+				</div>
 
-				<div className="mx-1 h-5 w-px bg-[#252a36]" />
-
-				<Button
-					size="sm"
-					variant="outline"
-					className="border-[#252a36] bg-transparent"
-					disabled={!canOpen || isOpening}
-					onClick={onOpen}
-				>
-					<Play className="size-3.5" />
-					Open
-				</Button>
-				<Button
-					size="sm"
-					variant="outline"
-					className="border-[#252a36] bg-transparent"
-					disabled={!canClose || isClosing}
-					onClick={onClose}
-				>
-					<Square className="size-3.5" />
-					Close
-				</Button>
-				<Button
-					size="sm"
-					variant="outline"
-					className="border-[#252a36] bg-transparent"
-					disabled={selectedCount === 0}
-					onClick={onArchive}
-				>
-					<Archive className="size-3.5" />
-					Archive
-				</Button>
-
-				<div className="ml-auto flex items-center gap-2">
+				<div className="ml-auto flex flex-wrap items-center gap-1.5">
+					<Button size="sm" onClick={onCreate}>
+						<Plus className="size-3.5" />
+						New
+					</Button>
+					<Button
+						size="sm"
+						variant="ghost"
+						disabled={!canOpen || isOpening}
+						onClick={onOpen}
+					>
+						<Play className="size-3.5" />
+						Open
+					</Button>
+					<Button
+						size="sm"
+						variant="ghost"
+						disabled={!canClose || isClosing}
+						onClick={onClose}
+					>
+						<Square className="size-3.5" />
+						Close
+					</Button>
+					<Button
+						size="sm"
+						variant="ghost"
+						disabled={selectedCount === 0}
+						onClick={onArchive}
+					>
+						<Archive className="size-3.5" />
+						Archive
+					</Button>
+					<div className="mx-1 h-4 w-px bg-border" />
 					<ColumnSettings
 						columns={columns}
 						density={density}
@@ -102,17 +104,6 @@ export function ProfilesToolbar({
 					/>
 					{extra}
 				</div>
-			</div>
-
-			<div className="relative max-w-md">
-				<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-[#8b93a1]" />
-				<Input
-					ref={searchInputRef}
-					className="h-8 border-[#252a36] bg-[#0f1117] pl-8"
-					placeholder="Search profiles... (Ctrl+F)"
-					value={search}
-					onChange={(e) => onSearchChange(e.target.value)}
-				/>
 			</div>
 		</div>
 	);

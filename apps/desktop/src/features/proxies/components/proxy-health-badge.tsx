@@ -16,7 +16,7 @@ const STATUS_CONFIG: Record<
 	},
 	unknown: {
 		label: "Unknown",
-		className: "bg-[#1e2230] text-[#8b93a1] border-[#252a36]",
+		className: "bg-accent text-muted-foreground border-border",
 	},
 };
 

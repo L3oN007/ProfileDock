@@ -16,7 +16,7 @@ export function ProfileRowActions({ profile, onDuplicate }: ProfileRowActionsPro
 	const isRunning = profile.state === "running";
 
 	return (
-		<div className="flex flex-col gap-1 rounded-md border border-[#252a36] bg-[#141820] p-1 shadow-lg">
+		<div className="flex flex-col gap-1 rounded-md border border-border bg-card p-1 shadow-lg">
 			<Button
 				size="sm"
 				variant="ghost"

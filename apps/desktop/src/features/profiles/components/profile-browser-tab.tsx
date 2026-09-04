@@ -86,7 +86,7 @@ export function ProfileBrowserTab({
 				) : null}
 
 				<div className="space-y-3">
-					<p className="font-medium text-[#dfe3ea] text-sm">Startup</p>
+					<p className="font-medium text-foreground text-sm">Startup</p>
 					<div className="flex items-center justify-between">
 						<Label htmlFor="restore-session">Restore previous session</Label>
 						<Switch
@@ -99,10 +99,10 @@ export function ProfileBrowserTab({
 
 					<div className="space-y-2">
 						<Label>Startup URLs</Label>
-						<div className="space-y-2 rounded-md border border-[#252a36] p-3">
+						<div className="space-y-2 rounded-md border border-border p-3">
 							{startupUrls.map((url) => (
 								<div key={url} className="flex items-center gap-2">
-									<span className="flex-1 truncate font-mono text-[#dfe3ea] text-xs">
+									<span className="flex-1 truncate font-mono text-foreground text-xs">
 										{url}
 									</span>
 									<Button
@@ -120,7 +120,7 @@ export function ProfileBrowserTab({
 								</div>
 							))}
 							{startupUrls.length === 0 ? (
-								<p className="text-[#8b93a1] text-xs">
+								<p className="text-muted-foreground text-xs">
 									No startup URLs configured
 								</p>
 							) : null}
@@ -140,7 +140,7 @@ export function ProfileBrowserTab({
 				</div>
 
 				<div className="space-y-3">
-					<p className="font-medium text-[#dfe3ea] text-sm">Downloads</p>
+					<p className="font-medium text-foreground text-sm">Downloads</p>
 					<div className="space-y-2">
 						<Label>Location</Label>
 						<Select
@@ -150,7 +150,7 @@ export function ProfileBrowserTab({
 								setDownloadMode(value as "profile" | "custom")
 							}
 						>
-							<SelectTrigger className="border-[#252a36] bg-[#0f1117]">
+							<SelectTrigger className="border-border bg-background">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
@@ -170,7 +170,7 @@ export function ProfileBrowserTab({
 				</div>
 
 				<div className="space-y-3">
-					<p className="font-medium text-[#dfe3ea] text-sm">Window</p>
+					<p className="font-medium text-foreground text-sm">Window</p>
 					<div className="space-y-2">
 						<Label>Launch mode</Label>
 						<Select
@@ -180,7 +180,7 @@ export function ProfileBrowserTab({
 								setWindowMode(value as "normal" | "maximized")
 							}
 						>
-							<SelectTrigger className="border-[#252a36] bg-[#0f1117]">
+							<SelectTrigger className="border-border bg-background">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
@@ -193,7 +193,7 @@ export function ProfileBrowserTab({
 
 				<div className="flex justify-end">
 					<Button
-						className="bg-sky-600 hover:bg-sky-500"
+						className="bg-primary text-primary-foreground hover:bg-primary/90"
 						disabled={
 							isRunning || updateSettings.isPending || settingsQuery.isLoading
 						}

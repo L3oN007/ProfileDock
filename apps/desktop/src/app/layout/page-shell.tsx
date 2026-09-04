@@ -1,5 +1,7 @@
 import { cn } from "@ProfileDock/ui/lib/utils";
 
+import { notion } from "@/app/design/system";
+
 export function PageShell({
 	children,
 	className,
@@ -18,13 +20,36 @@ export function PageShell({
 	}
 
 	return (
-		<div className={cn("flex-1 overflow-auto px-4 py-5 sm:px-6", className)}>
-			<div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-				{children}
-			</div>
+		<div className={cn(notion.page, className)}>
+			<div className={notion.pageInner}>{children}</div>
 		</div>
 	);
 }
 
-export const panelClassName =
-	"border-[#252a36] bg-[#161b26] text-[#eef1f6] shadow-none";
+export const panelClassName = notion.panel;
+
+export function PageTitle({
+	title,
+	description,
+	actions,
+}: {
+	title: string;
+	description?: string;
+	actions?: React.ReactNode;
+}) {
+	return (
+		<div className="flex flex-wrap items-start justify-between gap-4 pb-2">
+			<div className="min-w-0 space-y-1">
+				<h1 className="font-semibold text-2xl text-foreground tracking-tight">
+					{title}
+				</h1>
+				{description ? (
+					<p className="max-w-2xl text-muted-foreground text-sm leading-relaxed">
+						{description}
+					</p>
+				) : null}
+			</div>
+			{actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
+		</div>
+	);
+}

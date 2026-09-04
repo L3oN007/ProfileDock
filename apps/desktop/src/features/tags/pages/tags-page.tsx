@@ -28,13 +28,13 @@ export function TagsPage() {
 				<CardContent className="space-y-4">
 					<div className="flex gap-2">
 						<Input
-							className="border-[#252a36] bg-[#0f1117]"
+							className="border-border bg-background"
 							placeholder="New tag name"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 						/>
 						<Button
-							className="bg-sky-600 hover:bg-sky-500"
+							className="bg-primary text-primary-foreground hover:bg-primary/90"
 							disabled={!name.trim()}
 							onClick={() => {
 								createTag.mutate({ name }, { onSuccess: () => setName("") });
@@ -47,18 +47,18 @@ export function TagsPage() {
 						{(tagsQuery.data ?? []).map((tag) => (
 							<li
 								key={tag.id}
-								className="flex items-center justify-between rounded-md border border-[#252a36] p-3 text-sm"
+								className="flex items-center justify-between rounded-md border border-border p-3 text-sm"
 							>
 								<div>
-									<p className="text-[#dfe3ea]">{tag.name}</p>
-									<p className="text-[#8b93a1] text-xs">
+									<p className="text-foreground">{tag.name}</p>
+									<p className="text-muted-foreground text-xs">
 										{tag.profile_count} profiles
 									</p>
 								</div>
 								<Button
 									size="sm"
 									variant="outline"
-									className="border-[#252a36] text-red-400"
+									className="border-border text-red-400"
 									onClick={() => deleteTag.mutate(tag.id)}
 								>
 									Delete

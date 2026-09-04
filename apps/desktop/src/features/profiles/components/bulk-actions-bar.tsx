@@ -5,6 +5,10 @@ import { useState } from "react";
 
 import { useGroups } from "@/features/groups/api/queries";
 import { useProxies } from "@/features/proxies/api/queries";
+import { FilterSelect } from "@/features/shared/filter-select";
+import { notion } from "@/app/design/system";
+
+const PICK = "pick";
 
 interface BulkActionsBarProps {
 	selectedCount: number;
@@ -28,37 +32,39 @@ export function BulkActionsBar({
 	const groupsQuery = useGroups();
 	const proxiesQuery = useProxies();
 	const [tagInput, setTagInput] = useState("");
+	const [groupPick, setGroupPick] = useState(PICK);
+	const [proxyPick, setProxyPick] = useState(PICK);
 
 	if (selectedCount === 0) return null;
 
 	return (
-		<div className="flex flex-wrap items-center gap-2 border-[#252a36] border-t bg-[#171b24] px-4 py-2">
-			<span className="text-[#dfe3ea] text-sm">{selectedCount} selected</span>
+		<div className="flex flex-wrap items-center gap-2 border-border border-b bg-primary/5 px-5 py-2.5">
+			<span className="font-medium text-foreground text-sm">{selectedCount} selected</span>
 
-			<select
-				className="h-8 rounded-md border border-[#252a36] bg-[#0f1117] px-2 text-sm"
-				defaultValue=""
-				disabled={isPending}
-				onChange={(e) => {
-					const value = e.target.value;
-					onMoveGroup(value || null);
-					e.target.value = "";
+			<FilterSelect
+				value={groupPick}
+				onValueChange={(value) => {
+					if (value === PICK) return;
+					onMoveGroup(value === "__ungrouped__" ? null : value);
+					setGroupPick(PICK);
 				}}
-			>
-				<option value="">Move to group...</option>
-				<option value="__ungrouped__">Ungrouped</option>
-				{(groupsQuery.data ?? []).map((group) => (
-					<option key={group.id} value={group.id}>
-						{group.name}
-					</option>
-				))}
-			</select>
+				className="min-w-[148px]"
+				options={[
+					{ value: PICK, label: "Move to group..." },
+					{ value: "__ungrouped__", label: "Ungrouped" },
+					...(groupsQuery.data ?? []).map((group) => ({
+						value: group.id,
+						label: group.name,
+					})),
+				]}
+			/>
 
 			<div className="flex items-center gap-1">
 				<Input
-					className="h-8 w-36 border-[#252a36] bg-[#0f1117]"
+					className={`w-36 ${notion.input}`}
 					placeholder="Add tag"
 					value={tagInput}
+					disabled={isPending}
 					onChange={(e) => setTagInput(e.target.value)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter") {
@@ -73,7 +79,6 @@ export function BulkActionsBar({
 				<Button
 					size="sm"
 					variant="outline"
-					className="border-[#252a36]"
 					disabled={!tagInput.trim() || isPending}
 					onClick={() => {
 						const value = tagInput.trim();
@@ -88,7 +93,6 @@ export function BulkActionsBar({
 				<Button
 					size="sm"
 					variant="outline"
-					className="border-[#252a36]"
 					disabled={!tagInput.trim() || isPending}
 					onClick={() => {
 						const value = tagInput.trim();
@@ -101,33 +105,27 @@ export function BulkActionsBar({
 				</Button>
 			</div>
 
-			<select
-				className="h-8 rounded-md border border-[#252a36] bg-[#0f1117] px-2 text-sm"
-				defaultValue=""
-				disabled={isPending}
-				onChange={(e) => {
-					const value = e.target.value;
-					if (value === "__none__") {
-						onAssignProxy(null);
-					} else if (value) {
-						onAssignProxy(value);
-					}
-					e.target.value = "";
+			<FilterSelect
+				value={proxyPick}
+				onValueChange={(value) => {
+					if (value === PICK) return;
+					onAssignProxy(value === "__none__" ? null : value);
+					setProxyPick(PICK);
 				}}
-			>
-				<option value="">Assign proxy...</option>
-				<option value="__none__">No proxy</option>
-				{(proxiesQuery.data ?? []).map((proxy) => (
-					<option key={proxy.id} value={proxy.id}>
-						{proxy.name}
-					</option>
-				))}
-			</select>
+				className="min-w-[148px]"
+				options={[
+					{ value: PICK, label: "Assign proxy..." },
+					{ value: "__none__", label: "No proxy" },
+					...(proxiesQuery.data ?? []).map((proxy) => ({
+						value: proxy.id,
+						label: proxy.name,
+					})),
+				]}
+			/>
 
 			<Button
 				size="sm"
 				variant="outline"
-				className="border-[#252a36]"
 				disabled={isPending}
 				onClick={onArchive}
 			>

@@ -136,16 +136,6 @@ impl SqliteTagRepository {
         .await?;
         Ok(names)
     }
-
-    pub async fn list_profile_tag_ids(&self, profile_id: &str) -> Result<Vec<String>, AppError> {
-        let ids = sqlx::query_scalar::<_, String>(
-            "SELECT tag_id FROM profile_tags WHERE profile_id = ? ORDER BY tag_id ASC",
-        )
-        .bind(profile_id)
-        .fetch_all(&self.pool)
-        .await?;
-        Ok(ids)
-    }
 }
 
 #[derive(sqlx::FromRow)]

@@ -1,1 +1,8 @@
+@import "@fontsource-variable/geist";
 @import "@ProfileDock/ui/globals.css";
+
+@layer base {
+	::selection {
+		background: color-mix(in oklab, #2783de 24%, transparent);
+	}
+}

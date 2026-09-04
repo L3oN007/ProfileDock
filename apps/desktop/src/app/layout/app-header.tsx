@@ -1,23 +1,24 @@
 import { NetworkStatusButton } from "@/app/layout/network-status-button";
 import { usePageMeta } from "@/app/layout/use-page-meta";
 import { UserMenu } from "@/app/layout/user-menu";
+import { notion } from "@/app/design/system";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export function AppHeader() {
 	const { title, description } = usePageMeta();
 
 	return (
-		<header className="flex h-12 shrink-0 items-center justify-between border-[#1e2230] border-b bg-[#12161f] px-4">
+		<header className={notion.header}>
 			<div className="min-w-0">
-				<h1 className="truncate font-medium text-[#eef1f6] text-sm">{title}</h1>
+				<p className="truncate font-medium text-foreground text-sm">{title}</p>
 				{description ? (
-					<p className="truncate text-[#8b93a1] text-[11px]">{description}</p>
+					<p className="truncate text-muted-foreground text-xs">{description}</p>
 				) : null}
 			</div>
 
 			<div className="flex items-center gap-1">
 				<NetworkStatusButton />
-				<div className="mx-1 hidden h-5 w-px bg-[#252a36] sm:block" />
+				<div className="mx-1 hidden h-4 w-px bg-border sm:block" />
 				<ModeToggle />
 				<UserMenu />
 			</div>

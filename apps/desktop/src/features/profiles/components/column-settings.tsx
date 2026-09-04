@@ -29,7 +29,7 @@ export function ColumnSettings({
 			<Button
 				size="sm"
 				variant="outline"
-				className="border-[#252a36] bg-transparent"
+				className="border-border bg-transparent"
 				onClick={() => setOpen((value) => !value)}
 			>
 				<Columns3 className="size-3.5" />
@@ -37,13 +37,13 @@ export function ColumnSettings({
 			</Button>
 
 			{open ? (
-				<div className="absolute top-10 right-0 z-20 w-56 rounded-md border border-[#252a36] bg-[#141820] p-3 shadow-xl">
-					<p className="mb-2 font-medium text-[#dfe3ea] text-xs">Visible columns</p>
+				<div className="absolute top-10 right-0 z-20 w-56 rounded-md border border-border bg-card p-3 shadow-xl">
+					<p className="mb-2 font-medium text-foreground text-xs">Visible columns</p>
 					<div className="space-y-2">
 						{PROFILE_COLUMN_OPTIONS.map((column) => (
 							<label
 								key={column.id}
-								className="flex items-center gap-2 text-[#c5cdd8] text-sm"
+								className="flex items-center gap-2 text-foreground text-sm"
 							>
 								<Checkbox
 									checked={columns.includes(column.id)}
@@ -54,15 +54,15 @@ export function ColumnSettings({
 						))}
 					</div>
 
-					<p className="mt-4 mb-2 font-medium text-[#dfe3ea] text-xs">Density</p>
+					<p className="mt-4 mb-2 font-medium text-foreground text-xs">Density</p>
 					<div className="flex gap-2">
 						<Button
 							size="sm"
 							variant={density === "compact" ? "default" : "outline"}
 							className={
 								density === "compact"
-									? "bg-sky-600 hover:bg-sky-500"
-									: "border-[#252a36]"
+									? "bg-primary text-primary-foreground hover:bg-primary/90"
+									: "border-border"
 							}
 							onClick={() => onDensityChange("compact")}
 						>
@@ -73,8 +73,8 @@ export function ColumnSettings({
 							variant={density === "comfortable" ? "default" : "outline"}
 							className={
 								density === "comfortable"
-									? "bg-sky-600 hover:bg-sky-500"
-									: "border-[#252a36]"
+									? "bg-primary text-primary-foreground hover:bg-primary/90"
+									: "border-border"
 							}
 							onClick={() => onDensityChange("comfortable")}
 						>

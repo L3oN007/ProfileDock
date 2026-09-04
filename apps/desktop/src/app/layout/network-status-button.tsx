@@ -26,7 +26,7 @@ export function NetworkStatusButton() {
 					<Button
 						variant="ghost"
 						size="sm"
-						className="h-8 gap-2 px-2 text-[#c5cdd8] hover:bg-[#1e2230] hover:text-white"
+						className="h-8 gap-2 rounded-md px-2.5 text-foreground transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-muted hover:text-foreground data-[popup-open]:bg-muted"
 					/>
 				}
 			>
@@ -34,22 +34,22 @@ export function NetworkStatusButton() {
 					<Skeleton className="size-4 rounded-full" />
 				) : isOnline ? (
 					<span className="relative">
-						<Wifi className="size-4 text-emerald-400" />
-						<CheckCircle2 className="absolute -right-1 -bottom-1 size-2.5 fill-[#0f1117] text-emerald-400" />
+						<Wifi className="size-4 text-emerald-500" />
+						<CheckCircle2 className="absolute -right-1 -bottom-1 size-2.5 fill-background text-emerald-500" />
 					</span>
 				) : (
-					<WifiOff className="size-4 text-amber-400" />
+					<WifiOff className="size-4 text-amber-500" />
 				)}
-				<span className="hidden max-w-[140px] truncate text-xs sm:inline">
+				<span className="hidden max-w-[140px] truncate text-foreground text-xs sm:inline">
 					{isLoading ? "Checking IP..." : (info?.ip ?? "Offline")}
 				</span>
 			</PopoverTrigger>
 
 			<PopoverContent
 				align="end"
-				className="w-80 border-[#252a36] bg-[#161b26] p-0"
+				className="w-80 border-border bg-card p-0"
 			>
-				<PopoverHeader className="border-[#252a36] border-b px-4 py-3">
+				<PopoverHeader className="border-border border-b px-4 py-3">
 					<div className="flex items-center justify-between gap-2">
 						<PopoverTitle className="text-sm">Current Network</PopoverTitle>
 						<Button
@@ -114,10 +114,10 @@ function NetworkRow({
 }) {
 	return (
 		<div className="grid grid-cols-[72px_1fr] gap-2 text-xs">
-			<span className="text-[#8b93a1]">{label}</span>
+			<span className="text-muted-foreground">{label}</span>
 			<span
 				className={
-					mono ? "truncate font-mono text-[#dfe3ea]" : "text-[#dfe3ea]"
+					mono ? "truncate font-mono text-foreground" : "text-foreground"
 				}
 			>
 				{value}

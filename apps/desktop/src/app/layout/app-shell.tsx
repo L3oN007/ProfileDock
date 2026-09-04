@@ -3,14 +3,15 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@ProfileDock/ui/components/avatar";
-import { Badge } from "@ProfileDock/ui/components/badge";
+import { Button } from "@ProfileDock/ui/components/button";
 import { Link } from "@tanstack/react-router";
 import {
 	Activity,
+	ChevronDown,
 	FolderTree,
 	LayoutDashboard,
-	Puzzle,
 	Plus,
+	Puzzle,
 	Settings,
 	Shield,
 	Tag,
@@ -18,12 +19,12 @@ import {
 	Users,
 } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
+
+import { notion } from "@/app/design/system";
 import { AppHeader } from "@/app/layout/app-header";
 import { getUserInitials, useAppUser } from "@/features/auth/session";
 
-const primaryNav = [
-	{ to: "/profiles", label: "Profiles", icon: Users },
-] as const;
+const primaryNav = [{ to: "/profiles", label: "Profiles", icon: Users }] as const;
 
 const organizationNav = [
 	{ to: "/groups", label: "Groups", icon: FolderTree },
@@ -43,31 +44,40 @@ export function AppShell({ children }: { children: ReactNode }) {
 	const user = userQuery.data;
 
 	return (
-		<div className="flex h-svh bg-[#0f1117] text-foreground">
-			<aside className="flex w-[210px] shrink-0 flex-col border-[#1e2230] border-r bg-[#141820]">
-				<div className="border-[#1e2230] border-b px-4 py-3">
-					<div className="flex items-center gap-2">
-						<div className="flex size-7 items-center justify-center rounded-md bg-sky-600 font-bold text-white text-xs">
+		<div className={notion.shell}>
+			<aside className={notion.sidebar}>
+				<div className="px-3 pt-3 pb-2">
+					<button
+						type="button"
+						className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-sidebar-accent"
+					>
+						<div className="flex size-7 items-center justify-center rounded-md bg-primary font-semibold text-[11px] text-primary-foreground">
 							PD
 						</div>
-						<div>
-							<p className="font-semibold text-[#eef1f6] text-sm">ProfileDock</p>
-							<p className="text-[#6f7888] text-[10px]">Profile workspace</p>
+						<div className="min-w-0 flex-1">
+							<p className="truncate font-medium text-[13px] text-foreground">
+								ProfileDock
+							</p>
+							<p className="truncate text-[11px] text-muted-foreground">
+								Workspace
+							</p>
 						</div>
-					</div>
+						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
+					</button>
 				</div>
 
-				<div className="p-3">
-					<Link
-						to="/profiles/new"
-						className="flex w-full items-center justify-center gap-2 rounded-md bg-sky-600 px-3 py-2 font-medium text-sm text-white transition-colors hover:bg-sky-500"
+				<div className="px-3 pb-2">
+					<Button
+						size="sm"
+						className="h-8 w-full justify-start gap-2 px-2.5 text-[13px]"
+						render={<Link to="/profiles/new" />}
 					>
-						<Plus className="size-4" />
-						New Profile
-					</Link>
+						<Plus className="size-3.5" />
+						New profile
+					</Button>
 				</div>
 
-				<nav className="flex flex-1 flex-col gap-4 px-2">
+				<nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-2 pb-4">
 					<div className="space-y-0.5">
 						{primaryNav.map(({ to, label, icon: Icon }) => (
 							<NavLink key={to} to={to} label={label} icon={Icon} />
@@ -75,9 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 					</div>
 
 					<div>
-						<p className="px-3 py-1 text-[#6f7888] text-[10px] uppercase tracking-wide">
-							Organization
-						</p>
+						<p className={notion.sidebarSection}>Organization</p>
 						<div className="space-y-0.5">
 							{organizationNav.map(({ to, label, icon: Icon }) => (
 								<NavLink key={to} to={to} label={label} icon={Icon} />
@@ -86,9 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 					</div>
 
 					<div>
-						<p className="px-3 py-1 text-[#6f7888] text-[10px] uppercase tracking-wide">
-							System
-						</p>
+						<p className={notion.sidebarSection}>System</p>
 						<div className="space-y-0.5">
 							<NavLink to="/" label="Dashboard" icon={LayoutDashboard} />
 							{systemNav.map(({ to, label, icon: Icon }) => (
@@ -99,37 +105,32 @@ export function AppShell({ children }: { children: ReactNode }) {
 				</nav>
 
 				{user ? (
-					<div className="border-[#1e2230] border-t p-3">
-						<div className="flex items-center gap-2 rounded-md bg-[#1a1f2b] px-2.5 py-2">
-							<Avatar size="sm" className="size-8">
+					<div className="border-sidebar-border border-t p-3">
+						<div className="flex items-center gap-2 rounded-md px-2 py-2 transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-sidebar-accent">
+							<Avatar size="sm" className="size-7">
 								{user.avatarUrl ? (
 									<AvatarImage src={user.avatarUrl} alt={user.name} />
 								) : null}
-								<AvatarFallback className="bg-sky-600/20 text-sky-300 text-xs">
+								<AvatarFallback className="bg-muted text-[10px] text-foreground">
 									{getUserInitials(user.name) || "G"}
 								</AvatarFallback>
 							</Avatar>
 							<div className="min-w-0 flex-1">
-								<p className="truncate font-medium text-[#dfe3ea] text-xs">
+								<p className="truncate font-medium text-[12px] text-foreground">
 									{user.name}
 								</p>
-								<Badge
-									variant="secondary"
-									className="mt-1 h-4 px-1.5 text-[10px]"
-								>
+								<p className="truncate text-[11px] text-muted-foreground">
 									{user.isAuthenticated ? user.plan : "Guest"}
-								</Badge>
+								</p>
 							</div>
 						</div>
 					</div>
 				) : null}
 			</aside>
 
-			<div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#0f1117]">
+			<div className={notion.main}>
 				<AppHeader />
-				<main className="flex min-h-0 flex-1 flex-col overflow-hidden">
-					{children}
-				</main>
+				<main className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</main>
 			</div>
 		</div>
 	);
@@ -145,12 +146,9 @@ function NavLink({
 	icon: ComponentType<{ className?: string }>;
 }) {
 	return (
-		<Link
-			to={to}
-			className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[#9aa3b2] text-sm transition-colors hover:bg-[#1e2230] hover:text-white [&.active]:bg-[#1e2230] [&.active]:text-white"
-		>
-			<Icon className="size-4" />
-			{label}
+		<Link to={to} className={notion.navItem}>
+			<Icon className="size-4 shrink-0 opacity-80" />
+			<span className="truncate">{label}</span>
 		</Link>
 	);
 }

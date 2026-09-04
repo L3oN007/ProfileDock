@@ -4,9 +4,6 @@ pub mod profile;
 pub mod proxy;
 pub mod tag;
 
-pub use group::*;
-pub use tag::*;
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

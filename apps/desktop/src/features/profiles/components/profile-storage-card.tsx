@@ -60,13 +60,13 @@ export function ProfileStorageCard({ profileId, isRunning }: ProfileStorageCardP
 
 				<Button
 					variant="outline"
-					className="border-[#252a36]"
+					className="border-border"
 					disabled={isRunning || clearCache.isPending || storageQuery.isLoading}
 					onClick={() => clearCache.mutate()}
 				>
 					Clear cache
 				</Button>
-				<p className="text-[#8b93a1] text-xs">
+				<p className="text-muted-foreground text-xs">
 					Clears only the profile cache folder. Cookies, local storage, and browser
 					data are preserved.
 				</p>
@@ -85,9 +85,9 @@ function StorageRow({
 	emphasized?: boolean;
 }) {
 	return (
-		<div className="flex justify-between gap-4 border-[#252a36] border-b py-2 last:border-0">
-			<span className="text-[#8b93a1]">{label}</span>
-			<span className={emphasized ? "font-medium text-[#eef1f6]" : "text-[#dfe3ea]"}>
+		<div className="flex justify-between gap-4 border-border border-b py-2 last:border-0">
+			<span className="text-muted-foreground">{label}</span>
+			<span className={emphasized ? "font-medium text-foreground" : "text-foreground"}>
 				{value}
 			</span>
 		</div>
