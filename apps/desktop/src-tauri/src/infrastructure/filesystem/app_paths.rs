@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 
 use crate::domain::profile::validate_profile_id;
 use crate::error::AppError;
+use crate::infrastructure::cloak::ensure_default_search_engine;
 
 #[derive(Debug, Clone)]
 pub struct ProfilePaths {
@@ -94,6 +95,8 @@ impl AppPaths {
         ] {
             std::fs::create_dir_all(dir)?;
         }
+
+        ensure_default_search_engine(&paths.browser_data)?;
 
         let metadata = serde_json::json!({
             "profile_id": id,
