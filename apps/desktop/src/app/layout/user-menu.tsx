@@ -26,7 +26,11 @@ export function UserMenu() {
 
 	const initials = getUserInitials(user.name);
 	const planLabel =
-		user.plan === "guest" ? "Guest mode" : user.plan === "free" ? "Free" : "Pro";
+		user.plan === "guest"
+			? "Guest mode"
+			: user.plan === "free"
+				? "Free"
+				: "Pro";
 
 	return (
 		<DropdownMenu>
@@ -86,7 +90,10 @@ export function UserMenu() {
 							<UserRound className="size-3.5" />
 							Account
 						</DropdownMenuItem>
-						<DropdownMenuItem className="gap-2" render={<Link to="/settings" />}>
+						<DropdownMenuItem
+							className="gap-2"
+							render={<Link to="/settings" />}
+						>
 							<Settings className="size-3.5" />
 							Settings
 						</DropdownMenuItem>

@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-import { BrowsersPage } from "@/features/browsers/browsers-page";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/browsers")({
-	component: BrowsersPage,
+	beforeLoad: () => {
+		throw redirect({ to: "/settings" });
+	},
 });

@@ -1,5 +1,10 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@ProfileDock/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@ProfileDock/ui/components/card";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, RefreshCw } from "lucide-react";
@@ -37,7 +42,9 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 						<Skeleton className="h-7 w-48" />
 					) : proxy ? (
 						<div className="flex items-center gap-2">
-							<h2 className="font-medium text-[#eef1f6] text-lg">{proxy.name}</h2>
+							<h2 className="font-medium text-[#eef1f6] text-lg">
+								{proxy.name}
+							</h2>
 							<ProxyHealthBadge status={proxy.healthStatus} />
 						</div>
 					) : null}
@@ -63,7 +70,10 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 						<CardTitle>Connection</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-2 text-sm">
-						<Row label="Protocol" value={proxy?.protocol.toUpperCase() ?? "—"} />
+						<Row
+							label="Protocol"
+							value={proxy?.protocol.toUpperCase() ?? "—"}
+						/>
 						<Row label="Host" value={proxy?.host ?? "—"} />
 						<Row label="Port" value={proxy?.port?.toString() ?? "—"} />
 						<Row
@@ -79,7 +89,10 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 					</CardHeader>
 					<CardContent className="space-y-2 text-sm">
 						<Row label="Status" value={proxy?.healthStatus ?? "—"} />
-						<Row label="Observed IP" value={proxy?.lastCheck?.observedIp ?? "—"} />
+						<Row
+							label="Observed IP"
+							value={proxy?.lastCheck?.observedIp ?? "—"}
+						/>
 						<Row
 							label="Latency"
 							value={
@@ -108,7 +121,9 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 					{assignmentsQuery.isLoading ? (
 						<Skeleton className="h-12 w-full" />
 					) : (assignmentsQuery.data ?? []).length === 0 ? (
-						<p className="text-[#8b93a1] text-sm">Not assigned to any profile.</p>
+						<p className="text-[#8b93a1] text-sm">
+							Not assigned to any profile.
+						</p>
 					) : (
 						<ul className="space-y-2 text-sm">
 							{(assignmentsQuery.data ?? []).map((assignment) => (
@@ -144,7 +159,11 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 									<span className="text-[#8b93a1]">
 										{new Date(check.checkedAt).toLocaleString()}
 									</span>
-									<span className={check.success ? "text-emerald-400" : "text-red-400"}>
+									<span
+										className={
+											check.success ? "text-emerald-400" : "text-red-400"
+										}
+									>
 										{check.success ? "Success" : "Failed"}
 										{check.latencyMs != null ? ` · ${check.latencyMs}ms` : ""}
 									</span>

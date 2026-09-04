@@ -1,8 +1,10 @@
 use tauri::State;
 
 use crate::domain::profile::{
-    BrowserInstanceDto, CreateProfileInput, ProfileDto, ProfileEventDto, UpdateProfileInput,
+    BrowserInstanceDto, CreateProfileInput, ProfileBrowserSettingsDto, ProfileDto, ProfileEventDto,
+    UpdateBrowserSettingsInput, UpdateProfileInput,
 };
+use crate::domain::cloak::PreflightResult;
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -63,6 +65,37 @@ pub async fn profile_get_instance(
     id: String,
 ) -> Result<Option<BrowserInstanceDto>, AppError> {
     state.browser_service.get_instance(&state, &id).await
+}
+
+#[tauri::command]
+pub async fn profile_preflight(
+    state: State<'_, AppState>,
+    profile_id: String,
+) -> Result<PreflightResult, AppError> {
+    state.browser_service.preflight(&state, &profile_id).await
+}
+
+#[tauri::command]
+pub async fn profile_browser_settings_get(
+    state: State<'_, AppState>,
+    profile_id: String,
+) -> Result<ProfileBrowserSettingsDto, AppError> {
+    state
+        .browser_service
+        .get_browser_settings(&state, &profile_id)
+        .await
+}
+
+#[tauri::command]
+pub async fn profile_browser_settings_update(
+    state: State<'_, AppState>,
+    profile_id: String,
+    input: UpdateBrowserSettingsInput,
+) -> Result<ProfileBrowserSettingsDto, AppError> {
+    state
+        .browser_service
+        .update_browser_settings(&state, &profile_id, input)
+        .await
 }
 
 #[tauri::command]

@@ -1,27 +1,25 @@
-use std::collections::HashMap;
-use std::sync::Mutex;
-
 use chrono::Utc;
 use uuid::Uuid;
 
 use crate::domain::profile::{
     validate_profile_id, CreateProfileInput, Profile, ProfileDisplayState, ProfileDto,
-    ProfileEventDto, ProfileSettings, UpdateProfileInput,
+    ProfileEventDto, ProfileBrowserSettings, UpdateProfileInput,
 };
 use crate::error::AppError;
 use crate::infrastructure::database::{
-    SqliteBrowserInstanceRepository, SqliteProfileEventRepository, SqliteProfileRepository,
+    SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository, SqliteProfileEventRepository,
+    SqliteProfileRepository,
 };
 use crate::state::AppState;
 
 pub struct ProfileService {
-    launch_locks: Mutex<HashMap<String, ()>>,
+    launch_locks: std::sync::Mutex<std::collections::HashMap<String, ()>>,
 }
 
 impl ProfileService {
     pub fn new() -> Self {
         Self {
-            launch_locks: Mutex::new(HashMap::new()),
+            launch_locks: std::sync::Mutex::new(std::collections::HashMap::new()),
         }
     }
 
@@ -37,16 +35,6 @@ impl ProfileService {
             ));
         }
 
-        let browser_provider = input
-            .browser_provider
-            .unwrap_or_else(|| "cloak".to_string());
-
-        if browser_provider != "cloak" {
-            return Err(AppError::InvalidConfiguration(
-                "unsupported browser provider".into(),
-            ));
-        }
-
         let id = Uuid::new_v4().to_string();
         let now = Utc::now();
         let profile = Profile {
@@ -56,22 +44,15 @@ impl ProfileService {
                 .description
                 .map(|d| d.trim().to_string())
                 .filter(|d| !d.is_empty()),
-            browser_provider: browser_provider.clone(),
             is_archived: false,
             created_at: now,
             updated_at: now,
         };
 
-        let settings = ProfileSettings {
-            profile_id: id.clone(),
-            startup_urls: Vec::new(),
-            locale: None,
-            timezone: None,
-            created_at: now,
-            updated_at: now,
-        };
+        let browser_settings = ProfileBrowserSettings::defaults(id.clone(), now);
 
         let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
+        let settings_repo = SqliteBrowserSettingsRepository::new(state.db.pool().clone());
         let event_repo = SqliteProfileEventRepository::new(state.db.pool().clone());
 
         let paths = match state.paths.create_profile_directories(&id) {
@@ -79,8 +60,14 @@ impl ProfileService {
             Err(error) => return Err(error),
         };
 
-        if let Err(error) = profile_repo.create(&profile, &settings).await {
+        if let Err(error) = profile_repo.create(&profile).await {
             let _ = state.paths.remove_profile_directory(&id);
+            return Err(error);
+        }
+
+        if let Err(error) = settings_repo.save(&browser_settings).await {
+            let _ = state.paths.remove_profile_directory(&id);
+            let _ = profile_repo.archive(&id).await;
             return Err(error);
         }
 
@@ -235,7 +222,6 @@ impl ProfileService {
             id: profile.id,
             name: profile.name,
             description: profile.description,
-            browser_provider: profile.browser_provider,
             state: state_label.as_str().to_string(),
             is_archived: profile.is_archived,
             pid: active.as_ref().and_then(|i| i.pid),
@@ -249,7 +235,7 @@ impl ProfileService {
 
 pub struct ProfileLockGuard<'a> {
     profile_id: String,
-    locks: &'a Mutex<HashMap<String, ()>>,
+    locks: &'a std::sync::Mutex<std::collections::HashMap<String, ()>>,
 }
 
 impl Drop for ProfileLockGuard<'_> {

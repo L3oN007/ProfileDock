@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { Button } from "@ProfileDock/ui/components/button";
 import {
 	Popover,
@@ -9,11 +8,9 @@ import {
 } from "@ProfileDock/ui/components/popover";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 import { CheckCircle2, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import type { ReactNode } from "react";
 
-import {
-	countryFlag,
-	formatNetworkLocation,
-} from "@/lib/network/ip-api";
+import { countryFlag, formatNetworkLocation } from "@/lib/network/ip-api";
 import { useNetworkInfo } from "@/lib/query/network";
 
 export function NetworkStatusButton() {
@@ -44,11 +41,14 @@ export function NetworkStatusButton() {
 					<WifiOff className="size-4 text-amber-400" />
 				)}
 				<span className="hidden max-w-[140px] truncate text-xs sm:inline">
-					{isLoading ? "Checking IP..." : info?.ip ?? "Offline"}
+					{isLoading ? "Checking IP..." : (info?.ip ?? "Offline")}
 				</span>
 			</PopoverTrigger>
 
-			<PopoverContent align="end" className="w-80 border-[#252a36] bg-[#161b26] p-0">
+			<PopoverContent
+				align="end"
+				className="w-80 border-[#252a36] bg-[#161b26] p-0"
+			>
 				<PopoverHeader className="border-[#252a36] border-b px-4 py-3">
 					<div className="flex items-center justify-between gap-2">
 						<PopoverTitle className="text-sm">Current Network</PopoverTitle>
@@ -115,7 +115,11 @@ function NetworkRow({
 	return (
 		<div className="grid grid-cols-[72px_1fr] gap-2 text-xs">
 			<span className="text-[#8b93a1]">{label}</span>
-			<span className={mono ? "truncate font-mono text-[#dfe3ea]" : "text-[#dfe3ea]"}>
+			<span
+				className={
+					mono ? "truncate font-mono text-[#dfe3ea]" : "text-[#dfe3ea]"
+				}
+			>
 				{value}
 			</span>
 		</div>

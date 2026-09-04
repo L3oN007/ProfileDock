@@ -1,27 +1,18 @@
-import { Link } from "@tanstack/react-router";
-import {
-	Globe,
-	LayoutDashboard,
-	Plus,
-	Settings,
-	Shield,
-	Users,
-} from "lucide-react";
-
-import { AppHeader } from "@/app/layout/app-header";
-import { getUserInitials, useAppUser } from "@/features/auth/session";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@ProfileDock/ui/components/avatar";
 import { Badge } from "@ProfileDock/ui/components/badge";
+import { Link } from "@tanstack/react-router";
+import { LayoutDashboard, Plus, Settings, Shield, Users } from "lucide-react";
+import { AppHeader } from "@/app/layout/app-header";
+import { getUserInitials, useAppUser } from "@/features/auth/session";
 
 const navItems = [
 	{ to: "/", label: "Dashboard", icon: LayoutDashboard },
 	{ to: "/profiles", label: "Profiles", icon: Users },
 	{ to: "/proxies", label: "Proxies", icon: Shield },
-	{ to: "/browsers", label: "Browsers", icon: Globe },
 	{ to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
@@ -38,7 +29,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 							PD
 						</div>
 						<div>
-							<p className="font-semibold text-[#eef1f6] text-sm">ProfileDock</p>
+							<p className="font-semibold text-[#eef1f6] text-sm">
+								ProfileDock
+							</p>
 							<p className="text-[#6f7888] text-[10px]">Browser workspace</p>
 						</div>
 					</div>
@@ -82,7 +75,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 								<p className="truncate font-medium text-[#dfe3ea] text-xs">
 									{user.name}
 								</p>
-								<Badge variant="secondary" className="mt-1 h-4 px-1.5 text-[10px]">
+								<Badge
+									variant="secondary"
+									className="mt-1 h-4 px-1.5 text-[10px]"
+								>
 									{user.isAuthenticated ? user.plan : "Guest"}
 								</Badge>
 							</div>

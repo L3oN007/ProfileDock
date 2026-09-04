@@ -38,7 +38,9 @@ export const profileApi = {
 	},
 
 	getInstance(id: string) {
-		return invokeCommand<BrowserInstance | null>("profile_get_instance", { id });
+		return invokeCommand<BrowserInstance | null>("profile_get_instance", {
+			id,
+		});
 	},
 
 	listEvents(id: string) {

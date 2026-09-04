@@ -9,7 +9,6 @@ pub struct ProfileDto {
     pub id: String,
     pub name: String,
     pub description: Option<String>,
-    pub browser_provider: String,
     pub state: String,
     pub is_archived: bool,
     pub pid: Option<u32>,

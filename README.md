@@ -92,6 +92,61 @@ ProfileDock/
 | `cargo check` (in `src-tauri`) | Check Rust backend |
 | `cargo test` (in `src-tauri`) | Run Rust tests |
 
+## CloakBrowser development setup (Phase 3.5)
+
+ProfileDock only supports CloakBrowser. For local development, install the official CloakBrowser Chromium binary via the `cloakbrowser` npm wrapper. This is **development-only** — production builds will manage CloakBrowser natively from Rust (Phase 4).
+
+### Ubuntu / Linux
+
+```bash
+pnpm install
+pnpm cloak:setup:linux
+```
+
+Or step by step:
+
+```bash
+pnpm cloak:install
+pnpm cloak:info
+pnpm desktop:dev
+```
+
+Typical binary path:
+
+```text
+~/.cloakbrowser/chromium-<version>/chrome
+```
+
+Ubuntu may also need Chromium runtime libraries:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libgbm1 libasound2
+```
+
+### Windows (native PowerShell)
+
+Use **Windows PowerShell**, not WSL:
+
+```powershell
+pnpm install
+pnpm cloak:setup:windows
+```
+
+Typical binary path:
+
+```text
+%USERPROFILE%\.cloakbrowser\chromium-<version>\chrome.exe
+```
+
+Do not copy only `chrome.exe` — CloakBrowser needs the full installation directory (`chrome.dll`, `resources.pak`, `locales/`, etc.).
+
+### Configure in the app
+
+1. Start ProfileDock: `pnpm desktop:dev`
+2. Open **Settings → CloakBrowser**
+3. Click **Auto-detect**, or choose a discovered installation, or paste the full executable path
+
 ## Releases
 
 This repo uses [Changesets](https://github.com/changesets/changesets) for versioning and changelogs.

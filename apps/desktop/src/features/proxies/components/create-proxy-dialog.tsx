@@ -29,7 +29,10 @@ interface CreateProxyDialogProps {
 	onOpenChange: (open: boolean) => void;
 }
 
-export function CreateProxyDialog({ open, onOpenChange }: CreateProxyDialogProps) {
+export function CreateProxyDialog({
+	open,
+	onOpenChange,
+}: CreateProxyDialogProps) {
 	const [name, setName] = useState("");
 	const [protocol, setProtocol] = useState<ProxyProtocol>("socks5");
 	const [host, setHost] = useState("");

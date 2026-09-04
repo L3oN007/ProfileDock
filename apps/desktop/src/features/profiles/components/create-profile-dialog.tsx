@@ -30,7 +30,6 @@ export function CreateProfileDialog({
 		await createProfile.mutateAsync({
 			name,
 			description: description || undefined,
-			browser_provider: "cloak",
 		});
 		setName("");
 		setDescription("");
@@ -56,19 +55,13 @@ export function CreateProfileDialog({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="profile-description">Description</Label>
+						<Label>Description</Label>
 						<Textarea
-							id="profile-description"
 							placeholder="Optional notes"
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
 							rows={3}
 						/>
-					</div>
-
-					<div className="space-y-2">
-						<Label>Browser</Label>
-						<Input value="CloakBrowser" disabled />
 					</div>
 				</div>
 

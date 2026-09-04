@@ -17,8 +17,8 @@ impl SqliteBrowserInstanceRepository {
     pub async fn insert(&self, instance: &BrowserInstance) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO browser_instances
-             (id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, config_snapshot_json, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(&instance.id)
         .bind(&instance.profile_id)
@@ -28,6 +28,7 @@ impl SqliteBrowserInstanceRepository {
         .bind(instance.stopped_at.map(|dt| dt.to_rfc3339()))
         .bind(instance.exit_code)
         .bind(&instance.error_message)
+        .bind(&instance.config_snapshot_json)
         .bind(instance.created_at.to_rfc3339())
         .bind(instance.updated_at.to_rfc3339())
         .execute(&self.pool)
@@ -59,7 +60,7 @@ impl SqliteBrowserInstanceRepository {
         profile_id: &str,
     ) -> Result<Option<BrowserInstance>, AppError> {
         let row = sqlx::query_as::<_, InstanceRow>(
-            "SELECT id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, created_at, updated_at
+            "SELECT id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, config_snapshot_json, created_at, updated_at
              FROM browser_instances
              WHERE profile_id = ? AND state IN ('starting', 'running', 'stopping')
              ORDER BY created_at DESC LIMIT 1",
@@ -73,7 +74,7 @@ impl SqliteBrowserInstanceRepository {
 
     pub async fn find_by_id(&self, id: &str) -> Result<Option<BrowserInstance>, AppError> {
         let row = sqlx::query_as::<_, InstanceRow>(
-            "SELECT id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, created_at, updated_at
+            "SELECT id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, config_snapshot_json, created_at, updated_at
              FROM browser_instances WHERE id = ?",
         )
         .bind(id)
@@ -86,7 +87,7 @@ impl SqliteBrowserInstanceRepository {
     #[allow(dead_code)]
     pub async fn list_active(&self) -> Result<Vec<BrowserInstance>, AppError> {
         let rows = sqlx::query_as::<_, InstanceRow>(
-            "SELECT id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, created_at, updated_at
+            "SELECT id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, config_snapshot_json, created_at, updated_at
              FROM browser_instances WHERE state IN ('starting', 'running', 'stopping')",
         )
         .fetch_all(&self.pool)
@@ -97,7 +98,7 @@ impl SqliteBrowserInstanceRepository {
 
     pub async fn list_running_states(&self) -> Result<Vec<BrowserInstance>, AppError> {
         let rows = sqlx::query_as::<_, InstanceRow>(
-            "SELECT id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, created_at, updated_at
+            "SELECT id, profile_id, pid, state, started_at, stopped_at, exit_code, error_message, config_snapshot_json, created_at, updated_at
              FROM browser_instances WHERE state = 'running'",
         )
         .fetch_all(&self.pool)
@@ -137,6 +138,7 @@ struct InstanceRow {
     stopped_at: Option<String>,
     exit_code: Option<i32>,
     error_message: Option<String>,
+    config_snapshot_json: Option<String>,
     created_at: String,
     updated_at: String,
 }
@@ -160,6 +162,7 @@ impl InstanceRow {
             }),
             exit_code: self.exit_code,
             error_message: self.error_message,
+            config_snapshot_json: self.config_snapshot_json,
             created_at: DateTime::parse_from_rfc3339(&self.created_at)
                 .map(|dt| dt.with_timezone(&Utc))
                 .unwrap_or_else(|_| Utc::now()),

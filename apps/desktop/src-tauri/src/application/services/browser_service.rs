@@ -3,35 +3,46 @@ use std::time::Duration;
 use chrono::Utc;
 use uuid::Uuid;
 
-use crate::application::services::browser_provider::{BrowserProvider, CloakBrowserProvider};
-use crate::application::services::ProfileService;
-use crate::domain::profile::{
-    BrowserInstance, BrowserInstanceDto, BrowserLaunchRequest, InstanceState,
+use crate::application::services::{
+    CloakConfigResolver, CloakInstallationService, CloakLaunchBuilder, CloakPreflightService,
+    ProfileService,
 };
+use crate::domain::cloak::ConfigSnapshot;
+use crate::domain::profile::{BrowserInstance, BrowserInstanceDto, InstanceState};
 use crate::domain::BrowserStatus;
 use crate::error::AppError;
 use crate::infrastructure::database::{
-    MetadataRepository, SqliteBrowserInstanceRepository, SqliteProfileEventRepository,
-    SqliteProfileRepository,
+    MetadataRepository, SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository,
+    SqliteProfileEventRepository,
 };
-use crate::infrastructure::filesystem::ConfigStore;
 use crate::infrastructure::process::ProcessManager;
 use crate::state::AppState;
 
-pub struct BrowserService {
-    provider: CloakBrowserProvider,
-}
+const STARTUP_OBSERVATION_MS: u64 = 500;
+
+pub struct BrowserService;
 
 impl BrowserService {
     pub fn new() -> Self {
-        Self {
-            provider: CloakBrowserProvider,
-        }
+        Self
     }
 
     pub async fn status(&self, state: &AppState) -> Result<BrowserStatus, AppError> {
-        let configured = self.configured_path(state).await?;
-        self.provider.status(configured.as_deref())
+        let installation = CloakInstallationService::get_installation(state).await?;
+        let status = if installation.valid {
+            crate::domain::BrowserDetectionStatus::Detected
+        } else if installation.executable.is_some() {
+            crate::domain::BrowserDetectionStatus::Invalid
+        } else {
+            crate::domain::BrowserDetectionStatus::NotDetected
+        };
+
+        Ok(BrowserStatus {
+            provider: "CloakBrowser".to_string(),
+            status,
+            executable: installation.executable,
+            version: installation.version,
+        })
     }
 
     pub async fn set_executable(
@@ -39,17 +50,18 @@ impl BrowserService {
         state: &AppState,
         path: String,
     ) -> Result<BrowserStatus, AppError> {
-        self.provider
-            .validate_executable(std::path::Path::new(&path))?;
+        let installation = CloakInstallationService::set_executable(state, path).await?;
 
-        let metadata = MetadataRepository::new(state.db.pool().clone());
-        metadata.set("browser_executable", &path).await?;
-
-        let mut config = ConfigStore::load(&state.paths.config, &metadata).await?;
-        config.browser_executable = Some(path.clone());
-        ConfigStore::save(&state.paths.config, &config)?;
-
-        self.provider.status(Some(&path))
+        Ok(BrowserStatus {
+            provider: "CloakBrowser".to_string(),
+            status: if installation.valid {
+                crate::domain::BrowserDetectionStatus::Detected
+            } else {
+                crate::domain::BrowserDetectionStatus::Invalid
+            },
+            executable: installation.executable,
+            version: installation.version,
+        })
     }
 
     pub async fn launch_profile(
@@ -59,52 +71,43 @@ impl BrowserService {
         profile_id: &str,
     ) -> Result<BrowserInstanceDto, AppError> {
         let _lock = profile_service.lock_profile(profile_id)?;
+        let preflight = CloakPreflightService::check(state, profile_id).await?;
+        if !preflight.ready {
+            let event_repo = SqliteProfileEventRepository::new(state.db.pool().clone());
+            event_repo
+                .insert(
+                    profile_id,
+                    "browser_preflight_failed",
+                    Some(serde_json::json!({ "warnings": preflight.warnings })),
+                )
+                .await?;
+            return Err(AppError::CloakConfigInvalid(
+                "browser preflight checks failed".into(),
+            ));
+        }
 
-        let profile_repo = SqliteProfileRepository::new(state.db.pool().clone());
+        let installation = CloakInstallationService::resolve_installation(state)
+            .await?
+            .ok_or(AppError::CloakExecutableNotFound)?;
+
+        let (launch_config, browser_settings) =
+            CloakConfigResolver::resolve(state, profile_id).await?;
+
         let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
         let event_repo = SqliteProfileEventRepository::new(state.db.pool().clone());
 
-        let profile = profile_repo
-            .find_by_id(profile_id)
-            .await?
-            .ok_or(AppError::ProfileNotFound)?;
-
-        if profile.is_archived {
-            return Err(AppError::ProfileArchived);
-        }
-
-        if instance_repo
-            .find_active_by_profile(profile_id)
-            .await?
-            .is_some()
-        {
-            return Err(AppError::ProfileAlreadyRunning);
-        }
-
-        let executable = self
-            .configured_path(state)
-            .await?
-            .and_then(|path| {
-                let candidate = std::path::PathBuf::from(path);
-                if candidate.exists() {
-                    Some(candidate)
-                } else {
-                    None
-                }
-            })
-            .or_else(|| self.provider.detect(None).ok().flatten())
-            .ok_or(AppError::BrowserNotFound)?;
-
-        let settings = profile_repo
-            .get_settings(profile_id)
-            .await?
-            .ok_or(AppError::ProfileNotFound)?;
-
-        let resolved_proxy = state.proxy_service.resolve_for_profile(state, profile_id).await?;
-
-        let paths = state.paths.profile(profile_id)?;
         let instance_id = Uuid::new_v4().to_string();
         let now = Utc::now();
+        let metadata = MetadataRepository::new(state.db.pool().clone());
+        let cloak_runtime_id = metadata.get("cloak_active_runtime_id").await?;
+
+        let snapshot = ConfigSnapshot::from_launch_config(
+            &launch_config,
+            &browser_settings.download_mode,
+            launch_config.proxy_id.clone(),
+            cloak_runtime_id,
+        );
+        let snapshot_json = serde_json::to_string(&snapshot)?;
 
         let mut instance = BrowserInstance {
             id: instance_id.clone(),
@@ -115,23 +118,18 @@ impl BrowserService {
             stopped_at: None,
             exit_code: None,
             error_message: None,
+            config_snapshot_json: Some(snapshot_json),
             created_at: now,
             updated_at: now,
         };
 
         instance_repo.insert(&instance).await?;
+        event_repo
+            .insert(profile_id, "browser_launch_started", None)
+            .await?;
 
-        let spec = self.provider.build_launch_spec(
-            &executable,
-            BrowserLaunchRequest {
-                profile_id: profile_id.to_string(),
-                user_data_dir: paths.browser_data,
-                download_dir: paths.downloads,
-                startup_urls: settings.startup_urls,
-                proxy: resolved_proxy,
-            },
-            instance_id.clone(),
-        )?;
+        let builder = CloakLaunchBuilder::new(installation);
+        let spec = builder.build(&launch_config, instance_id.clone())?;
 
         let managed = match state.process_manager.spawn_spec(&spec) {
             Ok(managed) => managed,
@@ -140,11 +138,44 @@ impl BrowserService {
                 instance.stopped_at = Some(Utc::now());
                 instance.error_message = Some(error.to_string());
                 instance_repo.update(&instance).await?;
+                event_repo
+                    .insert(
+                        profile_id,
+                        "browser_launch_failed",
+                        Some(serde_json::json!({ "error": error.to_string() })),
+                    )
+                    .await?;
                 return Err(error);
             }
         };
 
         instance.pid = Some(managed.pid);
+        instance.updated_at = Utc::now();
+        instance_repo.update(&instance).await?;
+
+        tokio::time::sleep(Duration::from_millis(STARTUP_OBSERVATION_MS)).await;
+
+        let alive = instance
+            .pid
+            .map(ProcessManager::is_pid_alive)
+            .unwrap_or(false);
+
+        if !alive {
+            instance.state = InstanceState::Failed;
+            instance.stopped_at = Some(Utc::now());
+            instance.error_message = Some("CloakBrowser exited during startup".into());
+            instance.pid = None;
+            instance_repo.update(&instance).await?;
+            event_repo
+                .insert(
+                    profile_id,
+                    "browser_launch_failed",
+                    Some(serde_json::json!({ "reason": "early_exit" })),
+                )
+                .await?;
+            return Err(AppError::CloakProcessExitedEarly);
+        }
+
         instance.state = InstanceState::Running;
         instance.updated_at = Utc::now();
         instance_repo.update(&instance).await?;
@@ -152,7 +183,7 @@ impl BrowserService {
         event_repo
             .insert(
                 profile_id,
-                "browser_started",
+                "browser_launch_success",
                 Some(serde_json::json!({ "pid": managed.pid, "instance_id": instance_id })),
             )
             .await?;
@@ -277,9 +308,51 @@ impl BrowserService {
         Ok(())
     }
 
-    async fn configured_path(&self, state: &AppState) -> Result<Option<String>, AppError> {
-        let metadata = MetadataRepository::new(state.db.pool().clone());
-        metadata.get("browser_executable").await
+    pub async fn get_browser_settings(
+        &self,
+        state: &AppState,
+        profile_id: &str,
+    ) -> Result<crate::domain::profile::ProfileBrowserSettingsDto, AppError> {
+        let settings_repo = SqliteBrowserSettingsRepository::new(state.db.pool().clone());
+        let settings = settings_repo
+            .get(profile_id)
+            .await?
+            .ok_or(AppError::ProfileNotFound)?;
+        Ok(settings.to_dto())
+    }
+
+    pub async fn update_browser_settings(
+        &self,
+        state: &AppState,
+        profile_id: &str,
+        input: crate::domain::profile::UpdateBrowserSettingsInput,
+    ) -> Result<crate::domain::profile::ProfileBrowserSettingsDto, AppError> {
+        let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
+        if instance_repo
+            .find_active_by_profile(profile_id)
+            .await?
+            .is_some()
+        {
+            return Err(AppError::ProfileRunning);
+        }
+
+        let settings_repo = SqliteBrowserSettingsRepository::new(state.db.pool().clone());
+        let settings = settings_repo.update(profile_id, input).await?;
+
+        let event_repo = SqliteProfileEventRepository::new(state.db.pool().clone());
+        event_repo
+            .insert(profile_id, "browser_settings_updated", None)
+            .await?;
+
+        Ok(settings.to_dto())
+    }
+
+    pub async fn preflight(
+        &self,
+        state: &AppState,
+        profile_id: &str,
+    ) -> Result<crate::domain::cloak::PreflightResult, AppError> {
+        CloakPreflightService::check(state, profile_id).await
     }
 }
 

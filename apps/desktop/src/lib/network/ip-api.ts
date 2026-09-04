@@ -101,9 +101,7 @@ export function countryFlag(countryCode: string) {
 	if (!countryCode || countryCode.length !== 2) return "🌐";
 	return countryCode
 		.toUpperCase()
-		.replace(/./g, (char) =>
-			String.fromCodePoint(127397 + char.charCodeAt(0)),
-		);
+		.replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
 }
 
 export function formatNetworkLocation(info: NetworkInfo) {

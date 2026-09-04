@@ -5,8 +5,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@ProfileDock/ui/components/card";
-import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 
 import { PageShell, panelClassName } from "@/app/layout/page-shell";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";

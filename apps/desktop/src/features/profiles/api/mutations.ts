@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { browserSettingsApi } from "@/lib/tauri/browser-settings";
 import { profileApi } from "@/lib/tauri/profile";
 import type { AppError } from "@/types/app";
+import type { UpdateBrowserSettingsInput } from "@/types/cloak";
 import type { CreateProfileInput, UpdateProfileInput } from "@/types/profile";
 
 import { profileKeys } from "./profile-keys";
@@ -72,6 +74,25 @@ export function useStopProfile() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: profileKeys.all });
 			toast.success("Browser stopped");
+		},
+		onError: handleError,
+	});
+}
+
+export function useUpdateBrowserSettings(profileId: string) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (input: UpdateBrowserSettingsInput) =>
+			browserSettingsApi.update(profileId, input),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: profileKeys.browserSettings(profileId),
+			});
+			queryClient.invalidateQueries({
+				queryKey: profileKeys.detail(profileId),
+			});
+			toast.success("Browser settings saved");
 		},
 		onError: handleError,
 	});

@@ -14,7 +14,10 @@ import {
 	SelectValue,
 } from "@ProfileDock/ui/components/select";
 
-import { useAssignProxy, useUnassignProxy } from "@/features/proxies/api/mutations";
+import {
+	useAssignProxy,
+	useUnassignProxy,
+} from "@/features/proxies/api/mutations";
 import { useProxies } from "@/features/proxies/api/queries";
 import { ProxyHealthBadge } from "@/features/proxies/components/proxy-health-badge";
 import type { ProfileProxyAssignment } from "@/types/proxy";
@@ -38,7 +41,9 @@ export function AssignProxyDialog({
 	const assignProxy = useAssignProxy();
 	const unassignProxy = useUnassignProxy();
 
-	const proxies = (proxiesQuery.data ?? []).filter((proxy) => !proxy.isArchived);
+	const proxies = (proxiesQuery.data ?? []).filter(
+		(proxy) => !proxy.isArchived,
+	);
 
 	const handleAssign = async (proxyId: string) => {
 		if (proxyId === "none") {
@@ -93,7 +98,11 @@ export function AssignProxyDialog({
 
 				<DialogFooter>
 					{assignment?.proxy && !isRunning ? (
-						<Button variant="outline" className="border-[#252a36]" onClick={handleUnassign}>
+						<Button
+							variant="outline"
+							className="border-[#252a36]"
+							onClick={handleUnassign}
+						>
 							Unassign
 						</Button>
 					) : null}

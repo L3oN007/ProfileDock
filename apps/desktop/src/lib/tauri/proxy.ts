@@ -48,13 +48,18 @@ export const proxyApi = {
 	},
 
 	getProfileAssignment(profileId: string) {
-		return invokeCommand<ProfileProxyAssignment>("proxy_get_profile_assignment", {
-			profileId,
-		});
+		return invokeCommand<ProfileProxyAssignment>(
+			"proxy_get_profile_assignment",
+			{
+				profileId,
+			},
+		);
 	},
 
 	listAssignments(proxyId: string) {
-		return invokeCommand<ProxyAssignment[]>("proxy_list_assignments", { proxyId });
+		return invokeCommand<ProxyAssignment[]>("proxy_list_assignments", {
+			proxyId,
+		});
 	},
 
 	listChecks(proxyId: string, limit?: number) {

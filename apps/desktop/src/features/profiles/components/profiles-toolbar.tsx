@@ -32,7 +32,11 @@ export function ProfilesToolbar({
 	return (
 		<div className="space-y-3 border-[#1e2230] border-b bg-[#12161f] px-4 py-3">
 			<div className="flex flex-wrap items-center gap-2">
-				<Button size="sm" onClick={onCreate} className="bg-sky-600 hover:bg-sky-500">
+				<Button
+					size="sm"
+					onClick={onCreate}
+					className="bg-sky-600 hover:bg-sky-500"
+				>
 					<Plus className="size-3.5" />
 					New Profile
 				</Button>

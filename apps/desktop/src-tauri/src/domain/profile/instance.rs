@@ -53,6 +53,7 @@ pub struct BrowserInstance {
     pub stopped_at: Option<DateTime<Utc>>,
     pub exit_code: Option<i32>,
     pub error_message: Option<String>,
+    pub config_snapshot_json: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::application::services::{BrowserService, ProfileService, ProxyService};
+use crate::application::services::{BrowserService, CloakRuntimeManager, ProfileService, ProxyService};
 use crate::domain::AppConfig;
 use crate::error::AppError;
 use crate::infrastructure::database::Database;
@@ -16,6 +16,7 @@ pub struct AppState {
     pub profile_service: ProfileService,
     pub proxy_service: ProxyService,
     pub browser_service: BrowserService,
+    pub cloak_runtime_manager: Arc<CloakRuntimeManager>,
     pub secret_store: Arc<dyn SecretStore>,
     pub proxy_checker: Arc<HttpProxyChecker>,
     #[allow(dead_code)]
@@ -36,8 +37,11 @@ impl AppState {
         let profile_service = ProfileService::new();
         let proxy_service = ProxyService::new();
         let browser_service = BrowserService::new();
+        let cloak_runtime_manager = Arc::new(CloakRuntimeManager::new());
         let secret_store = Arc::new(FileSecretStore::new(paths.secrets.clone())?);
         let proxy_checker = Arc::new(HttpProxyChecker);
+
+        CloakRuntimeManager::cleanup_incomplete_installs(&paths).await?;
 
         let state = Self {
             db,
@@ -46,6 +50,7 @@ impl AppState {
             profile_service,
             proxy_service,
             browser_service,
+            cloak_runtime_manager,
             secret_store,
             proxy_checker,
             config,

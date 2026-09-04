@@ -18,12 +18,7 @@ export function PageShell({
 	}
 
 	return (
-		<div
-			className={cn(
-				"flex-1 overflow-auto px-4 py-5 sm:px-6",
-				className,
-			)}
-		>
+		<div className={cn("flex-1 overflow-auto px-4 py-5 sm:px-6", className)}>
 			<div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
 				{children}
 			</div>

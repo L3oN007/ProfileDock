@@ -1,10 +1,19 @@
-pub mod browser_provider;
 pub mod browser_service;
+pub mod cloak_config_resolver;
+pub mod cloak_installation_service;
+pub mod cloak_runtime_manager;
+pub mod cloak_launch_builder;
+pub mod cloak_preflight_service;
 pub mod profile_service;
 pub mod proxy_service;
 pub mod system_service;
 
 pub use browser_service::BrowserService;
+pub use cloak_config_resolver::CloakConfigResolver;
+pub use cloak_installation_service::CloakInstallationService;
+pub use cloak_runtime_manager::CloakRuntimeManager;
+pub use cloak_launch_builder::CloakLaunchBuilder;
+pub use cloak_preflight_service::CloakPreflightService;
 pub use profile_service::ProfileService;
 pub use proxy_service::ProxyService;
 pub use system_service::SystemService;

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { GUEST_USER, type AppUser } from "@/types/user";
+import { type AppUser, GUEST_USER } from "@/types/user";
 
 const STORAGE_KEY = "profiledock:user";
 

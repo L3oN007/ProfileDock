@@ -1,7 +1,7 @@
-import { ModeToggle } from "@/components/mode-toggle";
 import { NetworkStatusButton } from "@/app/layout/network-status-button";
-import { UserMenu } from "@/app/layout/user-menu";
 import { usePageMeta } from "@/app/layout/use-page-meta";
+import { UserMenu } from "@/app/layout/user-menu";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function AppHeader() {
 	const { title, description } = usePageMeta();

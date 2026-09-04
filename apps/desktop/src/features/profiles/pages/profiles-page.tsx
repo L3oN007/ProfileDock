@@ -154,7 +154,8 @@ export function ProfilesPage() {
 											colSpan={9}
 											className="h-24 text-center text-[#8b93a1]"
 										>
-											No profiles yet. Click &quot;New Profile&quot; to create one.
+											No profiles yet. Click &quot;New Profile&quot; to create
+											one.
 										</TableCell>
 									</TableRow>
 								) : (
@@ -224,7 +225,10 @@ function ProfileRow({
 			className="border-[#252a36] hover:bg-[#1a1f2b]"
 		>
 			<TableCell>
-				<Checkbox checked={selected} onCheckedChange={(c) => onSelect(c === true)} />
+				<Checkbox
+					checked={selected}
+					onCheckedChange={(c) => onSelect(c === true)}
+				/>
 			</TableCell>
 			<TableCell className="text-[#8b93a1]">{index + 1}</TableCell>
 			<TableCell>
@@ -243,13 +247,19 @@ function ProfileRow({
 				<ProfileStatusBadge state={profile.state} />
 			</TableCell>
 			<TableCell>
-				<div className="font-mono text-[#dfe3ea] text-xs">{networkIp ?? "—"}</div>
+				<div className="font-mono text-[#dfe3ea] text-xs">
+					{networkIp ?? "—"}
+				</div>
 				{networkLocation ? (
-					<div className="truncate text-[#6f7888] text-[10px]">{networkLocation}</div>
+					<div className="truncate text-[#6f7888] text-[10px]">
+						{networkLocation}
+					</div>
 				) : null}
 			</TableCell>
-			<TableCell className="capitalize text-[#c5cdd8]">{profile.browser_provider}</TableCell>
-			<TableCell className="text-[#8b93a1]">{formatRelativeTime(profile.last_opened_at)}</TableCell>
+			<TableCell className="text-[#c5cdd8]">CloakBrowser</TableCell>
+			<TableCell className="text-[#8b93a1]">
+				{formatRelativeTime(profile.last_opened_at)}
+			</TableCell>
 			<TableCell className="max-w-[200px] truncate text-[#8b93a1]">
 				{profile.description ?? "—"}
 			</TableCell>

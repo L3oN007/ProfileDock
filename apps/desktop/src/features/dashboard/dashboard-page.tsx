@@ -8,9 +8,9 @@ import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 
 import { PageShell, panelClassName } from "@/app/layout/page-shell";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
+import { countryFlag, formatNetworkLocation } from "@/lib/network/ip-api";
 import { useBrowserStatus, useHealthCheck } from "@/lib/query/hooks";
 import { useNetworkInfo } from "@/lib/query/network";
-import { countryFlag, formatNetworkLocation } from "@/lib/network/ip-api";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { HealthStatus } from "@/types/app";
 

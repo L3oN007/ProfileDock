@@ -11,7 +11,10 @@
 		"check-types": "vite build && tsc --noEmit",
 		"tauri": "tauri",
 		"desktop:dev": "tauri dev",
-		"desktop:build": "tauri build"
+		"desktop:build": "tauri build",
+		"cloak:install": "cloakbrowser install",
+		"cloak:info": "cloakbrowser info",
+		"cloak:update": "cloakbrowser update"
 	},
 	"dependencies": {
 		"@ProfileDock/env": "workspace:*",
@@ -37,6 +40,8 @@
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
 		"@vitejs/plugin-react": "^6.0.4",
+		"cloakbrowser": "^0.5.10",
+		"playwright-core": "^1.62.1",
 		"postcss": "^8.5.24",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:",

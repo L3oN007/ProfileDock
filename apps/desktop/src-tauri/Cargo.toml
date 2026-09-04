@@ -30,7 +30,13 @@ dirs = "6"
 uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 async-trait = "0.1"
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "socks"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "socks", "stream"] }
+sha2 = "0.10.9"
+hex = "0.4.3"
+zip = "4.2.0"
+tar = "0.4.46"
+flate2 = "1.1.10"
+futures-util = "0.3.34"
 
 [dev-dependencies]
 tempfile = "3"

@@ -6,7 +6,10 @@ import { Archive, Plus, RefreshCw, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PageShell, panelClassName } from "@/app/layout/page-shell";
-import { useArchiveProxy, useCheckProxy } from "@/features/proxies/api/mutations";
+import {
+	useArchiveProxy,
+	useCheckProxy,
+} from "@/features/proxies/api/mutations";
 import { useProxies } from "@/features/proxies/api/queries";
 import { CreateProxyDialog } from "@/features/proxies/components/create-proxy-dialog";
 import { ProxyHealthBadge } from "@/features/proxies/components/proxy-health-badge";
@@ -18,7 +21,9 @@ export function ProxiesPage() {
 	const desktop = isDesktopRuntime();
 	const [search, setSearch] = useState("");
 	const [createOpen, setCreateOpen] = useState(false);
-	const [statusFilter, setStatusFilter] = useState<"all" | ProxyHealthStatus>("all");
+	const [statusFilter, setStatusFilter] = useState<"all" | ProxyHealthStatus>(
+		"all",
+	);
 
 	const proxiesQuery = useProxies();
 	const checkProxy = useCheckProxy();
@@ -86,7 +91,9 @@ export function ProxiesPage() {
 				</div>
 			) : proxies.length === 0 ? (
 				<div className={`rounded-lg p-8 text-center ${panelClassName}`}>
-					<p className="text-[#8b93a1]">No proxies yet. Add your first proxy.</p>
+					<p className="text-[#8b93a1]">
+						No proxies yet. Add your first proxy.
+					</p>
 				</div>
 			) : (
 				<div className="space-y-3">
@@ -132,7 +139,9 @@ function ProxyCard({
 						</Link>
 						<ProxyHealthBadge status={proxy.healthStatus} />
 					</div>
-					<p className="mt-1 text-[#8b93a1] text-xs uppercase">{proxy.protocol}</p>
+					<p className="mt-1 text-[#8b93a1] text-xs uppercase">
+						{proxy.protocol}
+					</p>
 					<p className="font-mono text-[#c5cdd8] text-sm">
 						{proxy.host}:{proxy.port}
 					</p>
@@ -172,7 +181,10 @@ function ProxyCard({
 							: "—"
 					}
 				/>
-				<Meta label="Used by" value={`${proxy.assignedProfileCount} profiles`} />
+				<Meta
+					label="Used by"
+					value={`${proxy.assignedProfileCount} profiles`}
+				/>
 			</div>
 		</div>
 	);

@@ -19,7 +19,9 @@ export function PlaceholderPage({
 					</div>
 					<div>
 						<h2 className="font-medium text-[#eef1f6] text-lg">{title}</h2>
-						<p className="mt-1 max-w-md text-[#8b93a1] text-sm">{description}</p>
+						<p className="mt-1 max-w-md text-[#8b93a1] text-sm">
+							{description}
+						</p>
 					</div>
 				</CardContent>
 			</Card>

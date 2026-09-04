@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
-import { proxyApi } from "@/lib/tauri/proxy";
 import { profileKeys } from "@/features/profiles/api/profile-keys";
+import { proxyApi } from "@/lib/tauri/proxy";
 import type { AppError } from "@/types/app";
 import type {
 	CreateProxyInput,
@@ -76,7 +75,9 @@ export function useTestProxyInput() {
 	return useMutation({
 		mutationFn: (input: TestProxyInput) => proxyApi.testInput(input),
 		onSuccess: (result) => {
-			toast.success(result.success ? "Connection successful" : "Connection failed");
+			toast.success(
+				result.success ? "Connection successful" : "Connection failed",
+			);
 		},
 		onError: handleError,
 	});
@@ -99,7 +100,9 @@ export function useAssignProxy() {
 			queryClient.invalidateQueries({
 				queryKey: proxyKeys.profileAssignment(profileId),
 			});
-			queryClient.invalidateQueries({ queryKey: profileKeys.detail(profileId) });
+			queryClient.invalidateQueries({
+				queryKey: profileKeys.detail(profileId),
+			});
 			toast.success("Proxy assigned");
 		},
 		onError: handleError,
@@ -116,7 +119,9 @@ export function useUnassignProxy() {
 			queryClient.invalidateQueries({
 				queryKey: proxyKeys.profileAssignment(profileId),
 			});
-			queryClient.invalidateQueries({ queryKey: profileKeys.detail(profileId) });
+			queryClient.invalidateQueries({
+				queryKey: profileKeys.detail(profileId),
+			});
 			toast.success("Proxy unassigned");
 		},
 		onError: handleError,

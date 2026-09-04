@@ -1,3 +1,4 @@
+pub mod cloak;
 pub mod database;
 pub mod filesystem;
 pub mod network;

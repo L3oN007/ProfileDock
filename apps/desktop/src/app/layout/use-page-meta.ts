@@ -11,7 +11,9 @@ const PAGE_META: Record<string, { title: string; description?: string }> = {
 };
 
 export function usePageMeta() {
-	const pathname = useRouterState({ select: (state) => state.location.pathname });
+	const pathname = useRouterState({
+		select: (state) => state.location.pathname,
+	});
 	const params = useParams({ strict: false });
 	const profileId =
 		pathname.startsWith("/profiles/") && pathname !== "/profiles/"

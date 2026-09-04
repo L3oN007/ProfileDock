@@ -22,6 +22,8 @@ pub struct AppPaths {
     pub temp: PathBuf,
     pub config: PathBuf,
     pub secrets: PathBuf,
+    pub runtimes: PathBuf,
+    pub runtime_downloads: PathBuf,
 }
 
 impl AppPaths {
@@ -41,6 +43,8 @@ impl AppPaths {
             temp: root.join("temp"),
             config: root.join("config.json"),
             secrets: root.join("secrets"),
+            runtimes: root.join("runtimes/cloak"),
+            runtime_downloads: root.join("runtimes/downloads"),
             root,
         };
 
@@ -57,6 +61,8 @@ impl AppPaths {
             &self.cache,
             &self.temp,
             &self.secrets,
+            &self.runtimes,
+            &self.runtime_downloads,
         ] {
             std::fs::create_dir_all(dir)?;
         }
@@ -107,6 +113,14 @@ impl AppPaths {
             std::fs::remove_dir_all(&paths.root)?;
         }
         Ok(())
+    }
+
+    pub fn cloak_runtime_dir(&self, version: &str) -> PathBuf {
+        self.runtimes.join(version)
+    }
+
+    pub fn cloak_installing_dir(&self, token: &str) -> PathBuf {
+        self.runtimes.join(format!(".installing-{token}"))
     }
 
     pub fn to_info(&self) -> crate::domain::AppPathsInfo {

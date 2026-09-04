@@ -10,6 +10,69 @@ pub enum AppError {
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
 
+    #[error("cloak not installed")]
+    CloakNotInstalled,
+
+    #[error("cloak executable not found")]
+    CloakExecutableNotFound,
+
+    #[error("cloak installation invalid: {0}")]
+    CloakInstallationInvalid(String),
+
+    #[error("cloak version unsupported: {0}")]
+    CloakVersionUnsupported(String),
+
+    #[error("cloak capability unsupported: {0}")]
+    CloakCapabilityUnsupported(String),
+
+    #[error("cloak config invalid: {0}")]
+    CloakConfigInvalid(String),
+
+    #[error("cloak launch failed: {0}")]
+    CloakLaunchFailed(String),
+
+    #[error("cloak profile directory invalid: {0}")]
+    CloakProfileDirectoryInvalid(String),
+
+    #[error("cloak process exited early")]
+    CloakProcessExitedEarly,
+
+    #[error("cloak runtime not installed")]
+    CloakRuntimeNotInstalled,
+
+    #[error("cloak runtime not found")]
+    CloakRuntimeNotFound,
+
+    #[error("cloak runtime in use")]
+    CloakRuntimeInUse,
+
+    #[error("cloak download failed: {0}")]
+    CloakDownloadFailed(String),
+
+    #[error("cloak download timeout")]
+    CloakDownloadTimeout,
+
+    #[error("cloak checksum mismatch")]
+    CloakChecksumMismatch,
+
+    #[error("cloak archive invalid: {0}")]
+    CloakArchiveInvalid(String),
+
+    #[error("cloak extraction failed: {0}")]
+    CloakExtractionFailed(String),
+
+    #[error("cloak runtime invalid: {0}")]
+    CloakRuntimeInvalid(String),
+
+    #[error("cloak runtime version unsupported: {0}")]
+    CloakRuntimeVersionUnsupported(String),
+
+    #[error("cloak runtime activation failed: {0}")]
+    CloakRuntimeActivationFailed(String),
+
+    #[error("cloak runtime remove failed: {0}")]
+    CloakRuntimeRemoveFailed(String),
+
     #[error("browser not found")]
     BrowserNotFound,
 
@@ -90,6 +153,27 @@ impl AppError {
         match self {
             Self::Database(_) => "DATABASE_ERROR",
             Self::Io(_) => "IO_ERROR",
+            Self::CloakNotInstalled => "CLOAK_NOT_INSTALLED",
+            Self::CloakExecutableNotFound => "CLOAK_EXECUTABLE_NOT_FOUND",
+            Self::CloakInstallationInvalid(_) => "CLOAK_INSTALLATION_INVALID",
+            Self::CloakVersionUnsupported(_) => "CLOAK_VERSION_UNSUPPORTED",
+            Self::CloakCapabilityUnsupported(_) => "CLOAK_CAPABILITY_UNSUPPORTED",
+            Self::CloakConfigInvalid(_) => "CLOAK_CONFIG_INVALID",
+            Self::CloakLaunchFailed(_) => "CLOAK_LAUNCH_FAILED",
+            Self::CloakProfileDirectoryInvalid(_) => "CLOAK_PROFILE_DIRECTORY_INVALID",
+            Self::CloakProcessExitedEarly => "CLOAK_PROCESS_EXITED_EARLY",
+            Self::CloakRuntimeNotInstalled => "CLOAK_RUNTIME_NOT_INSTALLED",
+            Self::CloakRuntimeNotFound => "CLOAK_RUNTIME_NOT_FOUND",
+            Self::CloakRuntimeInUse => "CLOAK_RUNTIME_IN_USE",
+            Self::CloakDownloadFailed(_) => "CLOAK_DOWNLOAD_FAILED",
+            Self::CloakDownloadTimeout => "CLOAK_DOWNLOAD_TIMEOUT",
+            Self::CloakChecksumMismatch => "CLOAK_CHECKSUM_MISMATCH",
+            Self::CloakArchiveInvalid(_) => "CLOAK_ARCHIVE_INVALID",
+            Self::CloakExtractionFailed(_) => "CLOAK_EXTRACTION_FAILED",
+            Self::CloakRuntimeInvalid(_) => "CLOAK_RUNTIME_INVALID",
+            Self::CloakRuntimeVersionUnsupported(_) => "CLOAK_RUNTIME_VERSION_UNSUPPORTED",
+            Self::CloakRuntimeActivationFailed(_) => "CLOAK_RUNTIME_ACTIVATION_FAILED",
+            Self::CloakRuntimeRemoveFailed(_) => "CLOAK_RUNTIME_REMOVE_FAILED",
             Self::BrowserNotFound => "BROWSER_NOT_FOUND",
             Self::InvalidBrowserExecutable(_) => "INVALID_BROWSER_EXECUTABLE",
             Self::ProcessLaunchFailed(_) => "PROCESS_LAUNCH_FAILED",

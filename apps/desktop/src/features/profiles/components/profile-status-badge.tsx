@@ -4,7 +4,10 @@ import type { ProfileState } from "@/types/profile";
 
 const stateConfig: Record<
 	ProfileState,
-	{ label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+	{
+		label: string;
+		variant: "default" | "secondary" | "destructive" | "outline";
+	}
 > = {
 	ready: { label: "Ready", variant: "secondary" },
 	running: { label: "Running", variant: "default" },

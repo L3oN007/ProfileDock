@@ -4,7 +4,6 @@ export interface Profile {
 	id: string;
 	name: string;
 	description: string | null;
-	browser_provider: string;
 	state: ProfileState;
 	is_archived: boolean;
 	pid: number | null;
@@ -17,7 +16,6 @@ export interface Profile {
 export interface CreateProfileInput {
 	name: string;
 	description?: string;
-	browser_provider?: string;
 }
 
 export interface UpdateProfileInput {
