@@ -1,5 +1,13 @@
 # @profiledock/desktop
 
+## 0.3.3
+
+### Patch Changes
+
+- Fix mass Chromium tabs opening on Windows after fresh install. Expose Tauri build env vars in Vite, render in-app navigation as buttons instead of anchor tags, disable route preloading in Tauri, and add multi-layer navigation guards (HTML script, Tauri plugin, Rust on_navigation handler).
+- @ProfileDock/env@0.3.3
+  - @ProfileDock/ui@0.3.3
+
 ## 0.3.2
 
 ### Patch Changes
