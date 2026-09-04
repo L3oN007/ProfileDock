@@ -94,22 +94,27 @@ ProfileDock/
 
 ## Releases
 
-GitHub Actions builds installers for Windows, Linux, and macOS (Apple Silicon + Intel) via `.github/workflows/release.yml`.
+This repo uses [Changesets](https://github.com/changesets/changesets) for versioning and changelogs.
+
+### Day-to-day development
+
+When a PR includes a user-facing change, add a changeset:
+
+```bash
+pnpm changeset
+```
+
+Commit the generated file in `.changeset/` with your PR.
 
 ### Publish a release
 
-1. Bump `version` in `apps/desktop/src-tauri/tauri.conf.json` (and `Cargo.toml` if you keep them in sync).
-2. Commit and push to `main`.
-3. Create and push a matching tag:
+1. Merge changesets into `main`. GitHub Actions opens a **Version Packages** PR (`.github/workflows/changesets.yml`).
+2. Merge that PR. It bumps package versions, updates changelogs, syncs the Tauri/Cargo version, and pushes a `v*` tag.
+3. The tag triggers `.github/workflows/release.yml`, which builds installers for Windows, Linux, and macOS (Apple Silicon + Intel).
 
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
+The release workflow creates a **draft** GitHub Release with artifacts attached. Review it on GitHub, then click **Publish release**.
 
-Or run the **Release** workflow manually from the GitHub Actions tab (`workflow_dispatch`).
-
-The workflow creates a **draft** GitHub Release with artifacts attached. Review it on GitHub, then click **Publish release**.
+You can also run the **Release** workflow manually from the GitHub Actions tab (`workflow_dispatch`).
 
 ### GitHub settings (one-time)
 

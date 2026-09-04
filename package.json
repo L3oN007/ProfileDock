@@ -13,7 +13,11 @@
 		"dev:desktop": "turbo run dev -F @profiledock/desktop --",
 		"desktop:dev": "pnpm --filter @profiledock/desktop desktop:dev",
 		"desktop:build": "pnpm --filter @profiledock/desktop desktop:build",
-		"check": "biome check --write ."
+		"check": "biome check --write .",
+		"changeset": "changeset",
+		"changeset:version": "changeset version",
+		"changeset:release": "node scripts/create-release-tag.mjs",
+		"version": "node scripts/sync-app-version.mjs"
 	},
 	"dependencies": {
 		"@ProfileDock/env": "workspace:*",
@@ -23,6 +27,7 @@
 	"devDependencies": {
 		"@ProfileDock/config": "workspace:*",
 		"@biomejs/biome": "^2.5.11",
+		"@changesets/cli": "^3.0.1",
 		"@types/node": "catalog:",
 		"turbo": "^2.10.12",
 		"typescript": "catalog:"
