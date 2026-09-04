@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
 use crate::error::AppError;
+use crate::infrastructure::cloak::license::resolve_license_key;
 
 pub const PINNED_CLOAK_VERSION: &str = "146.0.7680.177.5";
+pub const RECOMMENDED_FPJS_VERSION: &str = "151.0.7922.108.3";
 const DOWNLOAD_BASE_URL: &str = "https://cloakbrowser.dev";
 const GITHUB_DOWNLOAD_BASE_URL: &str = "https://github.com/CloakHQ/cloakbrowser/releases/download";
 
@@ -14,6 +16,7 @@ pub struct CloakRelease {
     pub sha256: String,
     pub platform: String,
     pub arch: String,
+    pub requires_license: bool,
 }
 
 pub fn current_platform() -> (&'static str, &'static str) {
@@ -46,35 +49,81 @@ pub fn current_platform() -> (&'static str, &'static str) {
 
 pub fn resolve_release(version: &str) -> Result<CloakRelease, AppError> {
     let (platform, arch) = current_platform();
-    let archive_name = archive_name_for_platform(platform);
-    let asset_url = format!("{DOWNLOAD_BASE_URL}/chromium-v{version}/{archive_name}");
+    if platform == "unknown" {
+        return Err(AppError::CloakRuntimeVersionUnsupported(version.to_string()));
+    }
+
+    let archive_name = archive_name_for_platform(platform, arch);
+    let requires_license = version_newer_than_free(version);
+    if requires_license && resolve_license_key().is_none() {
+        return Err(AppError::CloakDownloadFailed(format!(
+            "CloakBrowser {version} requires a license key. Set CLOAKBROWSER_LICENSE_KEY or save a key to ~/.cloakbrowser/license.key"
+        )));
+    }
+
+    let asset_url = if requires_license {
+        pro_download_url(version)
+    } else {
+        format!("{DOWNLOAD_BASE_URL}/chromium-v{version}/{archive_name}")
+    };
 
     let sha256 = embedded_checksum(platform)
-        .ok_or_else(|| AppError::CloakRuntimeVersionUnsupported(version.to_string()))?;
+        .filter(|_| version == PINNED_CLOAK_VERSION)
+        .unwrap_or_default()
+        .to_string();
 
     Ok(CloakRelease {
         version: version.to_string(),
         asset_url,
         archive_name,
-        sha256: sha256.to_string(),
+        sha256,
         platform: platform.to_string(),
         arch: arch.to_string(),
+        requires_license,
     })
 }
 
 pub fn pinned_release() -> Result<CloakRelease, AppError> {
-    resolve_release(PINNED_CLOAK_VERSION)
+    resolve_release(&effective_pinned_version())
 }
 
 pub fn latest_supported_version() -> &'static str {
-    PINNED_CLOAK_VERSION
+    if resolve_license_key().is_some() {
+        RECOMMENDED_FPJS_VERSION
+    } else {
+        PINNED_CLOAK_VERSION
+    }
 }
 
-pub async fn fetch_checksums(version: &str) -> Result<HashMap<String, String>, AppError> {
-    let urls = [
-        format!("{DOWNLOAD_BASE_URL}/chromium-v{version}/SHA256SUMS"),
-        format!("{GITHUB_DOWNLOAD_BASE_URL}/chromium-v{version}/SHA256SUMS"),
-    ];
+pub fn effective_pinned_version() -> String {
+    std::env::var("CLOAKBROWSER_VERSION")
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+        .unwrap_or_else(|| {
+            if resolve_license_key().is_some() {
+                RECOMMENDED_FPJS_VERSION.to_string()
+            } else {
+                PINNED_CLOAK_VERSION.to_string()
+            }
+        })
+}
+
+pub fn pro_download_url(version: &str) -> String {
+    format!("{DOWNLOAD_BASE_URL}/api/download/{version}")
+}
+
+pub async fn fetch_checksums(version: &str, pro: bool) -> Result<HashMap<String, String>, AppError> {
+    let urls = if pro {
+        vec![format!(
+            "{DOWNLOAD_BASE_URL}/releases/pro/chromium-v{version}/SHA256SUMS"
+        )]
+    } else {
+        vec![
+            format!("{DOWNLOAD_BASE_URL}/chromium-v{version}/SHA256SUMS"),
+            format!("{GITHUB_DOWNLOAD_BASE_URL}/chromium-v{version}/SHA256SUMS"),
+        ]
+    };
 
     let client = reqwest::Client::new();
     for url in urls {
@@ -118,9 +167,11 @@ pub fn parse_checksums(text: &str) -> HashMap<String, String> {
     result
 }
 
-fn archive_name_for_platform(platform: &str) -> String {
-    match platform {
-        "windows" => "cloakbrowser-windows-x64.zip".to_string(),
+fn archive_name_for_platform(platform: &str, arch: &str) -> String {
+    match (platform, arch) {
+        ("windows", _) => "cloakbrowser-windows-x64.zip".to_string(),
+        ("macos", "aarch64") => "cloakbrowser-darwin-arm64.tar.gz".to_string(),
+        ("macos", _) => "cloakbrowser-darwin-x64.tar.gz".to_string(),
         _ => "cloakbrowser-linux-x64.tar.gz".to_string(),
     }
 }
@@ -131,6 +182,10 @@ fn embedded_checksum(platform: &str) -> Option<&'static str> {
         "linux" => Some("4a12bcde95fa1bb1beef2b41ab5e5c27c36be78e3be3d0dac8c64d705216670e"),
         _ => None,
     }
+}
+
+fn version_newer_than_free(version: &str) -> bool {
+    crate::infrastructure::cloak::version::version_newer(version, PINNED_CLOAK_VERSION)
 }
 
 #[cfg(test)]
@@ -147,5 +202,11 @@ mod tests {
                 .map(String::as_str),
             Some("4a12bcde95fa1bb1beef2b41ab5e5c27c36be78e3be3d0dac8c64d705216670e")
         );
+    }
+
+    #[test]
+    fn marks_versions_above_free_as_license_required() {
+        assert!(version_newer_than_free(RECOMMENDED_FPJS_VERSION));
+        assert!(!version_newer_than_free(PINNED_CLOAK_VERSION));
     }
 }

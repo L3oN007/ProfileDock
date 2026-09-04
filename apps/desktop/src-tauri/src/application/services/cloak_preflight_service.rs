@@ -1,5 +1,8 @@
-use crate::application::services::{CloakConfigResolver, CloakInstallationService};
+use crate::application::services::{
+    CloakConfigResolver, CloakInstallationService, DeviceSettingsService,
+};
 use crate::domain::cloak::{PreflightResult, PreflightWarning};
+use crate::domain::device::{is_wsl, DeviceConfigurationMode, DevicePlatform};
 use crate::error::AppError;
 use crate::infrastructure::database::{
     SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository, SqliteProfileRepository,
@@ -79,6 +82,54 @@ impl CloakPreflightService {
                 message: error.to_string(),
             });
         }
+
+        let device_settings = DeviceSettingsService::get_or_create(state, profile_id).await?;
+        let host = DevicePlatform::host_platform();
+        if let Some(platform) = device_settings.platform {
+            if platform != host {
+                warnings.push(PreflightWarning {
+                    code: "DEVICE_PLATFORM_HOST_MISMATCH".into(),
+                    message: format!(
+                        "Profile platform is {} but this machine is {}. Cross-platform spoofing typically scores 15-35 on FingerprintJS. Use a {} profile for scores under 10.",
+                        platform.label(),
+                        host.label(),
+                        host.label()
+                    ),
+                });
+            }
+        }
+
+        if is_wsl() && device_settings.platform.is_some_and(|platform| platform != host) {
+            warnings.push(PreflightWarning {
+                code: "WSL_CROSS_PLATFORM".into(),
+                message: "Running from WSL: only Linux automatic profiles score well. Windows/macOS profiles launched from WSL are detected as VM/tampering.".into(),
+            });
+        }
+
+        if device_settings.mode == DeviceConfigurationMode::Custom
+            && (device_settings.screen_width.is_none() || device_settings.screen_height.is_none())
+        {
+            warnings.push(PreflightWarning {
+                code: "DEVICE_SCREEN_INCOMPLETE".into(),
+                message: "Custom device profile is missing screen dimensions. CloakBrowser recommends matching screen size and window-size to avoid VM detection.".into(),
+            });
+        }
+
+        let assignment_repo =
+            crate::infrastructure::database::SqliteProfileProxyAssignmentRepository::new(
+                state.db.pool().clone(),
+            );
+        if assignment_repo.find_by_profile(profile_id).await?.is_none() {
+            warnings.push(PreflightWarning {
+                code: "NO_PROXY_ASSIGNED".into(),
+                message: "No proxy assigned. FingerprintJS commonly flags raw ISP/VPN IPs (suspect score +4 to +10). Use a residential proxy with timezone/locale aligned to the exit IP for lower scores.".into(),
+            });
+        }
+
+        warnings.push(PreflightWarning {
+            code: "FPJS_BINARY_VERSION".into(),
+            message: "Tampering/VM scores below 10 require CloakBrowser Chromium 151. Save a license key to %USERPROFILE%\\.cloakbrowser\\license.key (or set CLOAKBROWSER_LICENSE_KEY), reinstall runtime from Settings, then relaunch.".into(),
+        });
 
         Ok(PreflightResult { ready, warnings })
     }

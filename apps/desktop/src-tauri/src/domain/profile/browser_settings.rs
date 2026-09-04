@@ -107,10 +107,39 @@ pub fn validate_startup_urls(urls: &[String]) -> Result<Vec<String>, AppError> {
             )));
         }
 
+        if !startup_url_host_is_valid(trimmed) {
+            return Err(AppError::CloakConfigInvalid(format!(
+                "startup URL hostname is invalid: {trimmed}"
+            )));
+        }
+
         normalized.push(trimmed.to_string());
     }
 
     Ok(normalized)
+}
+
+fn startup_url_host_is_valid(url: &str) -> bool {
+    let without_scheme = url
+        .strip_prefix("https://")
+        .or_else(|| url.strip_prefix("http://"))
+        .unwrap_or(url);
+    let host = without_scheme
+        .split('/')
+        .next()
+        .unwrap_or("")
+        .split(':')
+        .next()
+        .unwrap_or("")
+        .trim()
+        .trim_start_matches('[')
+        .trim_end_matches(']');
+
+    if host.is_empty() {
+        return false;
+    }
+
+    host == "localhost" || host.contains('.')
 }
 
 impl ProfileBrowserSettings {

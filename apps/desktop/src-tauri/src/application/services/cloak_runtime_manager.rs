@@ -16,6 +16,7 @@ use crate::infrastructure::cloak::{
     discovery::{executable_path_for_root, validate_installation_root},
     downloader::CloakRuntimeDownloader,
     extractor::extract_archive,
+    license::resolve_license_key,
     release_manifest,
 };
 use crate::infrastructure::database::{
@@ -244,13 +245,24 @@ impl CloakRuntimeManager {
         )
         .await;
 
-        let checksums = release_manifest::fetch_checksums(&release.version)
+        let checksums = release_manifest::fetch_checksums(&release.version, release.requires_license)
             .await
             .ok();
         let expected_sha256 = checksums
             .as_ref()
             .and_then(|map| map.get(&release.archive_name).cloned())
+            .filter(|value| !value.is_empty())
             .unwrap_or_else(|| release.sha256.clone());
+        let license_key = if release.requires_license {
+            resolve_license_key()
+        } else {
+            None
+        };
+        if release.requires_license && license_key.is_none() {
+            return Err(AppError::CloakDownloadFailed(
+                "CloakBrowser license key is required for this runtime version".into(),
+            ));
+        }
 
         let archive_path = state
             .paths
@@ -274,6 +286,7 @@ impl CloakRuntimeManager {
                 &archive_path,
                 self.progress.clone(),
                 self.cancel_flag.clone(),
+                license_key.as_deref(),
             )
             .await
         {
@@ -293,6 +306,12 @@ impl CloakRuntimeManager {
             Some("Verifying SHA-256 checksum".into()),
         )
         .await;
+
+        if expected_sha256.is_empty() {
+            return Err(AppError::CloakDownloadFailed(
+                "unable to resolve SHA-256 checksum for CloakBrowser archive".into(),
+            ));
+        }
 
         if let Err(error) = verify_sha256(&archive_path, &expected_sha256) {
             let _ = tokio::fs::remove_file(&archive_path).await;

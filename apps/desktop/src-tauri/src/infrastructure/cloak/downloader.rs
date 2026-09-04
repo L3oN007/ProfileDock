@@ -28,14 +28,17 @@ impl CloakRuntimeDownloader {
         destination: &Path,
         progress: Arc<Mutex<CloakInstallProgress>>,
         cancel_flag: Arc<std::sync::atomic::AtomicBool>,
+        authorization: Option<&str>,
     ) -> Result<(), AppError> {
         if let Some(parent) = destination.parent() {
             tokio::fs::create_dir_all(parent).await?;
         }
 
-        let response = self
-            .client
-            .get(url)
+        let mut request = self.client.get(url);
+        if let Some(token) = authorization {
+            request = request.header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"));
+        }
+        let response = request
             .send()
             .await
             .map_err(|error| AppError::CloakDownloadFailed(error.to_string()))?;

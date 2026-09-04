@@ -3,10 +3,10 @@ use chrono::Utc;
 use crate::application::services::{CloakInstallationService, DeviceConsistencyValidator};
 use crate::domain::device::DeviceConfigResolver;
 use crate::domain::device::{
-    find_preset, validate_device_memory_gb, validate_hardware_concurrency, validate_screen_size,
-    CreateProfileDeviceInput, DeviceConfigurationMode, DevicePlatform, EnvironmentMode, GpuMode,
-    GpuSettings, HardwarePresetDto, ProfileDeviceSettings, ResolvedDeviceOverviewDto,
-    UpdateProfileDeviceSettingsInput, HARDWARE_PRESETS,
+    find_preset, is_host_matched_platform, validate_device_memory_gb, validate_hardware_concurrency,
+    validate_screen_size, CreateProfileDeviceInput, DeviceConfigurationMode, DevicePlatform,
+    EnvironmentMode, GpuMode, GpuSettings, HardwarePresetDto, ProfileDeviceSettings,
+    ResolvedDeviceOverviewDto, UpdateProfileDeviceSettingsInput, WebRtcMode, HARDWARE_PRESETS,
 };
 use crate::domain::device::{DeviceValidationResult, ProfileDeviceSettingsDto};
 use crate::error::AppError;
@@ -25,6 +25,52 @@ impl DeviceSettingsService {
     ) -> Result<ProfileDeviceSettingsDto, AppError> {
         let settings = Self::get_or_create(state, profile_id).await?;
         Ok(settings.to_dto())
+    }
+
+    pub async fn normalize_cross_platform_for_fpjs(
+        state: &AppState,
+        profile_id: &str,
+    ) -> Result<ProfileDeviceSettings, AppError> {
+        let repo = SqliteDeviceSettingsRepository::new(state.db.pool().clone());
+        let mut settings = Self::get_or_create(state, profile_id).await?;
+        let Some(platform) = settings.platform else {
+            return Ok(settings);
+        };
+        if is_host_matched_platform(platform) {
+            return Ok(settings);
+        }
+
+        let needs_normalize = settings.mode != DeviceConfigurationMode::Automatic
+            || settings.hardware_preset_id.is_some()
+            || settings.gpu.mode == GpuMode::Custom
+            || settings.hardware_concurrency.is_some()
+            || settings.device_memory_gb.is_some()
+            || settings.screen_width.is_some()
+            || settings.screen_height.is_some();
+
+        if !needs_normalize {
+            return Ok(settings);
+        }
+
+        settings.mode = DeviceConfigurationMode::Automatic;
+        settings.hardware_preset_id = None;
+        settings.hardware_concurrency = None;
+        settings.device_memory_gb = None;
+        settings.screen_width = None;
+        settings.screen_height = None;
+        settings.timezone_mode = EnvironmentMode::System;
+        settings.timezone = None;
+        settings.locale_mode = EnvironmentMode::System;
+        settings.locale = None;
+        settings.webrtc_mode = WebRtcMode::Disabled;
+        settings.gpu = GpuSettings {
+            mode: GpuMode::Automatic,
+            vendor: None,
+            renderer: None,
+        };
+        settings.updated_at = Utc::now();
+        repo.save(&settings).await?;
+        Ok(settings)
     }
 
     pub async fn get_or_create(

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::application::services::{CloakInstallationService, DeviceSettingsService};
 use crate::domain::cloak::CloakLaunchConfig;
-use crate::domain::device::{DeviceConfigResolver, ProfileDeviceSettings};
+use crate::domain::device::{DeviceConfigResolver, EnvironmentMode, ProfileDeviceSettings};
 use crate::domain::profile::{DownloadMode, ProfileBrowserSettings};
 use crate::error::AppError;
 use crate::infrastructure::database::{
@@ -10,6 +10,8 @@ use crate::infrastructure::database::{
     SqliteProfileRepository,
 };
 use crate::infrastructure::filesystem::AppPaths;
+use crate::infrastructure::network::{resolve_direct, resolve_through_proxy};
+use crate::infrastructure::system::host_display::primary_display_size;
 use crate::state::AppState;
 
 pub struct CloakConfigResolver;
@@ -59,11 +61,22 @@ impl CloakConfigResolver {
         };
 
         let installation = CloakInstallationService::resolve_installation(state).await?;
-        let device_settings = DeviceSettingsService::get_or_create(state, profile_id).await?;
+        let device_settings =
+            DeviceSettingsService::normalize_cross_platform_for_fpjs(state, profile_id).await?;
         let capabilities = CloakInstallationService::get_capabilities(state).await?;
         let has_proxy = resolved_proxy.0.is_some();
-        let resolved_device =
+        let mut resolved_device =
             DeviceConfigResolver::resolve(&device_settings, &capabilities, has_proxy);
+
+        apply_geoip(
+            &device_settings,
+            has_proxy,
+            resolved_proxy.0.as_ref(),
+            &mut resolved_device,
+        )
+        .await;
+
+        let host_display = primary_display_size();
 
         Ok((
             CloakLaunchConfig {
@@ -76,11 +89,41 @@ impl CloakConfigResolver {
                 window_mode: settings.window_mode.clone(),
                 restore_session: settings.restore_session,
                 cloak_version: installation.and_then(|value| value.version),
+                host_screen_width: host_display.map(|size| size.width),
+                host_screen_height: host_display.map(|size| size.height),
                 device: resolved_device,
             },
             settings,
             device_settings,
         ))
+    }
+}
+
+async fn apply_geoip(
+    device_settings: &ProfileDeviceSettings,
+    has_proxy: bool,
+    proxy: Option<&crate::domain::proxy::ResolvedBrowserProxy>,
+    resolved_device: &mut crate::domain::device::ResolvedDeviceConfig,
+) {
+    let geo = if let Some(proxy) = proxy.filter(|_| has_proxy) {
+        resolve_through_proxy(proxy).await.ok()
+    } else if device_settings.timezone_mode != EnvironmentMode::Custom
+        || device_settings.locale_mode != EnvironmentMode::Custom
+    {
+        resolve_direct().await.ok()
+    } else {
+        None
+    };
+
+    let Some(geo) = geo else {
+        return;
+    };
+
+    if device_settings.timezone_mode != EnvironmentMode::Custom {
+        resolved_device.timezone = Some(geo.timezone);
+    }
+    if device_settings.locale_mode != EnvironmentMode::Custom {
+        resolved_device.locale = Some(geo.locale);
     }
 }
 

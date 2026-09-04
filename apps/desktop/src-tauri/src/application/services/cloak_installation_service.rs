@@ -11,7 +11,7 @@ use crate::domain::cloak::{
 use crate::error::AppError;
 use crate::infrastructure::cloak::{
     cloak_cache_dir, discover_best_installation, discover_installations,
-    validate_installation_root, DiscoveredCloakInstallation,
+    validate_installation_root, version_sort_key, DiscoveredCloakInstallation,
 };
 use crate::infrastructure::database::MetadataRepository;
 use crate::infrastructure::filesystem::ConfigStore;
@@ -119,31 +119,57 @@ impl CloakInstallationService {
     pub async fn resolve_installation(
         state: &AppState,
     ) -> Result<Option<CloakInstallation>, AppError> {
+        let mut candidates: Vec<CloakInstallation> = Vec::new();
+
         if let Some(runtime) = CloakRuntimeManager::active_runtime(state).await? {
-            return Self::build_installation(
+            if let Ok(Some(installation)) = Self::build_installation(
                 runtime.executable,
                 crate::infrastructure::cloak::CloakDiscoverySource::ManualPath,
-            );
-        }
-
-        let metadata = MetadataRepository::new(state.db.pool().clone());
-        let configured = metadata.get("browser_executable").await?;
-
-        if let Some(path) = configured {
-            let candidate = PathBuf::from(&path);
-            if candidate.exists() {
-                return Self::build_installation(
-                    candidate,
-                    crate::infrastructure::cloak::CloakDiscoverySource::ManualPath,
-                );
+            ) {
+                candidates.push(installation);
             }
         }
 
-        if let Some(best) = discover_best_installation()? {
-            return Self::build_installation(best.executable, best.source);
+        let metadata = MetadataRepository::new(state.db.pool().clone());
+        if let Some(path) = metadata.get("browser_executable").await? {
+            let candidate = PathBuf::from(&path);
+            if candidate.exists() {
+                if let Ok(Some(installation)) = Self::build_installation(
+                    candidate,
+                    crate::infrastructure::cloak::CloakDiscoverySource::ManualPath,
+                ) {
+                    if candidates
+                        .iter()
+                        .all(|existing| existing.executable != installation.executable)
+                    {
+                        candidates.push(installation);
+                    }
+                }
+            }
         }
 
-        Ok(None)
+        for discovered in discover_installations()? {
+            if validate_installation_root(&discovered.root_dir).is_err() {
+                continue;
+            }
+            if let Ok(Some(installation)) =
+                Self::build_installation(discovered.executable, discovered.source)
+            {
+                if candidates
+                    .iter()
+                    .all(|existing| existing.executable != installation.executable)
+                {
+                    candidates.push(installation);
+                }
+            }
+        }
+
+        candidates.sort_by(|left, right| {
+            version_sort_key(right.version.as_deref())
+                .cmp(&version_sort_key(left.version.as_deref()))
+        });
+
+        Ok(candidates.into_iter().next())
     }
 
     pub fn resolve_capabilities(installation: Option<&CloakInstallation>) -> CloakCapabilities {

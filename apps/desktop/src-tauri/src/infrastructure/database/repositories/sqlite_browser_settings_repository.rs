@@ -166,4 +166,10 @@ mod tests {
         let result = validate_startup_urls(&["ftp://example.com".into()]);
         assert!(matches!(result, Err(AppError::CloakConfigInvalid(_))));
     }
+
+    #[test]
+    fn validate_startup_urls_rejects_hostname_without_tld() {
+        let result = validate_startup_urls(&["http://google".into()]);
+        assert!(matches!(result, Err(AppError::CloakConfigInvalid(_))));
+    }
 }

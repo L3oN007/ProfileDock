@@ -184,7 +184,7 @@ fn version_from_root_dir(root_dir: &Path) -> Option<String> {
         .map(|version| version.trim_end_matches("-pro").to_string())
 }
 
-fn version_sort_key(version: Option<&str>) -> Vec<u32> {
+pub fn version_sort_key(version: Option<&str>) -> Vec<u32> {
     version
         .unwrap_or_default()
         .split('.')

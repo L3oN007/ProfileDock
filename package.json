@@ -20,6 +20,7 @@
 		"cloak:setup:linux": "bash scripts/setup-cloak.sh",
 		"cloak:setup:windows": "powershell -ExecutionPolicy Bypass -File scripts/setup-cloak.ps1",
 		"seed:profiles": "cargo run --manifest-path apps/desktop/src-tauri/Cargo.toml --bin seed-profiles",
+		"repair:profiles": "cargo run --manifest-path apps/desktop/src-tauri/Cargo.toml --bin seed-profiles -- repair",
 		"check": "biome check --write .",
 		"changeset": "changeset",
 		"changeset:version": "changeset version",

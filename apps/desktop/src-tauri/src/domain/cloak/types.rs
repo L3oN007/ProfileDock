@@ -99,6 +99,8 @@ pub struct CloakLaunchConfig {
     pub window_mode: WindowMode,
     pub restore_session: bool,
     pub cloak_version: Option<String>,
+    pub host_screen_width: Option<u32>,
+    pub host_screen_height: Option<u32>,
     pub device: ResolvedDeviceConfig,
 }
 
