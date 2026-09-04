@@ -1,6 +1,7 @@
 import { Button } from "@ProfileDock/ui/components/button";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Label } from "@ProfileDock/ui/components/label";
+import { Download, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
 import { notion } from "@/app/design/system";
@@ -26,8 +27,10 @@ import {
 	useInstallCloakRuntime,
 	useRemoveCloakRuntime,
 } from "@/features/cloak/api/runtime-queries";
+import { useAppInfo, useAppUpdateCheck } from "@/features/settings/api/queries";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
+import { openExternalUrl } from "@/lib/tauri/system";
 
 export function BrowserSettingsPage() {
 	const desktop = isDesktopRuntime();
@@ -44,6 +47,8 @@ export function BrowserSettingsPage() {
 	const activateRuntime = useActivateCloakRuntime();
 	const removeRuntime = useRemoveCloakRuntime();
 	const [executablePath, setExecutablePath] = useState("");
+	const appInfoQuery = useAppInfo();
+	const appUpdateQuery = useAppUpdateCheck();
 
 	const installation = installationQuery.data;
 	const runtimeStatus = runtimeStatusQuery.data;
@@ -60,11 +65,90 @@ export function BrowserSettingsPage() {
 		<PageShell>
 			<PageTitle
 				title="Settings"
-				description="Configure CloakBrowser runtime and installation paths."
+				description="Check for app updates and configure CloakBrowser runtime."
 			/>
 			<DesktopOnlyBanner />
 
 			<div className="space-y-10">
+				<SectionBlock title="App Updates">
+					<div>
+						<DetailRow
+							label="Current version"
+							value={appInfoQuery.data?.version ?? "—"}
+						/>
+						<DetailRow
+							label="Latest version"
+							value={
+								appUpdateQuery.isLoading
+									? "Checking..."
+									: (appUpdateQuery.data?.latestVersion ?? "—")
+							}
+						/>
+					</div>
+
+					{appUpdateQuery.data?.message ? (
+						<p className="text-amber-400 text-sm">
+							{appUpdateQuery.data.message}
+						</p>
+					) : null}
+
+					{appUpdateQuery.data?.updateAvailable ? (
+						<div className="space-y-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+							<p className="font-medium text-foreground text-sm">
+								Update available: v{appUpdateQuery.data.latestVersion}
+							</p>
+							{appUpdateQuery.data.releaseNotes ? (
+								<p className="line-clamp-4 whitespace-pre-wrap text-muted-foreground text-xs">
+									{appUpdateQuery.data.releaseNotes}
+								</p>
+							) : null}
+							<Button
+								size="sm"
+								disabled={!desktop || !appUpdateQuery.data.releaseUrl}
+								onClick={() => {
+									const url = appUpdateQuery.data?.releaseUrl;
+									if (url) void openExternalUrl(url);
+								}}
+							>
+								<Download className="size-3.5" />
+								Download update
+							</Button>
+						</div>
+					) : appUpdateQuery.data?.checkStatus === "ok" ? (
+						<p className="text-muted-foreground text-sm">
+							You're on the latest version.
+						</p>
+					) : null}
+
+					<div className="flex flex-wrap gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={!desktop || appUpdateQuery.isFetching}
+							onClick={() => appUpdateQuery.refetch()}
+						>
+							<RefreshCw
+								className={`size-3.5 ${appUpdateQuery.isFetching ? "animate-spin" : ""}`}
+							/>
+							Check for updates
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={!desktop}
+							onClick={() => {
+								const url =
+									appUpdateQuery.data?.releaseUrl ??
+									"https://github.com/L3oN007/ProfileDock/releases";
+								void openExternalUrl(url);
+							}}
+						>
+							<Download className="size-3.5" />
+							View releases
+						</Button>
+					</div>
+				</SectionBlock>
+
 				<SectionBlock title="Managed CloakBrowser Runtime">
 					<div>
 						<DetailRow

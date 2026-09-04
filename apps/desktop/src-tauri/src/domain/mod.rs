@@ -103,3 +103,24 @@ pub struct NetworkInfo {
     pub latitude: Option<f64>,
     pub longitude: Option<f64>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum AppUpdateCheckStatus {
+    Ok,
+    Unavailable,
+    NoPublishedRelease,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppUpdateInfo {
+    pub current_version: String,
+    pub latest_version: Option<String>,
+    pub update_available: bool,
+    pub release_url: Option<String>,
+    pub release_notes: Option<String>,
+    pub published_at: Option<String>,
+    pub check_status: AppUpdateCheckStatus,
+    pub message: Option<String>,
+}

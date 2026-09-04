@@ -48,3 +48,14 @@ export interface BrowserStatus {
 	executable: string | null;
 	version: string | null;
 }
+
+export interface AppUpdateInfo {
+	currentVersion: string;
+	latestVersion: string | null;
+	updateAvailable: boolean;
+	releaseUrl: string | null;
+	releaseNotes: string | null;
+	publishedAt: string | null;
+	checkStatus: "ok" | "unavailable" | "noPublishedRelease";
+	message: string | null;
+}
