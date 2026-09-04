@@ -1,5 +1,13 @@
 # @profiledock/desktop
 
+## 0.3.2
+
+### Patch Changes
+
+- Fix sidebar navigation styling on Windows Tauri (muted text colors, active state, focus ring) and restore dashboard page content visibility by correcting flex layout overflow.
+- @ProfileDock/env@0.3.2
+  - @ProfileDock/ui@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes
