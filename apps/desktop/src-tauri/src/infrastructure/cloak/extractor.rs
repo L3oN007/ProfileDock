@@ -1,5 +1,5 @@
 use std::fs::{self, File};
-use std::io::copy;
+use std::io::{copy, Read};
 use std::path::{Component, Path, PathBuf};
 
 use flate2::read::GzDecoder;
@@ -9,21 +9,56 @@ use zip::ZipArchive;
 use crate::error::AppError;
 use crate::infrastructure::cloak::discovery::executable_path_for_root;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ArchiveFormat {
+    Zip,
+    TarGz,
+}
+
+fn detect_archive_format(archive_path: &Path) -> Result<ArchiveFormat, AppError> {
+    let file_name = archive_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+
+    let normalized = file_name.strip_suffix(".part").unwrap_or(&file_name);
+
+    if normalized.ends_with(".zip") {
+        return Ok(ArchiveFormat::Zip);
+    }
+    if normalized.ends_with(".tar.gz") || normalized.ends_with(".tgz") {
+        return Ok(ArchiveFormat::TarGz);
+    }
+
+    let mut file = File::open(archive_path)?;
+    let mut header = [0u8; 4];
+    let read = file
+        .read(&mut header)
+        .map_err(|error| AppError::CloakArchiveInvalid(error.to_string()))?;
+
+    if read >= 2 && header[0] == 0x1f && header[1] == 0x8b {
+        return Ok(ArchiveFormat::TarGz);
+    }
+    if read >= 2 && header[0] == 0x50 && header[1] == 0x4b {
+        return Ok(ArchiveFormat::Zip);
+    }
+
+    Err(AppError::CloakArchiveInvalid(format!(
+        "unsupported archive format: {}",
+        archive_path.display()
+    )))
+}
+
 pub fn extract_archive(archive_path: &Path, dest_dir: &Path) -> Result<(), AppError> {
     if dest_dir.exists() {
         fs::remove_dir_all(dest_dir)?;
     }
     fs::create_dir_all(dest_dir)?;
 
-    let extension = archive_path
-        .extension()
-        .and_then(|value| value.to_str())
-        .unwrap_or_default();
-
-    if extension == "zip" {
-        extract_zip(archive_path, dest_dir)?;
-    } else {
-        extract_tar_gz(archive_path, dest_dir)?;
+    match detect_archive_format(archive_path)? {
+        ArchiveFormat::Zip => extract_zip(archive_path, dest_dir)?,
+        ArchiveFormat::TarGz => extract_tar_gz(archive_path, dest_dir)?,
     }
 
     flatten_single_subdir(dest_dir)?;
@@ -164,6 +199,42 @@ mod tests {
             sanitize_archive_path("chrome").map(|path| path.to_string_lossy().into_owned()),
             Some("chrome".to_string())
         );
+    }
+
+    #[test]
+    fn detect_archive_format_handles_part_suffix() {
+        assert_eq!(
+            detect_archive_format(Path::new("cloakbrowser-windows-x64.zip.part")).unwrap(),
+            ArchiveFormat::Zip
+        );
+        assert_eq!(
+            detect_archive_format(Path::new("cloakbrowser-linux-x64.tar.gz.part")).unwrap(),
+            ArchiveFormat::TarGz
+        );
+    }
+
+    #[test]
+    fn extract_archive_handles_zip_part_suffix() {
+        let temp =
+            std::env::temp_dir().join(format!("profiledock-zip-part-test-{}", uuid::Uuid::new_v4()));
+        let archive_path = temp.join("cloakbrowser-windows-x64.zip.part");
+        let dest_dir = temp.join("out");
+        fs::create_dir_all(&temp).unwrap();
+
+        {
+            let file = File::create(&archive_path).unwrap();
+            let mut writer = ZipWriter::new(file);
+            writer
+                .start_file("chrome.exe", SimpleFileOptions::default())
+                .unwrap();
+            writer.write_all(b"ok").unwrap();
+            writer.finish().unwrap();
+        }
+
+        extract_archive(&archive_path, &dest_dir).unwrap();
+        assert!(dest_dir.join("chrome.exe").exists());
+
+        let _ = fs::remove_dir_all(&temp);
     }
 
     #[test]
