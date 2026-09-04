@@ -14,6 +14,7 @@ use crate::state::AppState;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let runtime = tokio::runtime::Runtime::new().expect("failed to create tokio runtime");
             let app_state = runtime
@@ -94,6 +95,8 @@ pub fn run() {
             commands::profile::profile_activity_list,
             commands::cookie::profile_cookie_export,
             commands::cookie::profile_cookie_import,
+            commands::profile_storage::profile_storage_get,
+            commands::profile_storage::profile_storage_clear_cache,
             commands::profile::profile_launch,
             commands::profile::profile_stop,
             commands::profile::profile_get_instance,

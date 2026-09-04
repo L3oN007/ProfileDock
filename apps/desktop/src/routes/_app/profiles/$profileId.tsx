@@ -29,7 +29,9 @@ import {
 } from "@/features/profiles/api/queries";
 import { ProfileBrowserTab } from "@/features/profiles/components/profile-browser-tab";
 import { ProfileCookiesCard } from "@/features/profiles/components/profile-cookies-card";
+import { ProfileEditCard } from "@/features/profiles/components/profile-edit-card";
 import { ProfileStatusBadge } from "@/features/profiles/components/profile-status-badge";
+import { ProfileStorageCard } from "@/features/profiles/components/profile-storage-card";
 import { useProfileProxyAssignment } from "@/features/proxies/api/queries";
 import {
 	AssignProxyDialog,
@@ -131,12 +133,12 @@ function ProfileDetailPage() {
 
 				<TabsContent value="overview" className="mt-0">
 					<div className="grid gap-4 lg:grid-cols-2">
+						{profile ? <ProfileEditCard profile={profile} /> : null}
 						<Card className={panelClassName}>
 							<CardHeader>
-								<CardTitle>Overview</CardTitle>
+								<CardTitle>Session</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-2 text-sm">
-								<Row label="Name" value={profile?.name ?? "—"} />
 								<Row
 									label="Browser"
 									value={
@@ -166,9 +168,9 @@ function ProfileDetailPage() {
 									label="Last opened"
 									value={profile?.last_opened_at ?? "—"}
 								/>
-								<Row label="Description" value={profile?.description ?? "—"} />
 							</CardContent>
 						</Card>
+						<ProfileStorageCard profileId={profileId} isRunning={isRunning} />
 					</div>
 				</TabsContent>
 

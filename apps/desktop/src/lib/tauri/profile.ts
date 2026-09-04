@@ -8,6 +8,8 @@ import type {
 	ProfileEvent,
 	ProfileListPage,
 	ProfileListQuery,
+	ProfileStorage,
+	UpdateProfileFullInput,
 	UpdateProfileInput,
 } from "@/types/profile";
 
@@ -51,6 +53,29 @@ function toCreateFullInput(input: CreateProfileFullInput) {
 	};
 }
 
+function toUpdateFullInput(input: UpdateProfileFullInput) {
+	return {
+		name: input.name,
+		description: input.description,
+		group_id: input.groupId,
+		tags: input.tags,
+		remark: input.remark,
+		notes: input.notes,
+		platform_label: input.platformLabel,
+		proxy_mode: input.proxyMode,
+		proxy_id: input.proxyId,
+		browser: input.browser
+			? {
+					startup_urls: input.browser.startupUrls,
+					download_mode: input.browser.downloadMode,
+					custom_download_dir: input.browser.customDownloadDir,
+					window_mode: input.browser.windowMode,
+					restore_session: input.browser.restoreSession,
+				}
+			: undefined,
+	};
+}
+
 export const profileApi = {
 	list(search?: string) {
 		return invokeCommand<Profile[]>("profile_list", { search });
@@ -78,6 +103,13 @@ export const profileApi = {
 
 	update(id: string, input: UpdateProfileInput) {
 		return invokeCommand<Profile>("profile_update", { id, input });
+	},
+
+	updateFull(id: string, input: UpdateProfileFullInput) {
+		return invokeCommand<Profile>("profile_update_full", {
+			id,
+			input: toUpdateFullInput(input),
+		});
 	},
 
 	bulkUpdate(input: BulkProfileUpdateInput) {
@@ -130,6 +162,16 @@ export const profileApi = {
 		return invokeCommand<{ path: string; count: number }>("profile_cookie_import", {
 			profileId,
 			sourcePath,
+		});
+	},
+
+	getStorage(profileId: string) {
+		return invokeCommand<ProfileStorage>("profile_storage_get", { profileId });
+	},
+
+	clearCache(profileId: string) {
+		return invokeCommand<ProfileStorage>("profile_storage_clear_cache", {
+			profileId,
 		});
 	},
 

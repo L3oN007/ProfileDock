@@ -78,6 +78,32 @@ export interface UpdateProfileInput {
 	description?: string;
 }
 
+export interface UpdateProfileFullInput {
+	name?: string;
+	description?: string;
+	groupId?: string | null;
+	tags?: string[];
+	remark?: string;
+	notes?: string;
+	platformLabel?: string;
+	proxyMode?: "none" | "saved";
+	proxyId?: string;
+	browser?: {
+		startupUrls?: string[];
+		downloadMode?: "profile" | "custom";
+		customDownloadDir?: string;
+		windowMode?: "normal" | "maximized";
+		restoreSession?: boolean;
+	};
+}
+
+export interface ProfileStorage {
+	browser_data_bytes: number;
+	cache_bytes: number;
+	downloads_bytes: number;
+	total_bytes: number;
+}
+
 export interface BulkProfileUpdateInput {
 	profileIds: string[];
 	groupId?: string | null;

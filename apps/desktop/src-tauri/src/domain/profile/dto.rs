@@ -101,6 +101,14 @@ pub struct DuplicateProfileInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProfileStorageDto {
+    pub browser_data_bytes: u64,
+    pub cache_bytes: u64,
+    pub downloads_bytes: u64,
+    pub total_bytes: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CookieTransferResult {
     pub path: String,
     pub count: usize,

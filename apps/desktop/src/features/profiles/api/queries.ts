@@ -62,6 +62,14 @@ export function useProfile(id: string) {
 	});
 }
 
+export function useProfileStorage(profileId: string) {
+	return useQuery({
+		queryKey: profileKeys.storage(profileId),
+		queryFn: () => profileApi.getStorage(profileId),
+		enabled: isDesktopRuntime() && Boolean(profileId),
+	});
+}
+
 export function useProfileEvents(id: string) {
 	return useQuery({
 		queryKey: profileKeys.events(id),

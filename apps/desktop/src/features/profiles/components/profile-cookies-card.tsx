@@ -1,9 +1,10 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import { Input } from "@ProfileDock/ui/components/input";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { pickOpenJsonFile, pickSaveJsonFile } from "@/lib/tauri/dialog";
 import { profileApi } from "@/lib/tauri/profile";
+import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { AppError } from "@/types/app";
 
 interface ProfileCookiesCardProps {
@@ -11,15 +12,19 @@ interface ProfileCookiesCardProps {
 }
 
 export function ProfileCookiesCard({ profileId }: ProfileCookiesCardProps) {
-	const [exportPath, setExportPath] = useState("");
-	const [importPath, setImportPath] = useState("");
 	const [isWorking, setIsWorking] = useState(false);
+	const desktop = isDesktopRuntime();
 
 	const handleExport = async () => {
-		if (!exportPath.trim()) return;
 		setIsWorking(true);
 		try {
-			const result = await profileApi.exportCookies(profileId, exportPath.trim());
+			const destinationPath = await pickSaveJsonFile(
+				"Export cookies",
+				`profile-${profileId}-cookies.json`,
+			);
+			if (!destinationPath) return;
+
+			const result = await profileApi.exportCookies(profileId, destinationPath);
 			toast.success(`Exported ${result.count} cookies`);
 		} catch (error) {
 			toast.error((error as AppError).message);
@@ -29,10 +34,12 @@ export function ProfileCookiesCard({ profileId }: ProfileCookiesCardProps) {
 	};
 
 	const handleImport = async () => {
-		if (!importPath.trim()) return;
 		setIsWorking(true);
 		try {
-			const result = await profileApi.importCookies(profileId, importPath.trim());
+			const sourcePath = await pickOpenJsonFile("Import cookies");
+			if (!sourcePath || Array.isArray(sourcePath)) return;
+
+			const result = await profileApi.importCookies(profileId, sourcePath);
 			toast.success(`Imported ${result.count} cookies`);
 		} catch (error) {
 			toast.error((error as AppError).message);
@@ -48,35 +55,21 @@ export function ProfileCookiesCard({ profileId }: ProfileCookiesCardProps) {
 				Import/export portable JSON cookie bundles. Files are validated before being
 				stored in the profile directory.
 			</p>
-			<div className="space-y-2">
-				<Input
-					className="border-[#252a36] bg-[#0f1117]"
-					placeholder="Export path e.g. /home/user/cookies.json"
-					value={exportPath}
-					onChange={(e) => setExportPath(e.target.value)}
-				/>
+			<div className="flex flex-wrap gap-2">
 				<Button
 					size="sm"
 					variant="outline"
 					className="border-[#252a36]"
-					disabled={isWorking || !exportPath.trim()}
+					disabled={!desktop || isWorking}
 					onClick={handleExport}
 				>
 					Export cookies
 				</Button>
-			</div>
-			<div className="space-y-2">
-				<Input
-					className="border-[#252a36] bg-[#0f1117]"
-					placeholder="Import path e.g. /home/user/cookies.json"
-					value={importPath}
-					onChange={(e) => setImportPath(e.target.value)}
-				/>
 				<Button
 					size="sm"
 					variant="outline"
 					className="border-[#252a36]"
-					disabled={isWorking || !importPath.trim()}
+					disabled={!desktop || isWorking}
 					onClick={handleImport}
 				>
 					Import cookies

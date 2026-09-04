@@ -5,7 +5,7 @@ import { browserSettingsApi } from "@/lib/tauri/browser-settings";
 import { profileApi } from "@/lib/tauri/profile";
 import type { AppError } from "@/types/app";
 import type { UpdateBrowserSettingsInput } from "@/types/cloak";
-import type { BulkProfileUpdateInput, CreateProfileFullInput, CreateProfileInput, UpdateProfileInput } from "@/types/profile";
+import type { BulkProfileUpdateInput, CreateProfileFullInput, CreateProfileInput, UpdateProfileFullInput, UpdateProfileInput } from "@/types/profile";
 
 import { profileKeys } from "./profile-keys";
 
@@ -87,6 +87,35 @@ export function useCreateProfile() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: profileKeys.all });
 			toast.success("Profile created");
+		},
+		onError: handleError,
+	});
+}
+
+export function useUpdateProfileFull() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, input }: { id: string; input: UpdateProfileFullInput }) =>
+			profileApi.updateFull(id, input),
+		onSuccess: (_, { id }) => {
+			queryClient.invalidateQueries({ queryKey: profileKeys.all });
+			queryClient.invalidateQueries({ queryKey: profileKeys.detail(id) });
+			toast.success("Profile updated");
+		},
+		onError: handleError,
+	});
+}
+
+export function useClearProfileCache(profileId: string) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: () => profileApi.clearCache(profileId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: profileKeys.storage(profileId) });
+			queryClient.invalidateQueries({ queryKey: profileKeys.events(profileId) });
+			toast.success("Cache cleared");
 		},
 		onError: handleError,
 	});

@@ -3,6 +3,7 @@ pub mod cloak_runtime;
 pub mod cookie;
 pub mod group;
 pub mod profile;
+pub mod profile_storage;
 pub mod proxy;
 pub mod system;
 pub mod tag;

@@ -10,4 +10,5 @@ export const profileKeys = {
 	browserSettings: (id: string) =>
 		[...profileKeys.all, "browser-settings", id] as const,
 	preflight: (id: string) => [...profileKeys.all, "preflight", id] as const,
+	storage: (id: string) => [...profileKeys.all, "storage", id] as const,
 };
