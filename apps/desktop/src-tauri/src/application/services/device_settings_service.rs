@@ -3,10 +3,11 @@ use chrono::Utc;
 use crate::application::services::{CloakInstallationService, DeviceConsistencyValidator};
 use crate::domain::device::DeviceConfigResolver;
 use crate::domain::device::{
-    find_preset, is_host_matched_platform, validate_device_memory_gb, validate_hardware_concurrency,
-    validate_screen_size, CreateProfileDeviceInput, DeviceConfigurationMode, DevicePlatform,
-    EnvironmentMode, GpuMode, GpuSettings, HardwarePresetDto, ProfileDeviceSettings,
-    ResolvedDeviceOverviewDto, UpdateProfileDeviceSettingsInput, WebRtcMode, HARDWARE_PRESETS,
+    find_preset, is_host_matched_platform, validate_device_memory_gb,
+    validate_hardware_concurrency, validate_screen_size, CreateProfileDeviceInput,
+    DeviceConfigurationMode, DevicePlatform, EnvironmentMode, GpuMode, GpuSettings,
+    HardwarePresetDto, ProfileDeviceSettings, ResolvedDeviceOverviewDto,
+    UpdateProfileDeviceSettingsInput, WebRtcMode, HARDWARE_PRESETS,
 };
 use crate::domain::device::{DeviceValidationResult, ProfileDeviceSettingsDto};
 use crate::error::AppError;

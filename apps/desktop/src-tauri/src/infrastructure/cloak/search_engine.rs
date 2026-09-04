@@ -102,10 +102,7 @@ pub fn ensure_search_engine(user_data_dir: &Path, engine: SearchEngine) -> Resul
         .or_insert_with(|| json!({}))
         .as_object_mut()
         .ok_or_else(|| AppError::CloakConfigInvalid("invalid search provider data".into()))?
-        .insert(
-            "template_url_data".to_string(),
-            engine.template_url_data(),
-        );
+        .insert("template_url_data".to_string(), engine.template_url_data());
 
     root.insert(
         "default_search_provider".to_string(),
@@ -167,12 +164,10 @@ mod tests {
         let template = &prefs["default_search_provider_data"]["template_url_data"];
         assert_eq!(template["short_name"], "Brave");
         assert_eq!(template["keyword"], "brave.com");
-        assert!(
-            template["url"]
-                .as_str()
-                .unwrap()
-                .starts_with("https://search.brave.com")
-        );
+        assert!(template["url"]
+            .as_str()
+            .unwrap()
+            .starts_with("https://search.brave.com"));
         assert_eq!(
             prefs["default_search_provider"]["search_url"]
                 .as_str()

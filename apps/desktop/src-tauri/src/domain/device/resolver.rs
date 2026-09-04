@@ -1,5 +1,7 @@
 use crate::domain::cloak::CloakCapabilities;
-use crate::domain::device::{is_host_matched_platform, DeviceConfigurationMode, DevicePlatform, WebRtcMode};
+use crate::domain::device::{
+    is_host_matched_platform, DeviceConfigurationMode, DevicePlatform, WebRtcMode,
+};
 
 #[derive(Debug, Clone)]
 pub struct ResolvedDeviceConfig {

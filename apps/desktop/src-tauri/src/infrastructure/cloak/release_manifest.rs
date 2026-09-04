@@ -50,7 +50,9 @@ pub fn current_platform() -> (&'static str, &'static str) {
 pub fn resolve_release(version: &str) -> Result<CloakRelease, AppError> {
     let (platform, arch) = current_platform();
     if platform == "unknown" {
-        return Err(AppError::CloakRuntimeVersionUnsupported(version.to_string()));
+        return Err(AppError::CloakRuntimeVersionUnsupported(
+            version.to_string(),
+        ));
     }
 
     let archive_name = archive_name_for_platform(platform, arch);
@@ -113,7 +115,10 @@ pub fn pro_download_url(version: &str) -> String {
     format!("{DOWNLOAD_BASE_URL}/api/download/{version}")
 }
 
-pub async fn fetch_checksums(version: &str, pro: bool) -> Result<HashMap<String, String>, AppError> {
+pub async fn fetch_checksums(
+    version: &str,
+    pro: bool,
+) -> Result<HashMap<String, String>, AppError> {
     let urls = if pro {
         vec![format!(
             "{DOWNLOAD_BASE_URL}/releases/pro/chromium-v{version}/SHA256SUMS"

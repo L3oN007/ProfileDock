@@ -245,9 +245,10 @@ impl CloakRuntimeManager {
         )
         .await;
 
-        let checksums = release_manifest::fetch_checksums(&release.version, release.requires_license)
-            .await
-            .ok();
+        let checksums =
+            release_manifest::fetch_checksums(&release.version, release.requires_license)
+                .await
+                .ok();
         let expected_sha256 = checksums
             .as_ref()
             .and_then(|map| map.get(&release.archive_name).cloned())

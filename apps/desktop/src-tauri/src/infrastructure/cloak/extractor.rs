@@ -215,8 +215,10 @@ mod tests {
 
     #[test]
     fn extract_archive_handles_zip_part_suffix() {
-        let temp =
-            std::env::temp_dir().join(format!("profiledock-zip-part-test-{}", uuid::Uuid::new_v4()));
+        let temp = std::env::temp_dir().join(format!(
+            "profiledock-zip-part-test-{}",
+            uuid::Uuid::new_v4()
+        ));
         let archive_path = temp.join("cloakbrowser-windows-x64.zip.part");
         let dest_dir = temp.join("out");
         fs::create_dir_all(&temp).unwrap();

@@ -99,7 +99,11 @@ impl CloakPreflightService {
             }
         }
 
-        if is_wsl() && device_settings.platform.is_some_and(|platform| platform != host) {
+        if is_wsl()
+            && device_settings
+                .platform
+                .is_some_and(|platform| platform != host)
+        {
             warnings.push(PreflightWarning {
                 code: "WSL_CROSS_PLATFORM".into(),
                 message: "Running from WSL: only Linux automatic profiles score well. Windows/macOS profiles launched from WSL are detected as VM/tampering.".into(),

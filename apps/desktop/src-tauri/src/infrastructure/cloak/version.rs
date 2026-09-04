@@ -32,10 +32,7 @@ pub fn version_newer(left: &str, right: &str) -> bool {
 }
 
 fn parse_version(version: &str) -> Vec<Option<u32>> {
-    version
-        .split('.')
-        .map(|part| part.parse().ok())
-        .collect()
+    version.split('.').map(|part| part.parse().ok()).collect()
 }
 
 #[cfg(test)]

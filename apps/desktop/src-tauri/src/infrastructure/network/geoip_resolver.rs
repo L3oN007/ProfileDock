@@ -48,18 +48,14 @@ pub async fn resolve_through_proxy(proxy: &ResolvedBrowserProxy) -> Result<GeoIp
     parse_ip_api_response(response).await
 }
 
-async fn parse_ip_api_response(
-    response: reqwest::Response,
-) -> Result<GeoIpProfile, AppError> {
+async fn parse_ip_api_response(response: reqwest::Response) -> Result<GeoIpProfile, AppError> {
     let body = response
         .json::<IpApiResponse>()
         .await
         .map_err(|error| AppError::NetworkLookupFailed(error.to_string()))?;
 
     if body.status != "success" {
-        return Err(AppError::NetworkLookupFailed(
-            "geoip lookup failed".into(),
-        ));
+        return Err(AppError::NetworkLookupFailed("geoip lookup failed".into()));
     }
 
     let timezone = body

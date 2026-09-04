@@ -5,9 +5,7 @@ use crate::domain::device::{
     EnvironmentMode, GpuMode, GpuSettings, WebRtcMode,
 };
 use crate::error::AppError;
-use crate::infrastructure::database::{
-    SqliteDeviceSettingsRepository, SqliteProfileRepository,
-};
+use crate::infrastructure::database::{SqliteDeviceSettingsRepository, SqliteProfileRepository};
 use crate::state::AppState;
 
 const SEED_PROFILE_NAMES: &[&str] = &["Test Windows", "Test macOS", "Test Linux"];
@@ -53,7 +51,10 @@ pub async fn run() -> Result<(), AppError> {
             || settings.platform != Some(*platform);
 
         if !should_repair {
-            println!("  skip  {} (already automatic/platform-aligned)", profile.name);
+            println!(
+                "  skip  {} (already automatic/platform-aligned)",
+                profile.name
+            );
             skipped += 1;
             continue;
         }

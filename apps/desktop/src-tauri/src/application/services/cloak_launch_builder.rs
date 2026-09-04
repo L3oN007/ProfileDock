@@ -4,9 +4,7 @@ use crate::domain::device::{
     ResolvedDeviceConfig, WebRtcMode,
 };
 use crate::error::AppError;
-use crate::infrastructure::cloak::version::{
-    version_at_least, MAXIMIZED_WINDOW_MIN_VERSION,
-};
+use crate::infrastructure::cloak::version::{version_at_least, MAXIMIZED_WINDOW_MIN_VERSION};
 use crate::infrastructure::process::{ProcessSpec, ProcessType};
 
 pub struct CloakLaunchBuilder {
@@ -115,12 +113,7 @@ fn append_fingerprint_args(
                 "--fingerprint-platform={}",
                 device.platform.as_str()
             ));
-            append_legacy_automatic_screen_args(
-                args,
-                cloak_version,
-                screen_width,
-                screen_height,
-            );
+            append_legacy_automatic_screen_args(args, cloak_version, screen_width, screen_height);
         }
         DeviceConfigurationMode::Custom => {
             append_custom_fingerprint_args(args, device, screen_width, screen_height);
@@ -315,23 +308,19 @@ mod tests {
             .iter()
             .any(|arg| arg.starts_with("--fingerprint-platform=")));
         assert!(spec.args.iter().any(|arg| arg == "--start-maximized"));
-        assert!(spec.args.iter().any(|arg| arg == "--fingerprint-noise=false"));
-        assert!(
-            !spec
-                .args
-                .iter()
-                .any(|arg| arg.contains("AutomationControlled"))
-        );
         assert!(spec
             .args
             .iter()
-            .any(|arg| arg == "--ignore-gpu-blocklist"));
-        assert!(
-            !spec
-                .args
-                .iter()
-                .any(|arg| arg.starts_with("--window-size="))
-        );
+            .any(|arg| arg == "--fingerprint-noise=false"));
+        assert!(!spec
+            .args
+            .iter()
+            .any(|arg| arg.contains("AutomationControlled")));
+        assert!(spec.args.iter().any(|arg| arg == "--ignore-gpu-blocklist"));
+        assert!(!spec
+            .args
+            .iter()
+            .any(|arg| arg.starts_with("--window-size=")));
     }
 
     #[test]
@@ -356,12 +345,7 @@ mod tests {
         };
 
         let spec = builder.build(&config, "instance-1".into()).unwrap();
-        assert!(
-            !spec
-                .args
-                .iter()
-                .any(|arg| arg == "--start-maximized")
-        );
+        assert!(!spec.args.iter().any(|arg| arg == "--start-maximized"));
         assert!(spec
             .args
             .iter()
@@ -414,12 +398,10 @@ mod tests {
             .iter()
             .any(|arg| arg == "--fingerprint-screen-width=1920"));
         assert!(spec.args.iter().any(|arg| arg == "--window-size=1920,1080"));
-        assert!(
-            !spec
-                .args
-                .iter()
-                .any(|arg| arg.starts_with("--fingerprint-gpu-"))
-        );
+        assert!(!spec
+            .args
+            .iter()
+            .any(|arg| arg.starts_with("--fingerprint-gpu-")));
     }
 
     #[test]
@@ -444,7 +426,10 @@ mod tests {
         };
 
         let spec = builder.build(&config, "instance-1".into()).unwrap();
-        assert!(spec.args.iter().any(|arg| arg == "--proxy-server=direct://"));
+        assert!(spec
+            .args
+            .iter()
+            .any(|arg| arg == "--proxy-server=direct://"));
         assert!(spec
             .args
             .iter()
@@ -506,11 +491,6 @@ mod tests {
                 .iter()
                 .any(|arg| arg == "--fingerprint-taskbar-height=95"));
         }
-        assert!(
-            !spec
-                .args
-                .iter()
-                .any(|arg| arg == "--start-maximized")
-        );
+        assert!(!spec.args.iter().any(|arg| arg == "--start-maximized"));
     }
 }
