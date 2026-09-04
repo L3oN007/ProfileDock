@@ -5,10 +5,10 @@ import type { MouseEvent, ReactNode } from "react";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 
 const inlineReset =
-	"inline cursor-pointer appearance-none border-0 bg-transparent p-0 font-inherit text-inherit";
+	"inline cursor-pointer appearance-none border-0 bg-transparent p-0 shadow-none outline-none focus-visible:ring-2 focus-visible:ring-ring/30";
 
 const navReset =
-	"w-full cursor-pointer appearance-none border-0 bg-transparent p-0 text-left font-inherit";
+	"flex w-full shrink-0 cursor-pointer appearance-none border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-ring/30";
 
 type RouterLinkProps = {
 	to: string;
@@ -35,9 +35,9 @@ export function RouterLink({
 	const matchRoute = useMatchRoute();
 	const isActive = Boolean(matchRoute({ to, params, search, fuzzy: false }));
 	const mergedClassName = cn(
+		isDesktopRuntime() && (variant === "nav" ? navReset : inlineReset),
 		className,
 		isActive && activeProps?.className,
-		isDesktopRuntime() && (variant === "nav" ? navReset : inlineReset),
 	);
 
 	const handleNavigate = (event: MouseEvent<HTMLElement>) => {

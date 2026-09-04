@@ -9,7 +9,7 @@ export const notion = {
 	main: "flex min-w-0 flex-1 flex-col overflow-hidden bg-background",
 	header:
 		"flex h-11 shrink-0 items-center justify-between border-border border-b bg-background/80 px-5 backdrop-blur-sm",
-	page: "flex-1 overflow-auto px-6 py-8 md:px-10 md:py-10",
+	page: "flex min-h-0 flex-1 flex-col overflow-auto px-6 py-8 md:px-10 md:py-10",
 	pageInner: "mx-auto flex w-full max-w-6xl flex-col gap-6",
 	panel:
 		"rounded-xl border border-border bg-card text-card-foreground shadow-[0_1px_2px_rgba(15,15,15,0.04)]",

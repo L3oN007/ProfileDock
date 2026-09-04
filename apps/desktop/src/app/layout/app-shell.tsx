@@ -156,7 +156,7 @@ function NavLink({
 			className={notion.navItem}
 			activeProps={{
 				className:
-					"bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+					"bg-sidebar-accent font-medium text-sidebar-accent-foreground hover:text-sidebar-accent-foreground",
 			}}
 		>
 			<Icon className="size-4 shrink-0 opacity-80" />
