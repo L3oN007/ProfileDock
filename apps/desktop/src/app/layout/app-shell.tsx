@@ -146,7 +146,14 @@ function NavLink({
 	icon: ComponentType<{ className?: string }>;
 }) {
 	return (
-		<Link to={to} className={notion.navItem}>
+		<Link
+			to={to}
+			className={notion.navItem}
+			activeProps={{
+				className:
+					"bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+			}}
+		>
 			<Icon className="size-4 shrink-0 opacity-80" />
 			<span className="truncate">{label}</span>
 		</Link>

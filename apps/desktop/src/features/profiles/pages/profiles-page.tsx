@@ -9,9 +9,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@ProfileDock/ui/components/table";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
 import { MoreHorizontal, Play, Square } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { PageShell } from "@/app/layout/page-shell";
 import { notion } from "@/app/design/system";
@@ -38,6 +38,8 @@ import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { Profile } from "@/types/profile";
 
+const profilesRoute = getRouteApi("/_app/profiles/");
+
 function formatRelativeTime(value: string | null) {
 	if (!value) return "—";
 	const date = new Date(value);
@@ -56,11 +58,12 @@ function formatRelativeTime(value: string | null) {
 export function ProfilesPage() {
 	const desktop = isDesktopRuntime();
 	const navigate = useNavigate();
+	const { groupId: urlGroupId, tagId: urlTagId } = profilesRoute.useSearch();
 	const searchInputRef = useRef<HTMLInputElement>(null);
 	const { preferences, toggleColumn, setDensity } = useProfileListPreferences();
 	const [search, setSearch] = useState("");
-	const [groupId, setGroupId] = useState<string | undefined>();
-	const [tagId, setTagId] = useState<string | undefined>();
+	const [groupId, setGroupId] = useState<string | undefined>(urlGroupId);
+	const [tagId, setTagId] = useState<string | undefined>(urlTagId);
 	const [status, setStatus] = useState<string | undefined>();
 	const [proxyId, setProxyId] = useState<string | undefined>();
 	const [sort, setSort] = useState<string | undefined>("created_desc");
@@ -70,6 +73,11 @@ export function ProfilesPage() {
 	const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
 	useProfileListKeyboard(searchInputRef);
+
+	useEffect(() => {
+		setGroupId(urlGroupId);
+		setTagId(urlTagId);
+	}, [urlGroupId, urlTagId]);
 
 	const profilesQuery = useProfileListPage({
 		search: search || undefined,

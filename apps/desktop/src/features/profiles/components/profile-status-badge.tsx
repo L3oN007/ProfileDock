@@ -6,22 +6,17 @@ const stateConfig: Record<
 	ProfileState,
 	{
 		label: string;
-		dot: string;
+		variant: "info" | "success" | "danger" | "neutral";
 	}
 > = {
-	ready: { label: "Ready", dot: "bg-chart-1" },
-	running: { label: "Running", dot: "bg-chart-4" },
-	error: { label: "Error", dot: "bg-destructive" },
-	archived: { label: "Archived", dot: "bg-muted-foreground" },
+	ready: { label: "Ready", variant: "info" },
+	running: { label: "Running", variant: "success" },
+	error: { label: "Error", variant: "danger" },
+	archived: { label: "Archived", variant: "neutral" },
 };
 
 export function ProfileStatusBadge({ state }: { state: ProfileState }) {
 	const config = stateConfig[state] ?? stateConfig.ready;
 
-	return (
-		<Badge variant="secondary" className="gap-1.5 font-normal">
-			<span className={`size-1.5 rounded-full ${config.dot}`} />
-			{config.label}
-		</Badge>
-	);
+	return <Badge variant={config.variant}>{config.label}</Badge>;
 }

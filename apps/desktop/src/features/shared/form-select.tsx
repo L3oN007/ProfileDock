@@ -7,37 +7,39 @@ import {
 } from "@ProfileDock/ui/components/select";
 import { cn } from "@ProfileDock/ui/lib/utils";
 
-export interface FilterSelectOption {
+export interface FormSelectOption {
 	value: string;
 	label: string;
 }
 
-interface FilterSelectProps {
+interface FormSelectProps {
 	value: string;
 	onValueChange: (value: string) => void;
-	options: FilterSelectOption[];
+	options: FormSelectOption[];
 	placeholder?: string;
 	className?: string;
+	disabled?: boolean;
 }
 
-export function FilterSelect({
+export function FormSelect({
 	value,
 	onValueChange,
 	options,
 	placeholder,
 	className,
-}: FilterSelectProps) {
+	disabled,
+}: FormSelectProps) {
 	return (
 		<Select
 			value={value}
+			disabled={disabled}
 			onValueChange={(next) => {
 				if (next != null) onValueChange(next);
 			}}
 		>
 			<SelectTrigger
-				size="sm"
 				className={cn(
-					"h-8 min-w-[128px] rounded-md border border-border/70 bg-muted/50 px-2.5 text-[13px] text-foreground shadow-sm transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-border hover:bg-muted focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 data-[popup-open]:border-ring/60 data-[popup-open]:bg-background data-[popup-open]:ring-2 data-[popup-open]:ring-ring/20",
+					"h-9 w-full rounded-md border border-input/80 bg-background px-3 text-sm shadow-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-input hover:bg-muted/30 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 data-[popup-open]:border-ring/60 data-[popup-open]:bg-background data-[popup-open]:ring-2 data-[popup-open]:ring-ring/20",
 					className,
 				)}
 			>
@@ -48,7 +50,7 @@ export function FilterSelect({
 					<SelectItem
 						key={option.value}
 						value={option.value}
-						className="rounded-md text-[13px]"
+						className="rounded-md text-sm"
 					>
 						{option.label}
 					</SelectItem>

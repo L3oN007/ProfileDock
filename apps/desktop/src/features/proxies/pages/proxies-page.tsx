@@ -5,7 +5,13 @@ import { Link } from "@tanstack/react-router";
 import { Archive, Plus, RefreshCw, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import { notion } from "@/app/design/system";
+import {
+	ContentSection,
+	EmptyState,
+	PageShell,
+	PageTitle,
+} from "@/app/layout/page-shell";
 import {
 	useArchiveProxy,
 	useCheckProxy,
@@ -13,9 +19,17 @@ import {
 import { useProxies } from "@/features/proxies/api/queries";
 import { CreateProxyDialog } from "@/features/proxies/components/create-proxy-dialog";
 import { ProxyHealthBadge } from "@/features/proxies/components/proxy-health-badge";
+import { FilterSelect } from "@/features/shared/filter-select";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { Proxy, ProxyHealthStatus } from "@/types/proxy";
+
+const STATUS_OPTIONS = [
+	{ value: "all", label: "All status" },
+	{ value: "healthy", label: "Healthy" },
+	{ value: "unhealthy", label: "Unhealthy" },
+	{ value: "unknown", label: "Unknown" },
+];
 
 export function ProxiesPage() {
 	const desktop = isDesktopRuntime();
@@ -46,58 +60,53 @@ export function ProxiesPage() {
 
 	return (
 		<PageShell>
-			<div className="flex flex-wrap items-center justify-between gap-3">
-				<div className="relative max-w-md flex-1">
-					<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
-					<Input
-						className="h-8 border-border bg-muted/30 pl-8"
-						placeholder="Search proxies..."
-						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-					/>
-				</div>
-
-				<div className="flex items-center gap-2">
-					<select
-						className="h-8 rounded-md border border-border bg-muted/30 px-2 text-sm"
-						value={statusFilter}
-						onChange={(e) =>
-							setStatusFilter(e.target.value as "all" | ProxyHealthStatus)
-						}
-					>
-						<option value="all">All status</option>
-						<option value="healthy">Healthy</option>
-						<option value="unhealthy">Unhealthy</option>
-						<option value="unknown">Unknown</option>
-					</select>
-
-					<Button
-						className="bg-primary text-primary-foreground hover:bg-primary/90"
-						size="sm"
-						onClick={() => setCreateOpen(true)}
-					>
+			<PageTitle
+				title="Proxies"
+				description="Manage proxy endpoints and health checks for your profiles."
+				actions={
+					<Button size="sm" onClick={() => setCreateOpen(true)}>
 						<Plus className="size-3.5" />
-						Add Proxy
+						Add proxy
 					</Button>
-				</div>
-			</div>
-
+				}
+			/>
 			{!desktop ? <DesktopOnlyBanner /> : null}
-
-			{proxiesQuery.isLoading ? (
-				<div className="space-y-2">
-					<Skeleton className="h-24 w-full" />
-					<Skeleton className="h-24 w-full" />
-				</div>
-			) : proxies.length === 0 ? (
-				<div className={`rounded-lg p-8 text-center ${panelClassName}`}>
-					<p className="text-muted-foreground">
-						No proxies yet. Add your first proxy.
-					</p>
-				</div>
-			) : (
-				<div className="space-y-3">
-					{proxies.map((proxy) => (
+			<ContentSection
+				title="All proxies"
+				actions={
+					<div className="flex flex-wrap items-center gap-2">
+						<div className="relative min-w-[200px]">
+							<Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+							<Input
+								className={`${notion.input} pl-8`}
+								placeholder="Search proxies..."
+								value={search}
+								onChange={(e) => setSearch(e.target.value)}
+							/>
+						</div>
+						<FilterSelect
+							value={statusFilter}
+							onValueChange={(value) =>
+								setStatusFilter(value as "all" | ProxyHealthStatus)
+							}
+							options={STATUS_OPTIONS}
+						/>
+					</div>
+				}
+				contentClassName="space-y-3"
+			>
+				{proxiesQuery.isLoading ? (
+					<div className="space-y-2">
+						<Skeleton className="h-24 w-full rounded-lg" />
+						<Skeleton className="h-24 w-full rounded-lg" />
+					</div>
+				) : proxies.length === 0 ? (
+					<EmptyState
+						title="No proxies yet"
+						description="Add your first proxy to assign it to profiles."
+					/>
+				) : (
+					proxies.map((proxy) => (
 						<ProxyCard
 							key={proxy.id}
 							proxy={proxy}
@@ -105,9 +114,9 @@ export function ProxiesPage() {
 							onArchive={() => archiveProxy.mutate(proxy.id)}
 							isChecking={checkProxy.isPending}
 						/>
-					))}
-				</div>
-			)}
+					))
+				)}
+			</ContentSection>
 
 			<CreateProxyDialog open={createOpen} onOpenChange={setCreateOpen} />
 		</PageShell>
@@ -126,65 +135,65 @@ function ProxyCard({
 	isChecking: boolean;
 }) {
 	return (
-		<div className={`rounded-lg p-4 ${panelClassName}`}>
-			<div className="flex flex-wrap items-start justify-between gap-3">
-				<div className="min-w-0 flex-1">
-					<div className="flex flex-wrap items-center gap-2">
-						<Link
-							to="/proxies/$proxyId"
-							params={{ proxyId: proxy.id }}
-							className="font-medium text-foreground hover:text-chart-1"
-						>
-							{proxy.name}
-						</Link>
-						<ProxyHealthBadge status={proxy.healthStatus} />
+		<div className={notion.listRow}>
+			<div className="flex min-w-0 flex-1 flex-col gap-3">
+				<div className="flex flex-wrap items-start justify-between gap-3">
+					<div className="min-w-0 flex-1">
+						<div className="flex flex-wrap items-center gap-2">
+							<Link
+								to="/proxies/$proxyId"
+								params={{ proxyId: proxy.id }}
+								className="font-medium text-foreground hover:text-primary"
+							>
+								{proxy.name}
+							</Link>
+							<ProxyHealthBadge status={proxy.healthStatus} />
+						</div>
+						<p className="mt-1 text-muted-foreground text-xs uppercase">
+							{proxy.protocol}
+						</p>
+						<p className="font-mono text-foreground text-sm">
+							{proxy.host}:{proxy.port}
+						</p>
 					</div>
-					<p className="mt-1 text-muted-foreground text-xs uppercase">
-						{proxy.protocol}
-					</p>
-					<p className="font-mono text-foreground text-sm">
-						{proxy.host}:{proxy.port}
-					</p>
+
+					<div className="flex gap-2">
+						<Button
+							size="sm"
+							variant="outline"
+							disabled={isChecking}
+							onClick={onCheck}
+						>
+							<RefreshCw className="size-3.5" />
+							Check
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							disabled={proxy.assignedProfileCount > 0}
+							onClick={onArchive}
+						>
+							<Archive className="size-3.5" />
+							Archive
+						</Button>
+					</div>
 				</div>
 
-				<div className="flex gap-2">
-					<Button
-						size="sm"
-						variant="outline"
-						className="border-border"
-						disabled={isChecking}
-						onClick={onCheck}
-					>
-						<RefreshCw className="size-3.5" />
-						Check
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						className="border-border"
-						disabled={proxy.assignedProfileCount > 0}
-						onClick={onArchive}
-					>
-						<Archive className="size-3.5" />
-						Archive
-					</Button>
+				<div className="grid gap-2 text-sm sm:grid-cols-3">
+					<Meta label="IP" value={proxy.lastCheck?.observedIp ?? "—"} />
+					<Meta
+						label="Latency"
+						value={
+							proxy.lastCheck?.latencyMs != null
+								? `${proxy.lastCheck.latencyMs}ms`
+								: "—"
+						}
+					/>
+					<Meta
+						label="Used by"
+						value={`${proxy.assignedProfileCount} profiles`}
+					/>
 				</div>
-			</div>
-
-			<div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-				<Meta label="IP" value={proxy.lastCheck?.observedIp ?? "—"} />
-				<Meta
-					label="Latency"
-					value={
-						proxy.lastCheck?.latencyMs != null
-							? `${proxy.lastCheck.latencyMs}ms`
-							: "—"
-					}
-				/>
-				<Meta
-					label="Used by"
-					value={`${proxy.assignedProfileCount} profiles`}
-				/>
 			</div>
 		</div>
 	);

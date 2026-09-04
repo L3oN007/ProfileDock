@@ -1,13 +1,15 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
+import { Input } from "@ProfileDock/ui/components/input";
 import { useState } from "react";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import { notion } from "@/app/design/system";
+import {
+	ContentSection,
+	EmptyState,
+	ListRow,
+	PageShell,
+	PageTitle,
+} from "@/app/layout/page-shell";
 import {
 	useDeleteProfilePermanent,
 	useRestoreProfile,
@@ -30,22 +32,25 @@ export function TrashPage() {
 
 	return (
 		<PageShell>
+			<PageTitle
+				title="Trash"
+				description="Archived profiles can be restored or permanently deleted."
+			/>
 			<DesktopOnlyBanner />
-			<Card className={panelClassName}>
-				<CardHeader>
-					<CardTitle>Trash</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-3">
-					{profiles.length === 0 ? (
-						<p className="text-muted-foreground text-sm">No archived profiles.</p>
-					) : (
-						profiles.map((profile) => (
-							<div
-								key={profile.id}
-								className="flex items-center justify-between rounded-md border border-border p-3"
-							>
+			<ContentSection title="Archived profiles">
+				{profiles.length === 0 ? (
+					<EmptyState
+						title="Trash is empty"
+						description="Archived profiles will appear here."
+					/>
+				) : (
+					<div className="space-y-2">
+						{profiles.map((profile) => (
+							<ListRow key={profile.id}>
 								<div>
-									<p className="text-foreground text-sm">{profile.name}</p>
+									<p className="font-medium text-foreground text-sm">
+										{profile.name}
+									</p>
 									<p className="text-muted-foreground text-xs">
 										{profile.display_id ?? profile.id}
 									</p>
@@ -54,7 +59,6 @@ export function TrashPage() {
 									<Button
 										size="sm"
 										variant="outline"
-										className="border-border"
 										onClick={() => restoreProfile.mutate(profile.id)}
 									>
 										Restore
@@ -62,7 +66,7 @@ export function TrashPage() {
 									<Button
 										size="sm"
 										variant="outline"
-										className="border-border text-red-400"
+										className="text-destructive hover:text-destructive"
 										onClick={() => {
 											setConfirmName(profile.name);
 											setConfirmInput("");
@@ -71,36 +75,30 @@ export function TrashPage() {
 										Delete permanently
 									</Button>
 								</div>
-							</div>
-						))
-					)}
-				</CardContent>
-			</Card>
+							</ListRow>
+						))}
+					</div>
+				)}
+			</ContentSection>
 
 			{confirmName ? (
-				<Card className={`${panelClassName} mt-4`}>
-					<CardHeader>
-						<CardTitle className="text-base">Delete permanently?</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-3">
-						<p className="text-muted-foreground text-sm">
-							Type <strong>{confirmName}</strong> to confirm permanent deletion.
-						</p>
-						<input
-							className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+				<ContentSection
+					className="mt-4"
+					title="Delete permanently?"
+					description={`Type "${confirmName}" to confirm permanent deletion.`}
+				>
+					<div className="space-y-3">
+						<Input
+							className={notion.input}
 							value={confirmInput}
 							onChange={(e) => setConfirmInput(e.target.value)}
 						/>
 						<div className="flex gap-2">
-							<Button
-								variant="outline"
-								className="border-border"
-								onClick={() => setConfirmName(null)}
-							>
+							<Button variant="outline" onClick={() => setConfirmName(null)}>
 								Cancel
 							</Button>
 							<Button
-								className="bg-red-600 hover:bg-red-500"
+								variant="destructive"
 								disabled={confirmInput !== confirmName}
 								onClick={() => {
 									const profile = profiles.find((p) => p.name === confirmName);
@@ -113,8 +111,8 @@ export function TrashPage() {
 								Delete permanently
 							</Button>
 						</div>
-					</CardContent>
-				</Card>
+					</div>
+				</ContentSection>
 			) : null}
 		</PageShell>
 	);

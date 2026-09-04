@@ -1,22 +1,20 @@
+import { Badge } from "@ProfileDock/ui/components/badge";
 import { Button } from "@ProfileDock/ui/components/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
+import { Checkbox } from "@ProfileDock/ui/components/checkbox";
 import { Input } from "@ProfileDock/ui/components/input";
-import { Label } from "@ProfileDock/ui/components/label";
+import { cn } from "@ProfileDock/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
-import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { PageShell, PageTitle, panelClassName } from "@/app/layout/page-shell";
 import { notion } from "@/app/design/system";
+import { PageShell, PageTitle } from "@/app/layout/page-shell";
 import { useGroups } from "@/features/groups/api/queries";
 import { useCreateProfileFull } from "@/features/profiles/api/mutations";
 import { useProxies } from "@/features/proxies/api/queries";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
+import { FormField } from "@/features/shared/form-field";
+import { FormSelect } from "@/features/shared/form-select";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { CreateProfileFullInput } from "@/types/profile";
 import type { ProxyProtocol } from "@/types/proxy";
@@ -24,6 +22,7 @@ import type { ProxyProtocol } from "@/types/proxy";
 type TabId = "general" | "proxy" | "platform" | "browser" | "advanced";
 
 const DRAFT_STORAGE_KEY = "profiledock.new-profile-draft";
+const NONE_VALUE = "__none__";
 
 const tabs: { id: TabId; label: string }[] = [
 	{ id: "general", label: "General" },
@@ -57,6 +56,45 @@ export function NewProfilePage() {
 	const [startupUrl, setStartupUrl] = useState("");
 	const [draftRestored, setDraftRestored] = useState(false);
 
+	const groupOptions = useMemo(
+		() => [
+			{ value: NONE_VALUE, label: "Ungrouped" },
+			...(groupsQuery.data ?? []).map((group) => ({
+				value: group.id,
+				label: group.name,
+			})),
+		],
+		[groupsQuery.data],
+	);
+
+	const proxyModeOptions = [
+		{ value: "none", label: "No proxy" },
+		{ value: "saved", label: "Saved proxy" },
+		{ value: "custom", label: "Custom proxy" },
+	];
+
+	const protocolOptions = [
+		{ value: "socks5", label: "SOCKS5" },
+		{ value: "http", label: "HTTP" },
+		{ value: "https", label: "HTTPS" },
+	];
+
+	const windowModeOptions = [
+		{ value: "normal", label: "Normal" },
+		{ value: "maximized", label: "Maximized" },
+	];
+
+	const savedProxyOptions = useMemo(
+		() => [
+			{ value: NONE_VALUE, label: "Select proxy" },
+			...(proxiesQuery.data ?? []).map((proxy) => ({
+				value: proxy.id,
+				label: proxy.name,
+			})),
+		],
+		[proxiesQuery.data],
+	);
+
 	useEffect(() => {
 		try {
 			const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
@@ -88,6 +126,13 @@ export function NewProfilePage() {
 		setTagInput("");
 	};
 
+	const removeTag = (tag: string) => {
+		setForm((current) => ({
+			...current,
+			tags: (current.tags ?? []).filter((item) => item !== tag),
+		}));
+	};
+
 	const handleCreate = async () => {
 		const profile = await createProfile.mutateAsync(form);
 		localStorage.removeItem(DRAFT_STORAGE_KEY);
@@ -102,6 +147,17 @@ export function NewProfilePage() {
 		setDraftRestored(false);
 	};
 
+	const selectedGroupName =
+		groupsQuery.data?.find((g) => g.id === form.groupId)?.name ?? "Ungrouped";
+
+	const proxySummary =
+		form.proxyMode === "saved"
+			? (proxiesQuery.data?.find((p) => p.id === form.proxyId)?.name ??
+				"Not selected")
+			: form.proxyMode === "custom"
+				? (form.customProxy?.name || "Custom proxy")
+				: "None";
+
 	return (
 		<PageShell>
 			<DesktopOnlyBanner />
@@ -112,16 +168,13 @@ export function NewProfilePage() {
 				actions={
 					<div className="flex gap-2">
 						{draftRestored ? (
-							<Button variant="outline" onClick={clearDraft}>
+							<Button variant="ghost" onClick={clearDraft}>
 								Clear draft
 							</Button>
 						) : null}
-						<Link
-							to="/profiles"
-							className="inline-flex h-9 items-center justify-center rounded-md border border-border px-4 text-sm transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-accent"
-						>
+						<Button variant="outline" render={<Link to="/profiles" />}>
 							Cancel
-						</Link>
+						</Button>
 						<Button
 							disabled={!desktop || !form.name.trim() || createProfile.isPending}
 							onClick={handleCreate}
@@ -132,61 +185,58 @@ export function NewProfilePage() {
 				}
 			/>
 
-			<div className="grid gap-6 xl:grid-cols-[1fr_320px]">
-				<Card className={panelClassName}>
-					<CardHeader className="border-border border-b px-0 pb-0">
-						<div className="flex flex-wrap gap-1 px-4">
-							{tabs.map((item) => (
-								<button
-									key={item.id}
-									type="button"
-									className={`border-b-2 px-3 py-2.5 text-sm transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-										tab === item.id
-											? "border-foreground font-medium text-foreground"
-											: "border-transparent text-muted-foreground hover:text-foreground"
-									}`}
-									onClick={() => setTab(item.id)}
-								>
-									{item.label}
-								</button>
-							))}
-						</div>
-					</CardHeader>
-					<CardContent className="space-y-4 pt-6">
+			<div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_260px]">
+				<div className="space-y-8">
+					<div className={notion.segmented}>
+						{tabs.map((item) => (
+							<button
+								key={item.id}
+								type="button"
+								className={cn(
+									notion.segmentedItem,
+									tab === item.id && notion.segmentedItemActive,
+								)}
+								onClick={() => setTab(item.id)}
+							>
+								{item.label}
+							</button>
+						))}
+					</div>
+
+					<div className="max-w-2xl space-y-6">
 						{tab === "general" ? (
 							<>
-								<Field label="Profile name">
+								<FormField label="Profile name">
 									<Input
 										className={notion.input}
+										placeholder="e.g. Marketing — US"
 										value={form.name}
 										onChange={(e) =>
 											setForm((c) => ({ ...c, name: e.target.value }))
 										}
 									/>
-								</Field>
-								<Field label="Group">
-									<select
-										className={`h-9 w-full ${notion.select}`}
-										value={form.groupId ?? ""}
-										onChange={(e) =>
+								</FormField>
+								<FormField label="Group">
+									<FormSelect
+										value={form.groupId ?? NONE_VALUE}
+										onValueChange={(value) =>
 											setForm((c) => ({
 												...c,
-												groupId: e.target.value || undefined,
+												groupId: value === NONE_VALUE ? undefined : value,
 											}))
 										}
-									>
-										<option value="">Ungrouped</option>
-										{(groupsQuery.data ?? []).map((group) => (
-											<option key={group.id} value={group.id}>
-												{group.name}
-											</option>
-										))}
-									</select>
-								</Field>
-								<Field label="Tags">
+										options={groupOptions}
+										placeholder="Select group"
+									/>
+								</FormField>
+								<FormField
+									label="Tags"
+									hint="Press Enter or click Add to create a tag."
+								>
 									<div className="flex gap-2">
 										<Input
 											className={notion.input}
+											placeholder="Add a tag"
 											value={tagInput}
 											onChange={(e) => setTagInput(e.target.value)}
 											onKeyDown={(e) => {
@@ -196,72 +246,78 @@ export function NewProfilePage() {
 												}
 											}}
 										/>
-										<Button variant="outline" className="border-border" onClick={addTag}>
+										<Button variant="outline" onClick={addTag}>
 											Add
 										</Button>
 									</div>
-									<div className="mt-2 flex flex-wrap gap-2">
-										{(form.tags ?? []).map((tag) => (
-											<span
-												key={tag}
-												className="rounded-full bg-accent px-2 py-1 text-foreground text-xs"
-											>
-												{tag}
-											</span>
-										))}
-									</div>
-								</Field>
-								<Field label="Remark">
+									{(form.tags ?? []).length > 0 ? (
+										<div className="flex flex-wrap gap-1.5 pt-2">
+											{(form.tags ?? []).map((tag) => (
+												<Badge
+													key={tag}
+													variant="neutral"
+													className="gap-1 pr-1.5"
+												>
+													{tag}
+													<button
+														type="button"
+														className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+														onClick={() => removeTag(tag)}
+														aria-label={`Remove ${tag}`}
+													>
+														<X className="size-3" />
+													</button>
+												</Badge>
+											))}
+										</div>
+									) : null}
+								</FormField>
+								<FormField label="Remark">
 									<Input
 										className={notion.input}
+										placeholder="Optional short note"
 										value={form.remark ?? ""}
 										onChange={(e) =>
 											setForm((c) => ({ ...c, remark: e.target.value }))
 										}
 									/>
-								</Field>
+								</FormField>
 							</>
 						) : null}
 
 						{tab === "proxy" ? (
 							<>
-								<Field label="Proxy mode">
-									<select
-										className={`h-9 w-full ${notion.select}`}
+								<FormField label="Proxy mode">
+									<FormSelect
 										value={form.proxyMode ?? "none"}
-										onChange={(e) =>
+										onValueChange={(value) =>
 											setForm((c) => ({
 												...c,
-												proxyMode: e.target.value as CreateProfileFullInput["proxyMode"],
+												proxyMode:
+													value as CreateProfileFullInput["proxyMode"],
 											}))
 										}
-									>
-										<option value="none">No Proxy</option>
-										<option value="saved">Saved Proxy</option>
-										<option value="custom">Custom Proxy</option>
-									</select>
-								</Field>
+										options={proxyModeOptions}
+									/>
+								</FormField>
 								{form.proxyMode === "saved" ? (
-									<Field label="Saved proxy">
-										<select
-											className={`h-9 w-full ${notion.select}`}
-											value={form.proxyId ?? ""}
-											onChange={(e) =>
-												setForm((c) => ({ ...c, proxyId: e.target.value }))
+									<FormField label="Saved proxy">
+										<FormSelect
+											value={form.proxyId ?? NONE_VALUE}
+											onValueChange={(value) =>
+												setForm((c) => ({
+													...c,
+													proxyId: value === NONE_VALUE ? undefined : value,
+												}))
 											}
-										>
-											<option value="">Select proxy</option>
-											{(proxiesQuery.data ?? []).map((proxy) => (
-												<option key={proxy.id} value={proxy.id}>
-													{proxy.name}
-												</option>
-											))}
-										</select>
-									</Field>
+											options={savedProxyOptions}
+											placeholder="Select proxy"
+										/>
+									</FormField>
 								) : null}
 								{form.proxyMode === "custom" ? (
-									<>
-										<Field label="Proxy name">
+									<div className="space-y-6">
+										<FormField label="Proxy name">
 											<Input
 												className={notion.input}
 												value={form.customProxy?.name ?? ""}
@@ -280,12 +336,11 @@ export function NewProfilePage() {
 													}))
 												}
 											/>
-										</Field>
-										<Field label="Protocol">
-											<select
-												className={`h-9 w-full ${notion.select}`}
+										</FormField>
+										<FormField label="Protocol">
+											<FormSelect
 												value={form.customProxy?.protocol ?? "socks5"}
-												onChange={(e) =>
+												onValueChange={(value) =>
 													setForm((c) => ({
 														...c,
 														customProxy: {
@@ -295,18 +350,15 @@ export function NewProfilePage() {
 																host: "",
 																port: 1080,
 															}),
-															protocol: e.target.value as ProxyProtocol,
+															protocol: value as ProxyProtocol,
 														},
 													}))
 												}
-											>
-												<option value="socks5">SOCKS5</option>
-												<option value="http">HTTP</option>
-												<option value="https">HTTPS</option>
-											</select>
-										</Field>
-										<div className="grid gap-3 sm:grid-cols-2">
-											<Field label="Host">
+												options={protocolOptions}
+											/>
+										</FormField>
+										<div className="grid gap-4 sm:grid-cols-2">
+											<FormField label="Host">
 												<Input
 													className={notion.input}
 													value={form.customProxy?.host ?? ""}
@@ -325,8 +377,8 @@ export function NewProfilePage() {
 														}))
 													}
 												/>
-											</Field>
-											<Field label="Port">
+											</FormField>
+											<FormField label="Port">
 												<Input
 													type="number"
 													className={notion.input}
@@ -346,11 +398,12 @@ export function NewProfilePage() {
 														}))
 													}
 												/>
-											</Field>
+											</FormField>
 										</div>
-										<Field label="Username (optional)">
+										<FormField label="Username">
 											<Input
 												className={notion.input}
+												placeholder="Optional"
 												value={form.customProxy?.username ?? ""}
 												onChange={(e) =>
 													setForm((c) => ({
@@ -367,11 +420,12 @@ export function NewProfilePage() {
 													}))
 												}
 											/>
-										</Field>
-										<Field label="Password (optional)">
+										</FormField>
+										<FormField label="Password">
 											<Input
 												type="password"
 												className={notion.input}
+												placeholder="Optional"
 												value={form.customProxy?.password ?? ""}
 												onChange={(e) =>
 													setForm((c) => ({
@@ -388,14 +442,17 @@ export function NewProfilePage() {
 													}))
 												}
 											/>
-										</Field>
-									</>
+										</FormField>
+									</div>
 								) : null}
 							</>
 						) : null}
 
 						{tab === "platform" ? (
-							<Field label="Platform label">
+							<FormField
+								label="Platform label"
+								hint="Used for filtering and organization in the profile list."
+							>
 								<Input
 									className={notion.input}
 									placeholder="General, QA, Web Testing..."
@@ -404,22 +461,39 @@ export function NewProfilePage() {
 										setForm((c) => ({ ...c, platformLabel: e.target.value }))
 									}
 								/>
-							</Field>
+							</FormField>
 						) : null}
 
 						{tab === "browser" ? (
 							<>
-								<Field label="Startup URLs">
+								<FormField label="Startup URLs">
 									<div className="flex gap-2">
 										<Input
 											className={notion.input}
 											placeholder="https://example.com"
 											value={startupUrl}
 											onChange={(e) => setStartupUrl(e.target.value)}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") {
+													e.preventDefault();
+													const value = startupUrl.trim();
+													if (!value) return;
+													setForm((c) => ({
+														...c,
+														browser: {
+															...c.browser,
+															startupUrls: [
+																...(c.browser?.startupUrls ?? []),
+																value,
+															],
+														},
+													}));
+													setStartupUrl("");
+												}
+											}}
 										/>
 										<Button
 											variant="outline"
-											className="border-border"
 											onClick={() => {
 												const value = startupUrl.trim();
 												if (!value) return;
@@ -439,84 +513,97 @@ export function NewProfilePage() {
 											Add
 										</Button>
 									</div>
-								</Field>
-								<Field label="Window mode">
-									<select
-										className={`h-9 w-full ${notion.select}`}
+									{(form.browser?.startupUrls ?? []).length > 0 ? (
+										<ul className="mt-2 space-y-1">
+											{(form.browser?.startupUrls ?? []).map((url) => (
+												<li
+													key={url}
+													className="truncate text-muted-foreground text-xs"
+												>
+													{url}
+												</li>
+											))}
+										</ul>
+									) : null}
+								</FormField>
+								<FormField label="Window mode">
+									<FormSelect
 										value={form.browser?.windowMode ?? "normal"}
-										onChange={(e) =>
+										onValueChange={(value) =>
 											setForm((c) => ({
 												...c,
 												browser: {
 													...c.browser,
-													windowMode: e.target.value as "normal" | "maximized",
+													windowMode: value as "normal" | "maximized",
 												},
 											}))
 										}
-									>
-										<option value="normal">Normal</option>
-										<option value="maximized">Maximized</option>
-									</select>
-								</Field>
-								<label className="flex items-center gap-2 text-sm">
-									<input
-										type="checkbox"
+										options={windowModeOptions}
+									/>
+								</FormField>
+								<label className="flex cursor-pointer items-center gap-2.5 py-1">
+									<Checkbox
 										checked={form.browser?.restoreSession ?? true}
-										onChange={(e) =>
+										onCheckedChange={(checked) =>
 											setForm((c) => ({
 												...c,
 												browser: {
 													...c.browser,
-													restoreSession: e.target.checked,
+													restoreSession: checked === true,
 												},
 											}))
 										}
 									/>
-									Restore previous session
+									<span className="text-foreground text-sm">
+										Restore previous session
+									</span>
 								</label>
 							</>
 						) : null}
 
 						{tab === "advanced" ? (
-							<Field label="Notes">
+							<FormField label="Notes">
 								<textarea
 									className={notion.textarea}
+									placeholder="Internal notes about this profile..."
 									value={form.notes ?? ""}
 									onChange={(e) =>
 										setForm((c) => ({ ...c, notes: e.target.value }))
 									}
 								/>
-							</Field>
+							</FormField>
 						) : null}
-					</CardContent>
-				</Card>
+					</div>
+				</div>
 
-				<Card className={panelClassName}>
-					<CardHeader>
-						<CardTitle className="text-base">Overview</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-3 text-sm">
+				<aside className="space-y-5 xl:pt-1">
+					<div>
+						<h2 className="font-medium text-foreground text-sm">Overview</h2>
+						<p className="mt-1 text-muted-foreground text-xs leading-relaxed">
+							Live summary of your configuration.
+						</p>
+					</div>
+					<dl className="space-y-0">
 						<OverviewRow label="Name" value={form.name || "—"} />
+						<OverviewRow label="Group" value={selectedGroupName} />
 						<OverviewRow
-							label="Group"
+							label="Tags"
 							value={
-								groupsQuery.data?.find((g) => g.id === form.groupId)?.name ??
-								"Ungrouped"
+								(form.tags ?? []).length > 0 ? (
+									<div className="flex flex-wrap justify-end gap-1">
+										{(form.tags ?? []).map((tag) => (
+											<Badge key={tag} variant="neutral">
+												{tag}
+											</Badge>
+										))}
+									</div>
+								) : (
+									"—"
+								)
 							}
 						/>
-						<OverviewRow label="Tags" value={(form.tags ?? []).join(", ") || "—"} />
 						<OverviewRow label="Browser" value="CloakBrowser" />
-						<OverviewRow
-							label="Proxy"
-							value={
-								form.proxyMode === "saved"
-									? (proxiesQuery.data?.find((p) => p.id === form.proxyId)?.name ??
-										"Not selected")
-									: form.proxyMode === "custom"
-										? (form.customProxy?.name || "Custom proxy")
-										: "None"
-							}
-						/>
+						<OverviewRow label="Proxy" value={proxySummary} />
 						<OverviewRow
 							label="Startup URLs"
 							value={String(form.browser?.startupUrls?.length ?? 0)}
@@ -525,33 +612,24 @@ export function NewProfilePage() {
 							label="Restore session"
 							value={form.browser?.restoreSession ? "Enabled" : "Disabled"}
 						/>
-					</CardContent>
-				</Card>
+					</dl>
+				</aside>
 			</div>
 		</PageShell>
 	);
 }
 
-function Field({
+function OverviewRow({
 	label,
-	children,
+	value,
 }: {
 	label: string;
-	children: ReactNode;
+	value: ReactNode;
 }) {
 	return (
-		<div className="space-y-2">
-			<Label className="text-muted-foreground">{label}</Label>
-			{children}
-		</div>
-	);
-}
-
-function OverviewRow({ label, value }: { label: string; value: string }) {
-	return (
-		<div className="flex justify-between gap-3 border-border border-b pb-2 last:border-0">
-			<span className="text-muted-foreground">{label}</span>
-			<span className="text-right text-foreground">{value}</span>
+		<div className="flex items-start justify-between gap-4 border-border/50 border-b py-3 last:border-0">
+			<dt className="shrink-0 text-muted-foreground text-xs">{label}</dt>
+			<dd className="min-w-0 text-right text-foreground text-xs">{value}</dd>
 		</div>
 	);
 }

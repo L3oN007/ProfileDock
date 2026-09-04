@@ -1,10 +1,4 @@
 import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
-import {
 	Table,
 	TableBody,
 	TableCell,
@@ -14,7 +8,13 @@ import {
 } from "@ProfileDock/ui/components/table";
 import { Link } from "@tanstack/react-router";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import { notion } from "@/app/design/system";
+import {
+	ContentSection,
+	EmptyState,
+	PageShell,
+	PageTitle,
+} from "@/app/layout/page-shell";
 import { useProfileActivity } from "@/features/profiles/api/queries";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 
@@ -24,18 +24,24 @@ export function ActivityPage() {
 
 	return (
 		<PageShell>
+			<PageTitle
+				title="Activity"
+				description="Recent profile events across your workspace."
+			/>
 			<DesktopOnlyBanner />
-			<Card className={panelClassName}>
-				<CardHeader>
-					<CardTitle>Activity</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{events.length === 0 ? (
-						<p className="text-muted-foreground text-sm">No activity yet.</p>
-					) : (
+			<ContentSection title="Recent events" contentClassName="p-0">
+				{events.length === 0 ? (
+					<div className="px-5 py-4">
+						<EmptyState
+							title="No activity yet"
+							description="Profile launches, stops, and edits will show up here."
+						/>
+					</div>
+				) : (
+					<div className={notion.tableWrap}>
 						<Table>
 							<TableHeader>
-								<TableRow>
+								<TableRow className={notion.tableHead}>
 									<TableHead>Time</TableHead>
 									<TableHead>Profile</TableHead>
 									<TableHead>Event</TableHead>
@@ -43,7 +49,7 @@ export function ActivityPage() {
 							</TableHeader>
 							<TableBody>
 								{events.map((event) => (
-									<TableRow key={event.id}>
+									<TableRow key={event.id} className={notion.tableRow}>
 										<TableCell className="text-muted-foreground text-xs">
 											{new Date(event.created_at).toLocaleString()}
 										</TableCell>
@@ -51,7 +57,7 @@ export function ActivityPage() {
 											<Link
 												to="/profiles/$profileId"
 												params={{ profileId: event.profile_id }}
-												className="text-foreground hover:text-chart-1"
+												className="text-foreground hover:text-primary"
 											>
 												{event.display_id ?? event.profile_name}
 											</Link>
@@ -63,9 +69,9 @@ export function ActivityPage() {
 								))}
 							</TableBody>
 						</Table>
-					)}
-				</CardContent>
-			</Card>
+					</div>
+				)}
+			</ContentSection>
 		</PageShell>
 	);
 }
