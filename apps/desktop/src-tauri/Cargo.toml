@@ -7,6 +7,7 @@ license = ""
 repository = ""
 edition = "2021"
 rust-version = "1.77.2"
+default-run = "profiledock-desktop"
 
 [lib]
 name = "app_lib"
@@ -39,6 +40,10 @@ tar = "0.4.46"
 flate2 = "1.1.10"
 futures-util = "0.3.34"
 open = "5.3.2"
+
+[[bin]]
+name = "seed-profiles"
+path = "src/bin/seed-profiles.rs"
 
 [dev-dependencies]
 tempfile = "3"

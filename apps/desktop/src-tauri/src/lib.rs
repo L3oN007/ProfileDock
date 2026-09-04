@@ -1,5 +1,6 @@
 mod application;
 mod commands;
+pub mod devtools;
 mod domain;
 mod error;
 mod infrastructure;
