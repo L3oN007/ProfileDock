@@ -1,16 +1,16 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Label } from "@ProfileDock/ui/components/label";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import { notion } from "@/app/design/system";
+import {
+	DetailRow,
+	PageShell,
+	PageTitle,
+	SectionBlock,
+} from "@/app/layout/page-shell";
 import {
 	useAutoConfigureCloak,
 	useCloakCapabilities,
@@ -59,21 +59,25 @@ export function BrowserSettingsPage() {
 
 	return (
 		<PageShell>
+			<PageTitle
+				title="Settings"
+				description="Configure CloakBrowser runtime and installation paths."
+			/>
 			<DesktopOnlyBanner />
 
-			<Card className={panelClassName}>
-				<CardHeader>
-					<CardTitle>Managed CloakBrowser Runtime</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<SettingRow
-						label="Active version"
-						value={runtimeStatus?.active_runtime?.version ?? "Not installed"}
-					/>
-					<SettingRow
-						label="Managed runtimes"
-						value={String(runtimeStatus?.managed_count ?? 0)}
-					/>
+			<div className="space-y-10">
+				<SectionBlock title="Managed CloakBrowser Runtime">
+					<div>
+						<DetailRow
+							label="Active version"
+							value={runtimeStatus?.active_runtime?.version ?? "Not installed"}
+						/>
+						<DetailRow
+							label="Managed runtimes"
+							value={String(runtimeStatus?.managed_count ?? 0)}
+						/>
+					</div>
+
 					{runtimeUpdateQuery.data?.update_available ? (
 						<p className="text-amber-400 text-sm">
 							Update available: {runtimeUpdateQuery.data.available_version}
@@ -83,7 +87,7 @@ export function BrowserSettingsPage() {
 					{installProgress &&
 					installProgress.phase !== "completed" &&
 					installProgress.phase !== "failed" ? (
-						<div className="space-y-2 rounded-md border border-border bg-background p-3 text-sm">
+						<div className="space-y-2 rounded-lg bg-muted/25 p-4 text-sm">
 							<p className="font-medium text-foreground">
 								Installing {installProgress.version ?? "CloakBrowser"}
 							</p>
@@ -92,9 +96,9 @@ export function BrowserSettingsPage() {
 								{installProgress.message ? ` · ${installProgress.message}` : ""}
 							</p>
 							{installProgress.percent != null ? (
-								<div className="h-2 overflow-hidden rounded-full bg-[#252a36]">
+								<div className="h-2 overflow-hidden rounded-full bg-muted">
 									<div
-										className="h-full bg-chart-1 transition-all"
+										className="h-full bg-primary transition-all"
 										style={{ width: `${installProgress.percent}%` }}
 									/>
 								</div>
@@ -102,128 +106,116 @@ export function BrowserSettingsPage() {
 						</div>
 					) : null}
 
-					<div className="flex flex-wrap gap-2">
-						<Button
-							className="bg-primary text-primary-foreground hover:bg-primary/90"
-							disabled={!desktop || installRuntime.isPending}
-							onClick={() => installRuntime.mutate(undefined)}
-						>
-							{runtimeStatus?.installed ? "Reinstall / Update" : "Install CloakBrowser"}
-						</Button>
-					</div>
+					<Button
+						disabled={!desktop || installRuntime.isPending}
+						onClick={() => installRuntime.mutate(undefined)}
+					>
+						{runtimeStatus?.installed ? "Reinstall / Update" : "Install CloakBrowser"}
+					</Button>
 
 					{(runtimeListQuery.data ?? []).length > 0 ? (
-						<div className="space-y-2 border-border border-t pt-4">
+						<div className="space-y-2 border-border/50 border-t pt-4">
 							<p className="font-medium text-foreground text-sm">Installed versions</p>
-							<ul className="space-y-2">
+							<ul className="divide-y divide-border/50">
 								{(runtimeListQuery.data ?? []).map((runtime) => (
-									<li
-										key={runtime.id}
-										className="rounded-md border border-border p-3 text-sm"
-									>
-										<div className="flex items-start justify-between gap-3">
-											<div>
-												<p className="text-foreground">
-													{runtime.version}
-													{runtime.active ? (
-														<span className="ml-2 text-emerald-400 text-xs">
-															Active
-														</span>
-													) : null}
-												</p>
-												<p className="font-mono text-muted-foreground text-xs">
-													{runtime.root_dir}
-												</p>
-											</div>
-											<div className="flex shrink-0 gap-2">
-												{!runtime.active ? (
-													<Button
-														size="sm"
-														variant="outline"
-														className="border-border"
-														disabled={
-															!desktop ||
-															activateRuntime.isPending ||
-															installRuntime.isPending
-														}
-														onClick={() => activateRuntime.mutate(runtime.id)}
-													>
-														Activate
-													</Button>
+									<li key={runtime.id} className="flex items-start justify-between gap-3 py-3 text-sm">
+										<div>
+											<p className="text-foreground">
+												{runtime.version}
+												{runtime.active ? (
+													<span className="ml-2 text-emerald-400 text-xs">
+														Active
+													</span>
 												) : null}
-												{!runtime.active ? (
-													<Button
-														size="sm"
-														variant="outline"
-														className="border-border text-red-400"
-														disabled={
-															!desktop ||
-															removeRuntime.isPending ||
-															installRuntime.isPending
-														}
-														onClick={() => removeRuntime.mutate(runtime.id)}
-													>
-														Remove
-													</Button>
-												) : null}
-											</div>
+											</p>
+											<p className="font-mono text-muted-foreground text-xs">
+												{runtime.root_dir}
+											</p>
+										</div>
+										<div className="flex shrink-0 gap-2">
+											{!runtime.active ? (
+												<Button
+													size="sm"
+													variant="outline"
+													disabled={
+														!desktop ||
+														activateRuntime.isPending ||
+														installRuntime.isPending
+													}
+													onClick={() => activateRuntime.mutate(runtime.id)}
+												>
+													Activate
+												</Button>
+											) : null}
+											{!runtime.active ? (
+												<Button
+													size="sm"
+													variant="outline"
+													className="text-destructive hover:text-destructive"
+													disabled={
+														!desktop ||
+														removeRuntime.isPending ||
+														installRuntime.isPending
+													}
+													onClick={() => removeRuntime.mutate(runtime.id)}
+												>
+													Remove
+												</Button>
+											) : null}
 										</div>
 									</li>
 								))}
 							</ul>
 						</div>
 					) : null}
-				</CardContent>
-			</Card>
+				</SectionBlock>
 
-			<Card className={panelClassName}>
-				<CardHeader>
-					<CardTitle>CloakBrowser Installation</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<SettingRow
-						label="Executable"
-						value={
-							<span className="break-all font-mono text-xs">
-								{installation?.executable ?? "Not configured"}
-							</span>
-						}
-					/>
-					<SettingRow
-						label="Installation directory"
-						value={
-							<span className="break-all font-mono text-xs">
-								{installation?.root_dir ?? "—"}
-							</span>
-						}
-					/>
-					<SettingRow
-						label="Cache directory"
-						value={
-							<span className="break-all font-mono text-xs">
-								{installation?.cache_dir ?? "—"}
-							</span>
-						}
-					/>
-					<SettingRow label="Version" value={installation?.version ?? "—"} />
-					<SettingRow
-						label="Status"
-						value={
-							<span className={statusColor}>
-								{!desktop
-									? "Desktop only"
-									: installation?.valid
-										? installation.compatible
-											? "Ready"
-											: "Detected (compatibility unknown)"
-										: installation?.executable
-											? "Invalid"
-											: "Not detected"}
-							</span>
-						}
-					/>
+				<SectionBlock title="CloakBrowser Installation">
+					<div>
+						<DetailRow
+							label="Executable"
+							value={
+								<span className="break-all font-mono text-xs">
+									{installation?.executable ?? "Not configured"}
+								</span>
+							}
+						/>
+						<DetailRow
+							label="Installation directory"
+							value={
+								<span className="break-all font-mono text-xs">
+									{installation?.root_dir ?? "—"}
+								</span>
+							}
+						/>
+						<DetailRow
+							label="Cache directory"
+							value={
+								<span className="break-all font-mono text-xs">
+									{installation?.cache_dir ?? "—"}
+								</span>
+							}
+						/>
+						<DetailRow label="Version" value={installation?.version ?? "—"} />
+						<DetailRow
+							label="Status"
+							value={
+								<span className={statusColor}>
+									{!desktop
+										? "Desktop only"
+										: installation?.valid
+											? installation.compatible
+												? "Ready"
+												: "Detected (compatibility unknown)"
+											: installation?.executable
+												? "Invalid"
+												: "Not detected"}
+								</span>
+							}
+						/>
+					</div>
 
-					<div className="space-y-2 rounded-md border border-border bg-background p-3 text-sm">
+					<div className="space-y-2 rounded-lg bg-muted/25 p-4 text-sm">
 						<p className="font-medium text-foreground">Development setup</p>
 						<p className="text-muted-foreground">
 							Ubuntu/Linux: <code className="text-xs">pnpm cloak:setup:linux</code>
@@ -238,7 +230,7 @@ export function BrowserSettingsPage() {
 					</div>
 
 					{capabilitiesQuery.data ? (
-						<div className="space-y-2 border-border border-t pt-4">
+						<div className="space-y-2 border-border/50 border-t pt-4">
 							<p className="font-medium text-foreground text-sm">Capabilities</p>
 							<CapabilityRow
 								label="Startup URLs"
@@ -260,60 +252,56 @@ export function BrowserSettingsPage() {
 					) : null}
 
 					{(discoveredQuery.data ?? []).length > 0 ? (
-						<div className="space-y-2 border-border border-t pt-4">
+						<div className="space-y-2 border-border/50 border-t pt-4">
 							<p className="font-medium text-foreground text-sm">
 								Discovered installations
 							</p>
-							<ul className="space-y-2">
+							<ul className="divide-y divide-border/50">
 								{(discoveredQuery.data ?? []).map((item) => (
 									<li
 										key={item.executable}
-										className="rounded-md border border-border p-3 text-sm"
+										className="flex items-start justify-between gap-3 py-3 text-sm"
 									>
-										<div className="flex items-start justify-between gap-3">
-											<div className="min-w-0">
-												<p className="truncate font-mono text-foreground text-xs">
-													{item.executable}
-												</p>
-												<p className="text-muted-foreground text-xs">
-													{item.version ?? "unknown version"} · {item.source}
-												</p>
-											</div>
-											<Button
-												size="sm"
-												variant="outline"
-												className="shrink-0 border-border"
-												disabled={!desktop || !item.valid || setExecutable.isPending}
-												onClick={() => setExecutable.mutate(item.executable)}
-											>
-												Use
-											</Button>
+										<div className="min-w-0">
+											<p className="truncate font-mono text-foreground text-xs">
+												{item.executable}
+											</p>
+											<p className="text-muted-foreground text-xs">
+												{item.version ?? "unknown version"} · {item.source}
+											</p>
 										</div>
+										<Button
+											size="sm"
+											variant="outline"
+											className="shrink-0"
+											disabled={!desktop || !item.valid || setExecutable.isPending}
+											onClick={() => setExecutable.mutate(item.executable)}
+										>
+											Use
+										</Button>
 									</li>
 								))}
 							</ul>
 						</div>
 					) : null}
 
-					<div className="space-y-2 border-border border-t pt-4">
+					<div className="space-y-2 border-border/50 border-t pt-4">
 						<Label htmlFor="browser-executable">Manual executable path</Label>
 						<Input
 							id="browser-executable"
-							className="border-border bg-background"
+							className={notion.input}
 							placeholder="~/.cloakbrowser/chromium-.../chrome"
 							value={executablePath}
 							onChange={(event) => setExecutablePath(event.target.value)}
 						/>
 						<div className="flex flex-wrap gap-2">
 							<Button
-								className="bg-primary text-primary-foreground hover:bg-primary/90"
 								disabled={!desktop || autoConfigure.isPending}
 								onClick={() => autoConfigure.mutate()}
 							>
 								Auto-detect
 							</Button>
 							<Button
-								className="bg-primary text-primary-foreground hover:bg-primary/90"
 								disabled={
 									!desktop || !executablePath || setExecutable.isPending
 								}
@@ -323,7 +311,6 @@ export function BrowserSettingsPage() {
 							</Button>
 							<Button
 								variant="outline"
-								className="border-border"
 								disabled={!desktop || validateInstallation.isPending}
 								onClick={() => validateInstallation.mutate()}
 							>
@@ -331,18 +318,9 @@ export function BrowserSettingsPage() {
 							</Button>
 						</div>
 					</div>
-				</CardContent>
-			</Card>
+				</SectionBlock>
+			</div>
 		</PageShell>
-	);
-}
-
-function SettingRow({ label, value }: { label: string; value: ReactNode }) {
-	return (
-		<div className="grid gap-1 border-border border-b py-2 text-sm last:border-0">
-			<span className="text-muted-foreground">{label}</span>
-			<div className="text-foreground">{value}</div>
-		</div>
 	);
 }
 

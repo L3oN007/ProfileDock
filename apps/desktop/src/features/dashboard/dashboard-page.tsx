@@ -1,12 +1,13 @@
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 
-import { PageShell, PageTitle, panelClassName } from "@/app/layout/page-shell";
+import {
+	DetailRow,
+	PageShell,
+	PageTitle,
+	SectionBlock,
+	StatsBar,
+	StatTile,
+} from "@/app/layout/page-shell";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { countryFlag, formatNetworkLocation } from "@/lib/network/ip-api";
 import { useBrowserStatus, useHealthCheck } from "@/lib/query/hooks";
@@ -58,7 +59,7 @@ export function DashboardPage() {
 			/>
 			<DesktopOnlyBanner />
 
-			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+			<StatsBar columns={4}>
 				<StatusCard
 					title="Database"
 					loading={desktop && healthQuery.isLoading}
@@ -93,26 +94,23 @@ export function DashboardPage() {
 							: undefined
 					}
 				/>
-			</div>
+			</StatsBar>
 
 			{networkQuery.data ? (
-				<Card className={panelClassName}>
-					<CardHeader className="pb-2">
-						<CardTitle className="text-base">Network location</CardTitle>
-					</CardHeader>
-					<CardContent className="grid gap-2 text-sm sm:grid-cols-2">
-						<InfoRow label="IP" value={networkQuery.data.ip} />
-						<InfoRow
+				<SectionBlock title="Network location">
+					<div>
+						<DetailRow label="IP" value={networkQuery.data.ip} />
+						<DetailRow
 							label="Area"
 							value={formatNetworkLocation(networkQuery.data)}
 						/>
-						<InfoRow label="ISP" value={networkQuery.data.isp ?? "—"} />
-						<InfoRow
+						<DetailRow label="ISP" value={networkQuery.data.isp ?? "—"} />
+						<DetailRow
 							label="Country"
 							value={`${countryFlag(networkQuery.data.countryCode)} ${networkQuery.data.country}`}
 						/>
-					</CardContent>
-				</Card>
+					</div>
+				</SectionBlock>
 			) : null}
 		</PageShell>
 	);
@@ -130,32 +128,24 @@ function StatusCard({
 	detail?: string;
 }) {
 	return (
-		<Card className={panelClassName}>
-			<CardHeader className="pb-2">
-				<CardTitle className="font-medium text-base">{title}</CardTitle>
-			</CardHeader>
-			<CardContent className="flex items-center gap-2 text-sm">
-				{loading ? (
-					<Skeleton className="h-4 w-24" />
+		<StatTile
+			label={title}
+			variant="segment"
+			value={
+				loading ? (
+					<Skeleton className="h-7 w-24" />
 				) : (
-					<>
+					<span className="flex items-center gap-2 text-base">
 						<StatusDot status={status} />
-						<span>{statusLabel(status)}</span>
+						<span className="font-medium text-sm">{statusLabel(status)}</span>
 						{detail ? (
-							<span className="truncate text-muted-foreground">({detail})</span>
+							<span className="truncate font-normal text-muted-foreground text-xs">
+								{detail}
+							</span>
 						) : null}
-					</>
-				)}
-			</CardContent>
-		</Card>
-	);
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-	return (
-		<div className="flex justify-between gap-3 border-border border-b py-2 last:border-0">
-			<span className="text-muted-foreground">{label}</span>
-			<span className="text-right text-foreground">{value}</span>
-		</div>
+					</span>
+				)
+			}
+		/>
 	);
 }

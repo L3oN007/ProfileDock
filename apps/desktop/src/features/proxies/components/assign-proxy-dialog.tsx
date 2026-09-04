@@ -19,6 +19,7 @@ import {
 	useUnassignProxy,
 } from "@/features/proxies/api/mutations";
 import { useProxies } from "@/features/proxies/api/queries";
+import { SectionBlock } from "@/app/layout/page-shell";
 import { ProxyHealthBadge } from "@/features/proxies/components/proxy-health-badge";
 import type { ProfileProxyAssignment } from "@/types/proxy";
 
@@ -131,31 +132,27 @@ export function ProfileNetworkCard({
 }: ProfileNetworkCardProps) {
 	if (isLoading) {
 		return (
-			<div className="rounded-lg border border-border bg-card p-4">
+			<SectionBlock title="Network">
 				<p className="text-muted-foreground text-sm">Loading network settings...</p>
-			</div>
+			</SectionBlock>
 		);
 	}
 
 	const proxy = assignment?.proxy;
 
 	return (
-		<div className="rounded-lg border border-border bg-card p-4">
-			<div className="flex items-center justify-between gap-3">
-				<h3 className="font-medium text-foreground">Network</h3>
-				<Button
-					size="sm"
-					variant="outline"
-					className="border-border"
-					disabled={isRunning}
-					onClick={onChangeProxy}
-				>
-					{proxy ? "Change Proxy" : "Assign Proxy"}
+		<SectionBlock
+			title="Network"
+			actions={
+				<Button size="sm" variant="outline" disabled={isRunning} onClick={onChangeProxy}>
+					{proxy ? "Change proxy" : "Assign proxy"}
 				</Button>
-			</div>
+			}
+			inset
+		>
 
 			{proxy ? (
-				<div className="mt-3 space-y-2 text-sm">
+				<div className="space-y-2 text-sm">
 					<p className="font-medium text-foreground">{proxy.name}</p>
 					<p className="text-muted-foreground text-xs uppercase">{proxy.protocol}</p>
 					<p className="font-mono text-foreground">
@@ -164,8 +161,8 @@ export function ProfileNetworkCard({
 					<ProxyHealthBadge status={proxy.healthStatus} />
 				</div>
 			) : (
-				<p className="mt-3 text-muted-foreground text-sm">No proxy assigned</p>
+				<p className="text-muted-foreground text-sm">No proxy assigned</p>
 			)}
-		</div>
+		</SectionBlock>
 	);
 }

@@ -1,15 +1,13 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 
-import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import {
+	DetailRow,
+	PageShell,
+	SectionBlock,
+} from "@/app/layout/page-shell";
 import { useCheckProxy } from "@/features/proxies/api/mutations";
 import {
 	useProxy,
@@ -52,7 +50,6 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 				{proxy ? (
 					<Button
 						variant="outline"
-						className="border-border"
 						disabled={checkProxy.isPending}
 						onClick={() => checkProxy.mutate(proxy.id)}
 					>
@@ -64,36 +61,30 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 
 			<DesktopOnlyBanner />
 
-			<div className="grid gap-4 lg:grid-cols-2">
-				<Card className={panelClassName}>
-					<CardHeader>
-						<CardTitle>Connection</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-2 text-sm">
-						<Row
+			<div className="grid gap-8 lg:grid-cols-2">
+				<SectionBlock title="Connection">
+					<div>
+						<DetailRow
 							label="Protocol"
 							value={proxy?.protocol.toUpperCase() ?? "—"}
 						/>
-						<Row label="Host" value={proxy?.host ?? "—"} />
-						<Row label="Port" value={proxy?.port?.toString() ?? "—"} />
-						<Row
+						<DetailRow label="Host" value={proxy?.host ?? "—"} />
+						<DetailRow label="Port" value={proxy?.port?.toString() ?? "—"} />
+						<DetailRow
 							label="Authentication"
 							value={proxy?.hasAuth ? "Enabled" : "Disabled"}
 						/>
-					</CardContent>
-				</Card>
+					</div>
+				</SectionBlock>
 
-				<Card className={panelClassName}>
-					<CardHeader>
-						<CardTitle>Last Check</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-2 text-sm">
-						<Row label="Status" value={proxy?.healthStatus ?? "—"} />
-						<Row
+				<SectionBlock title="Last check">
+					<div>
+						<DetailRow label="Status" value={proxy?.healthStatus ?? "—"} />
+						<DetailRow
 							label="Observed IP"
 							value={proxy?.lastCheck?.observedIp ?? "—"}
 						/>
-						<Row
+						<DetailRow
 							label="Latency"
 							value={
 								proxy?.lastCheck?.latencyMs != null
@@ -101,7 +92,7 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 									: "—"
 							}
 						/>
-						<Row
+						<DetailRow
 							label="Checked"
 							value={
 								proxy?.lastCheck?.checkedAt
@@ -109,82 +100,63 @@ export function ProxyDetailPage({ proxyId }: ProxyDetailPageProps) {
 									: "—"
 							}
 						/>
-					</CardContent>
-				</Card>
+					</div>
+				</SectionBlock>
 			</div>
 
-			<Card className={panelClassName}>
-				<CardHeader>
-					<CardTitle>Assignments</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{assignmentsQuery.isLoading ? (
-						<Skeleton className="h-12 w-full" />
-					) : (assignmentsQuery.data ?? []).length === 0 ? (
-						<p className="text-muted-foreground text-sm">
-							Not assigned to any profile.
-						</p>
-					) : (
-						<ul className="space-y-2 text-sm">
-							{(assignmentsQuery.data ?? []).map((assignment) => (
-								<li key={assignment.profileId}>
-									<Link
-										to="/profiles/$profileId"
-										params={{ profileId: assignment.profileId }}
-										className="text-sky-400 hover:underline"
-									>
-										{assignment.profileName}
-									</Link>
-								</li>
-							))}
-						</ul>
-					)}
-				</CardContent>
-			</Card>
-
-			<Card className={panelClassName}>
-				<CardHeader>
-					<CardTitle>Recent Checks</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{checksQuery.isLoading ? (
-						<Skeleton className="h-16 w-full" />
-					) : (
-						<ul className="space-y-2 text-sm">
-							{(checksQuery.data ?? []).map((check) => (
-								<li
-									key={check.checkedAt}
-									className="flex justify-between gap-4 border-border border-b py-2 last:border-0"
+			<SectionBlock title="Assignments">
+				{assignmentsQuery.isLoading ? (
+					<Skeleton className="h-12 w-full rounded-lg" />
+				) : (assignmentsQuery.data ?? []).length === 0 ? (
+					<p className="text-muted-foreground text-sm">
+						Not assigned to any profile.
+					</p>
+				) : (
+					<ul className="divide-y divide-border/50">
+						{(assignmentsQuery.data ?? []).map((assignment) => (
+							<li key={assignment.profileId} className="py-2 text-sm">
+								<Link
+									to="/profiles/$profileId"
+									params={{ profileId: assignment.profileId }}
+									className="text-primary hover:underline"
 								>
-									<span className="text-muted-foreground">
-										{new Date(check.checkedAt).toLocaleString()}
-									</span>
-									<span
-										className={
-											check.success ? "text-emerald-400" : "text-red-400"
-										}
-									>
-										{check.success ? "Success" : "Failed"}
-										{check.latencyMs != null ? ` · ${check.latencyMs}ms` : ""}
-									</span>
-								</li>
-							))}
-							{(checksQuery.data ?? []).length === 0 ? (
-								<li className="text-muted-foreground">No checks yet</li>
-							) : null}
-						</ul>
-					)}
-				</CardContent>
-			</Card>
-		</PageShell>
-	);
-}
+									{assignment.profileName}
+								</Link>
+							</li>
+						))}
+					</ul>
+				)}
+			</SectionBlock>
 
-function Row({ label, value }: { label: string; value: string }) {
-	return (
-		<div className="flex justify-between gap-4 border-border border-b py-2 last:border-0">
-			<span className="text-muted-foreground">{label}</span>
-			<span className="text-right text-foreground">{value}</span>
-		</div>
+			<SectionBlock title="Recent checks">
+				{checksQuery.isLoading ? (
+					<Skeleton className="h-16 w-full rounded-lg" />
+				) : (
+					<ul className="divide-y divide-border/50">
+						{(checksQuery.data ?? []).map((check) => (
+							<li
+								key={check.checkedAt}
+								className="flex justify-between gap-4 py-3 text-sm"
+							>
+								<span className="text-muted-foreground">
+									{new Date(check.checkedAt).toLocaleString()}
+								</span>
+								<span
+									className={
+										check.success ? "text-emerald-400" : "text-red-400"
+									}
+								>
+									{check.success ? "Success" : "Failed"}
+									{check.latencyMs != null ? ` · ${check.latencyMs}ms` : ""}
+								</span>
+							</li>
+						))}
+						{(checksQuery.data ?? []).length === 0 ? (
+							<li className="py-4 text-muted-foreground text-sm">No checks yet</li>
+						) : null}
+					</ul>
+				)}
+			</SectionBlock>
+		</PageShell>
 	);
 }

@@ -1,26 +1,15 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
 import { Input } from "@ProfileDock/ui/components/input";
 import { Label } from "@ProfileDock/ui/components/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@ProfileDock/ui/components/select";
 import { Switch } from "@ProfileDock/ui/components/switch";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { panelClassName } from "@/app/layout/page-shell";
+import { notion } from "@/app/design/system";
+import { SectionBlock } from "@/app/layout/page-shell";
 import { useUpdateBrowserSettings } from "@/features/profiles/api/mutations";
 import { useProfileBrowserSettings } from "@/features/profiles/api/queries";
+import { FormSelect } from "@/features/shared/form-select";
 import type { UpdateBrowserSettingsInput } from "@/types/cloak";
 
 interface ProfileBrowserTabProps {
@@ -74,17 +63,14 @@ export function ProfileBrowserTab({
 	};
 
 	return (
-		<Card className={panelClassName}>
-			<CardHeader>
-				<CardTitle>Browser</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-6">
-				{isRunning ? (
-					<p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-amber-200 text-sm">
-						Stop CloakBrowser before editing browser settings.
-					</p>
-				) : null}
+		<SectionBlock title="Browser">
+			{isRunning ? (
+				<p className="rounded-lg bg-amber-500/10 px-3 py-2 text-amber-600 text-sm dark:text-amber-300">
+					Stop CloakBrowser before editing browser settings.
+				</p>
+			) : null}
 
+			<div className="space-y-6">
 				<div className="space-y-3">
 					<p className="font-medium text-foreground text-sm">Startup</p>
 					<div className="flex items-center justify-between">
@@ -99,7 +85,7 @@ export function ProfileBrowserTab({
 
 					<div className="space-y-2">
 						<Label>Startup URLs</Label>
-						<div className="space-y-2 rounded-md border border-border p-3">
+						<div className="space-y-2 rounded-lg bg-muted/25 p-3">
 							{startupUrls.map((url) => (
 								<div key={url} className="flex items-center gap-2">
 									<span className="flex-1 truncate font-mono text-foreground text-xs">
@@ -127,6 +113,7 @@ export function ProfileBrowserTab({
 						</div>
 						<div className="flex gap-2">
 							<Input
+								className={notion.input}
 								placeholder="https://example.com"
 								value={newUrl}
 								disabled={isRunning}
@@ -141,59 +128,45 @@ export function ProfileBrowserTab({
 
 				<div className="space-y-3">
 					<p className="font-medium text-foreground text-sm">Downloads</p>
-					<div className="space-y-2">
-						<Label>Location</Label>
-						<Select
-							value={downloadMode}
+					<FormSelect
+						value={downloadMode}
+						disabled={isRunning}
+						onValueChange={(value) =>
+							setDownloadMode(value as "profile" | "custom")
+						}
+						options={[
+							{ value: "profile", label: "Profile downloads" },
+							{ value: "custom", label: "Custom" },
+						]}
+					/>
+					{downloadMode === "custom" ? (
+						<Input
+							className={notion.input}
+							placeholder="/path/to/downloads"
+							value={customDownloadDir}
 							disabled={isRunning}
-							onValueChange={(value) =>
-								setDownloadMode(value as "profile" | "custom")
-							}
-						>
-							<SelectTrigger className="border-border bg-background">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="profile">Profile Downloads</SelectItem>
-								<SelectItem value="custom">Custom</SelectItem>
-							</SelectContent>
-						</Select>
-						{downloadMode === "custom" ? (
-							<Input
-								placeholder="/path/to/downloads"
-								value={customDownloadDir}
-								disabled={isRunning}
-								onChange={(event) => setCustomDownloadDir(event.target.value)}
-							/>
-						) : null}
-					</div>
+							onChange={(event) => setCustomDownloadDir(event.target.value)}
+						/>
+					) : null}
 				</div>
 
 				<div className="space-y-3">
 					<p className="font-medium text-foreground text-sm">Window</p>
-					<div className="space-y-2">
-						<Label>Launch mode</Label>
-						<Select
-							value={windowMode}
-							disabled={isRunning}
-							onValueChange={(value) =>
-								setWindowMode(value as "normal" | "maximized")
-							}
-						>
-							<SelectTrigger className="border-border bg-background">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="normal">Normal</SelectItem>
-								<SelectItem value="maximized">Maximized</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
+					<FormSelect
+						value={windowMode}
+						disabled={isRunning}
+						onValueChange={(value) =>
+							setWindowMode(value as "normal" | "maximized")
+						}
+						options={[
+							{ value: "normal", label: "Normal" },
+							{ value: "maximized", label: "Maximized" },
+						]}
+					/>
 				</div>
 
 				<div className="flex justify-end">
 					<Button
-						className="bg-primary text-primary-foreground hover:bg-primary/90"
 						disabled={
 							isRunning || updateSettings.isPending || settingsQuery.isLoading
 						}
@@ -202,7 +175,7 @@ export function ProfileBrowserTab({
 						Save
 					</Button>
 				</div>
-			</CardContent>
-		</Card>
+			</div>
+		</SectionBlock>
 	);
 }

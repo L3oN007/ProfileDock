@@ -1,10 +1,4 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 import {
 	Tabs,
@@ -16,7 +10,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Play, Square } from "lucide-react";
 import { useState } from "react";
 
-import { PageShell, PageTitle, panelClassName } from "@/app/layout/page-shell";
+import { notion } from "@/app/design/system";
+import {
+	DetailRow,
+	PageShell,
+	PageTitle,
+	SectionBlock,
+} from "@/app/layout/page-shell";
 import { useCloakInstallation } from "@/features/cloak/api/queries";
 import {
 	useLaunchProfile,
@@ -105,7 +105,7 @@ function ProfileDetailPage() {
 			<DesktopOnlyBanner />
 
 			{preflightQuery.data && !preflightQuery.data.ready ? (
-				<div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive text-sm">
+				<div className="rounded-md bg-destructive/10 px-3 py-2 text-destructive text-sm">
 					Preflight failed.{" "}
 					{preflightQuery.data.warnings
 						.map((warning) => warning.message)
@@ -113,48 +113,33 @@ function ProfileDetailPage() {
 				</div>
 			) : null}
 
-			<Tabs
-				defaultValue="overview"
-				className="flex min-h-0 flex-1 flex-col gap-4"
-			>
-				<TabsList className="h-auto w-fit gap-1 bg-transparent p-0">
-					<TabsTrigger
-						value="overview"
-						className="rounded-md px-3 py-1.5 text-sm data-active:bg-accent data-active:shadow-none"
-					>
+			<Tabs defaultValue="overview" className="flex min-h-0 flex-1 flex-col gap-6">
+				<TabsList
+					variant="line"
+					className="h-auto w-full justify-start gap-6 rounded-none border-border/60 border-b bg-transparent p-0"
+				>
+					<TabsTrigger value="overview" className="rounded-none bg-transparent shadow-none">
 						Overview
 					</TabsTrigger>
-					<TabsTrigger
-						value="browser"
-						className="rounded-md px-3 py-1.5 text-sm data-active:bg-accent data-active:shadow-none"
-					>
+					<TabsTrigger value="browser" className="rounded-none bg-transparent shadow-none">
 						Browser
 					</TabsTrigger>
-					<TabsTrigger
-						value="network"
-						className="rounded-md px-3 py-1.5 text-sm data-active:bg-accent data-active:shadow-none"
-					>
+					<TabsTrigger value="network" className="rounded-none bg-transparent shadow-none">
 						Network
 					</TabsTrigger>
-					<TabsTrigger
-						value="activity"
-						className="rounded-md px-3 py-1.5 text-sm data-active:bg-accent data-active:shadow-none"
-					>
+					<TabsTrigger value="activity" className="rounded-none bg-transparent shadow-none">
 						Activity
 					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="overview" className="mt-0">
-					<div className="grid gap-4 lg:grid-cols-2">
+					<div className="grid gap-8 lg:grid-cols-2">
 						{profile ? <ProfileEditCard profile={profile} /> : (
-							<Skeleton className="h-64 w-full" />
+							<Skeleton className="h-64 w-full rounded-xl" />
 						)}
-						<Card className={panelClassName}>
-							<CardHeader>
-								<CardTitle className="text-base">Session</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-2 text-sm">
-								<Row
+						<SectionBlock title="Session" inset>
+							<div>
+								<DetailRow
 									label="Browser"
 									value={
 										cloakQuery.data?.version
@@ -162,7 +147,7 @@ function ProfileDetailPage() {
 											: "CloakBrowser"
 									}
 								/>
-								<Row
+								<DetailRow
 									label="Compatibility"
 									value={
 										cloakQuery.data?.compatible
@@ -172,24 +157,24 @@ function ProfileDetailPage() {
 												: "Not detected"
 									}
 								/>
-								<Row
+								<DetailRow
 									label="Network"
 									value={
 										assignmentQuery.data?.proxy?.name ?? "No proxy assigned"
 									}
 								/>
-								<Row label="PID" value={profile?.pid?.toString() ?? "—"} />
-								<Row
+								<DetailRow label="PID" value={profile?.pid?.toString() ?? "—"} />
+								<DetailRow
 									label="Last opened"
 									value={profile?.last_opened_at ?? "—"}
 								/>
-							</CardContent>
-						</Card>
+							</div>
+						</SectionBlock>
 						<ProfileStorageCard profileId={profileId} isRunning={isRunning} />
 					</div>
 				</TabsContent>
 
-				<TabsContent value="browser" className="mt-0 space-y-4">
+				<TabsContent value="browser" className="mt-0 space-y-8">
 					<ProfileBrowserTab profileId={profileId} isRunning={isRunning} />
 					<ProfileCookiesCard profileId={profileId} />
 				</TabsContent>
@@ -205,32 +190,32 @@ function ProfileDetailPage() {
 				</TabsContent>
 
 				<TabsContent value="activity" className="mt-0">
-					<Card className={panelClassName}>
-						<CardHeader>
-							<CardTitle className="text-base">Activity</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{eventsQuery.isLoading ? (
-								<Skeleton className="h-20 w-full" />
-							) : (
-								<ul className="space-y-2 text-sm">
-									{(eventsQuery.data ?? []).map((event) => (
-										<li key={event.id} className="flex justify-between gap-4">
-											<span className="text-muted-foreground">
-												{formatEvent(event.event_type)}
-											</span>
-											<span className="shrink-0 text-muted-foreground text-xs">
-												{new Date(event.created_at).toLocaleString()}
-											</span>
-										</li>
-									))}
-									{(eventsQuery.data ?? []).length === 0 ? (
-										<li className="text-muted-foreground">No activity yet</li>
-									) : null}
-								</ul>
-							)}
-						</CardContent>
-					</Card>
+					<SectionBlock title="Activity">
+						{eventsQuery.isLoading ? (
+							<Skeleton className="h-20 w-full rounded-lg" />
+						) : (
+							<ul className="divide-y divide-border/50">
+								{(eventsQuery.data ?? []).map((event) => (
+									<li
+										key={event.id}
+										className="flex justify-between gap-4 py-3 text-sm"
+									>
+										<span className="text-muted-foreground">
+											{formatEvent(event.event_type)}
+										</span>
+										<span className="shrink-0 text-muted-foreground text-xs">
+											{new Date(event.created_at).toLocaleString()}
+										</span>
+									</li>
+								))}
+								{(eventsQuery.data ?? []).length === 0 ? (
+									<li className="py-6 text-center text-muted-foreground text-sm">
+										No activity yet
+									</li>
+								) : null}
+							</ul>
+						)}
+					</SectionBlock>
 				</TabsContent>
 			</Tabs>
 
@@ -242,15 +227,6 @@ function ProfileDetailPage() {
 				isRunning={isRunning}
 			/>
 		</PageShell>
-	);
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-	return (
-		<div className="flex justify-between gap-4 border-border border-b py-2 last:border-0">
-			<span className="text-muted-foreground">{label}</span>
-			<span className="text-right text-foreground">{value}</span>
-		</div>
 	);
 }
 

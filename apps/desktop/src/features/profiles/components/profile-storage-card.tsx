@@ -1,13 +1,7 @@
 import { Button } from "@ProfileDock/ui/components/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@ProfileDock/ui/components/card";
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 
-import { panelClassName } from "@/app/layout/page-shell";
+import { DetailRow, SectionBlock } from "@/app/layout/page-shell";
 import { useClearProfileCache } from "@/features/profiles/api/mutations";
 import { useProfileStorage } from "@/features/profiles/api/queries";
 import { formatBytes } from "@/features/shared/format-bytes";
@@ -23,73 +17,44 @@ export function ProfileStorageCard({ profileId, isRunning }: ProfileStorageCardP
 	const storage = storageQuery.data;
 
 	return (
-		<Card className={panelClassName}>
-			<CardHeader>
-				<CardTitle>Storage</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				{storageQuery.isLoading ? (
-					<Skeleton className="h-24 w-full" />
-				) : (
-					<div className="space-y-2 text-sm">
-						<StorageRow
-							label="Browser data"
-							value={formatBytes(storage?.browser_data_bytes ?? 0)}
-						/>
-						<StorageRow
-							label="Cache"
-							value={formatBytes(storage?.cache_bytes ?? 0)}
-						/>
-						<StorageRow
-							label="Downloads"
-							value={formatBytes(storage?.downloads_bytes ?? 0)}
-						/>
-						<StorageRow
-							label="Total"
-							value={formatBytes(storage?.total_bytes ?? 0)}
-							emphasized
-						/>
-					</div>
-				)}
+		<SectionBlock title="Storage" inset>
+			{storageQuery.isLoading ? (
+				<Skeleton className="h-24 w-full rounded-lg" />
+			) : (
+				<div>
+					<DetailRow
+						label="Browser data"
+						value={formatBytes(storage?.browser_data_bytes ?? 0)}
+					/>
+					<DetailRow label="Cache" value={formatBytes(storage?.cache_bytes ?? 0)} />
+					<DetailRow
+						label="Downloads"
+						value={formatBytes(storage?.downloads_bytes ?? 0)}
+					/>
+					<DetailRow
+						label="Total"
+						value={formatBytes(storage?.total_bytes ?? 0)}
+					/>
+				</div>
+			)}
 
-				{isRunning ? (
-					<p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-amber-200 text-sm">
-						Stop the browser before clearing cache.
-					</p>
-				) : null}
-
-				<Button
-					variant="outline"
-					className="border-border"
-					disabled={isRunning || clearCache.isPending || storageQuery.isLoading}
-					onClick={() => clearCache.mutate()}
-				>
-					Clear cache
-				</Button>
-				<p className="text-muted-foreground text-xs">
-					Clears only the profile cache folder. Cookies, local storage, and browser
-					data are preserved.
+			{isRunning ? (
+				<p className="rounded-lg bg-amber-500/10 px-3 py-2 text-amber-600 text-sm dark:text-amber-300">
+					Stop the browser before clearing cache.
 				</p>
-			</CardContent>
-		</Card>
-	);
-}
+			) : null}
 
-function StorageRow({
-	label,
-	value,
-	emphasized,
-}: {
-	label: string;
-	value: string;
-	emphasized?: boolean;
-}) {
-	return (
-		<div className="flex justify-between gap-4 border-border border-b py-2 last:border-0">
-			<span className="text-muted-foreground">{label}</span>
-			<span className={emphasized ? "font-medium text-foreground" : "text-foreground"}>
-				{value}
-			</span>
-		</div>
+			<Button
+				variant="outline"
+				disabled={isRunning || clearCache.isPending || storageQuery.isLoading}
+				onClick={() => clearCache.mutate()}
+			>
+				Clear cache
+			</Button>
+			<p className="text-muted-foreground text-xs">
+				Clears only the profile cache folder. Cookies, local storage, and browser
+				data are preserved.
+			</p>
+		</SectionBlock>
 	);
 }

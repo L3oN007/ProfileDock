@@ -2,13 +2,12 @@ import { Badge } from "@ProfileDock/ui/components/badge";
 import { Button } from "@ProfileDock/ui/components/button";
 import { Checkbox } from "@ProfileDock/ui/components/checkbox";
 import { Input } from "@ProfileDock/ui/components/input";
-import { cn } from "@ProfileDock/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { notion } from "@/app/design/system";
-import { PageShell, PageTitle } from "@/app/layout/page-shell";
+import { PageShell, PageTab, PageTabs, PageTitle } from "@/app/layout/page-shell";
 import { useGroups } from "@/features/groups/api/queries";
 import { useCreateProfileFull } from "@/features/profiles/api/mutations";
 import { useProxies } from "@/features/proxies/api/queries";
@@ -187,21 +186,17 @@ export function NewProfilePage() {
 
 			<div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_260px]">
 				<div className="space-y-8">
-					<div className={notion.segmented}>
+					<PageTabs>
 						{tabs.map((item) => (
-							<button
+							<PageTab
 								key={item.id}
-								type="button"
-								className={cn(
-									notion.segmentedItem,
-									tab === item.id && notion.segmentedItemActive,
-								)}
+								active={tab === item.id}
 								onClick={() => setTab(item.id)}
 							>
 								{item.label}
-							</button>
+							</PageTab>
 						))}
-					</div>
+					</PageTabs>
 
 					<div className="max-w-2xl space-y-6">
 						{tab === "general" ? (

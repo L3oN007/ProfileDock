@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { notion } from "@/app/design/system";
+import { SectionBlock } from "@/app/layout/page-shell";
 import { useGroups } from "@/features/groups/api/queries";
 import { useUpdateProfileFull } from "@/features/profiles/api/mutations";
 import { FormField } from "@/features/shared/form-field";
@@ -74,14 +75,12 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 	};
 
 	return (
-		<section className={notion.surface}>
-			<div className="px-5 py-4">
-				<h2 className="font-medium text-base text-foreground">Profile details</h2>
-				<p className="mt-0.5 text-muted-foreground text-sm">
-					Update metadata and organization for this profile.
-				</p>
-			</div>
-			<div className="space-y-5 px-5 pb-5">
+		<SectionBlock
+			title="Profile details"
+			description="Update metadata and organization for this profile."
+			inset
+		>
+			<div className="space-y-5">
 				<FormField label="Display ID">
 					<Input
 						className={notion.input}
@@ -169,6 +168,6 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 					</Button>
 				</div>
 			</div>
-		</section>
+		</SectionBlock>
 	);
 }

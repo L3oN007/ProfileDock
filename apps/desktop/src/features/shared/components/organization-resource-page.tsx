@@ -46,6 +46,8 @@ import {
 	EmptyState,
 	PageShell,
 	PageTitle,
+	StatsBar,
+	StatTile,
 } from "@/app/layout/page-shell";
 import { FilterSelect } from "@/features/shared/filter-select";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
@@ -124,23 +126,7 @@ function StatCard({
 	value: string | number;
 	tone?: "default" | "warning" | "primary";
 }) {
-	const valueClass =
-		tone === "warning"
-			? "text-amber-600 dark:text-amber-400"
-			: tone === "primary"
-				? "text-primary"
-				: "text-foreground";
-
-	return (
-		<div className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
-			<p className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
-				{label}
-			</p>
-			<p className={cn("mt-1 font-semibold text-2xl tracking-tight", valueClass)}>
-				{value}
-			</p>
-		</div>
-	);
+	return <StatTile label={label} value={value} tone={tone} variant="segment" />;
 }
 
 interface OrganizationResourcePageProps {
@@ -271,7 +257,7 @@ export function OrganizationResourcePage({
 			/>
 			<DesktopOnlyBanner />
 
-			<div className="grid gap-3 sm:grid-cols-3">
+			<StatsBar columns={3}>
 				<StatCard label={`Total ${config.plural}`} value={stats.total} />
 				<StatCard
 					label="Profiles linked"
@@ -283,7 +269,7 @@ export function OrganizationResourcePage({
 					value={stats.unused}
 					tone={stats.unused > 0 ? "warning" : "default"}
 				/>
-			</div>
+			</StatsBar>
 
 			<ContentSection
 				title={`All ${config.plural}`}
@@ -319,7 +305,7 @@ export function OrganizationResourcePage({
 				contentClassName="p-0"
 			>
 				{someSelected ? (
-					<div className="flex flex-wrap items-center justify-between gap-3 border-border border-b bg-muted/30 px-5 py-3">
+					<div className="flex flex-wrap items-center justify-between gap-3 border-border/50 border-b bg-muted/20 px-0 py-3">
 						<p className="text-foreground text-sm">
 							<span className="font-medium">{selectedIds.length}</span> selected
 						</p>
@@ -354,7 +340,7 @@ export function OrganizationResourcePage({
 						/>
 					</div>
 				) : (
-					<div className={cn(notion.tableWrap, "rounded-none border-0 shadow-none")}>
+					<div className="overflow-hidden rounded-lg">
 						<Table>
 							<TableHeader>
 								<TableRow className={notion.tableHead}>

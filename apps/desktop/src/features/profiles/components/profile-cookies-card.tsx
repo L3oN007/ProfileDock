@@ -2,6 +2,7 @@ import { Button } from "@ProfileDock/ui/components/button";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { SectionBlock } from "@/app/layout/page-shell";
 import { pickOpenJsonFile, pickSaveJsonFile } from "@/lib/tauri/dialog";
 import { profileApi } from "@/lib/tauri/profile";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
@@ -49,17 +50,15 @@ export function ProfileCookiesCard({ profileId }: ProfileCookiesCardProps) {
 	};
 
 	return (
-		<div className="space-y-3 rounded-md border border-border p-3">
-			<p className="font-medium text-foreground text-sm">Cookies</p>
-			<p className="text-muted-foreground text-xs">
-				Import/export portable JSON cookie bundles. Files are validated before being
-				stored in the profile directory.
-			</p>
+		<SectionBlock
+			title="Cookies"
+			description="Import/export portable JSON cookie bundles. Files are validated before being stored in the profile directory."
+			inset
+		>
 			<div className="flex flex-wrap gap-2">
 				<Button
 					size="sm"
 					variant="outline"
-					className="border-border"
 					disabled={!desktop || isWorking}
 					onClick={handleExport}
 				>
@@ -68,13 +67,12 @@ export function ProfileCookiesCard({ profileId }: ProfileCookiesCardProps) {
 				<Button
 					size="sm"
 					variant="outline"
-					className="border-border"
 					disabled={!desktop || isWorking}
 					onClick={handleImport}
 				>
 					Import cookies
 				</Button>
 			</div>
-		</div>
+		</SectionBlock>
 	);
 }
