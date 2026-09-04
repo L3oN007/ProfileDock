@@ -134,6 +134,22 @@ impl BrowserProvider for CloakBrowserProvider {
             args.push(url);
         }
 
+        if let Some(proxy) = request.proxy {
+            let scheme = proxy.protocol.proxy_scheme();
+            let proxy_server = if let (Some(username), Some(password)) =
+                (&proxy.username, &proxy.password)
+            {
+                format!(
+                    "{scheme}://{username}:{password}@{host}:{port}",
+                    host = proxy.host,
+                    port = proxy.port
+                )
+            } else {
+                format!("{scheme}://{host}:{port}", host = proxy.host, port = proxy.port)
+            };
+            args.push(format!("--proxy-server={proxy_server}"));
+        }
+
         Ok(ProcessSpec {
             executable: executable.to_path_buf(),
             args,

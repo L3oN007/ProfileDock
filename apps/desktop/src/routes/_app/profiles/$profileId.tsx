@@ -3,8 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@ProfileDock/ui/compon
 import { Skeleton } from "@ProfileDock/ui/components/skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Play, Square } from "lucide-react";
+import { useState } from "react";
 
 import { PageShell, panelClassName } from "@/app/layout/page-shell";
+import {
+	AssignProxyDialog,
+	ProfileNetworkCard,
+} from "@/features/proxies/components/assign-proxy-dialog";
+import { useProfileProxyAssignment } from "@/features/proxies/api/queries";
 import { useLaunchProfile, useStopProfile } from "@/features/profiles/api/mutations";
 import { useProfile, useProfileEvents } from "@/features/profiles/api/queries";
 import { ProfileStatusBadge } from "@/features/profiles/components/profile-status-badge";
@@ -18,8 +24,10 @@ function ProfileDetailPage() {
 	const { profileId } = Route.useParams();
 	const profileQuery = useProfile(profileId);
 	const eventsQuery = useProfileEvents(profileId);
+	const assignmentQuery = useProfileProxyAssignment(profileId);
 	const launchProfile = useLaunchProfile();
 	const stopProfile = useStopProfile();
+	const [assignOpen, setAssignOpen] = useState(false);
 
 	const profile = profileQuery.data;
 	const isRunning = profile?.state === "running";
@@ -80,6 +88,14 @@ function ProfileDetailPage() {
 					</CardContent>
 				</Card>
 
+				<ProfileNetworkCard
+					profileId={profileId}
+					isRunning={isRunning}
+					assignment={assignmentQuery.data}
+					isLoading={assignmentQuery.isLoading}
+					onChangeProxy={() => setAssignOpen(true)}
+				/>
+
 				<Card className={panelClassName}>
 					<CardHeader>
 						<CardTitle>Activity</CardTitle>
@@ -107,6 +123,14 @@ function ProfileDetailPage() {
 					</CardContent>
 				</Card>
 			</div>
+
+			<AssignProxyDialog
+				open={assignOpen}
+				onOpenChange={setAssignOpen}
+				profileId={profileId}
+				assignment={assignmentQuery.data}
+				isRunning={isRunning}
+			/>
 		</PageShell>
 	);
 }

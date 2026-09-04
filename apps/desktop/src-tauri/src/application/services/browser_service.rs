@@ -100,6 +100,8 @@ impl BrowserService {
             .await?
             .ok_or(AppError::ProfileNotFound)?;
 
+        let resolved_proxy = state.proxy_service.resolve_for_profile(state, profile_id).await?;
+
         let paths = state.paths.profile(profile_id)?;
         let instance_id = Uuid::new_v4().to_string();
         let now = Utc::now();
@@ -126,6 +128,7 @@ impl BrowserService {
                 user_data_dir: paths.browser_data,
                 download_dir: paths.downloads,
                 startup_urls: settings.startup_urls,
+                proxy: resolved_proxy,
             },
             instance_id.clone(),
         )?;

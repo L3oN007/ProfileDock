@@ -72,6 +72,18 @@ pub fn run() {
             commands::profile::profile_stop,
             commands::profile::profile_get_instance,
             commands::profile::profile_list_events,
+            commands::proxy::proxy_list,
+            commands::proxy::proxy_get,
+            commands::proxy::proxy_create,
+            commands::proxy::proxy_update,
+            commands::proxy::proxy_archive,
+            commands::proxy::proxy_check,
+            commands::proxy::proxy_test_input,
+            commands::proxy::proxy_assign,
+            commands::proxy::proxy_unassign,
+            commands::proxy::proxy_get_profile_assignment,
+            commands::proxy::proxy_list_assignments,
+            commands::proxy::proxy_list_checks,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

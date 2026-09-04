@@ -40,6 +40,39 @@ pub enum AppError {
     #[error("profile is not running")]
     ProfileNotRunning,
 
+    #[error("profile proxy not assigned")]
+    ProfileProxyNotAssigned,
+
+    #[error("proxy not found")]
+    ProxyNotFound,
+
+    #[error("proxy invalid host: {0}")]
+    ProxyInvalidHost(String),
+
+    #[error("proxy invalid port: {0}")]
+    ProxyInvalidPort(u16),
+
+    #[error("proxy invalid protocol: {0}")]
+    ProxyInvalidProtocol(String),
+
+    #[error("proxy auth failed")]
+    ProxyAuthFailed,
+
+    #[error("proxy connection failed: {0}")]
+    ProxyConnectionFailed(String),
+
+    #[error("proxy connection timeout")]
+    ProxyConnectionTimeout,
+
+    #[error("proxy secret not found")]
+    ProxySecretNotFound,
+
+    #[error("proxy in use")]
+    ProxyInUse,
+
+    #[error("proxy archived")]
+    ProxyArchived,
+
     #[error("serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
 }
@@ -67,6 +100,17 @@ impl AppError {
             Self::ProfileRunning => "PROFILE_RUNNING",
             Self::ProfileArchived => "PROFILE_ARCHIVED",
             Self::ProfileNotRunning => "PROFILE_NOT_RUNNING",
+            Self::ProfileProxyNotAssigned => "PROFILE_PROXY_NOT_ASSIGNED",
+            Self::ProxyNotFound => "PROXY_NOT_FOUND",
+            Self::ProxyInvalidHost(_) => "PROXY_INVALID_HOST",
+            Self::ProxyInvalidPort(_) => "PROXY_INVALID_PORT",
+            Self::ProxyInvalidProtocol(_) => "PROXY_INVALID_PROTOCOL",
+            Self::ProxyAuthFailed => "PROXY_AUTH_FAILED",
+            Self::ProxyConnectionFailed(_) => "PROXY_CONNECTION_FAILED",
+            Self::ProxyConnectionTimeout => "PROXY_CONNECTION_TIMEOUT",
+            Self::ProxySecretNotFound => "PROXY_SECRET_NOT_FOUND",
+            Self::ProxyInUse => "PROXY_IN_USE",
+            Self::ProxyArchived => "PROXY_ARCHIVED",
             Self::Serialization(_) => "SERIALIZATION_ERROR",
         }
     }

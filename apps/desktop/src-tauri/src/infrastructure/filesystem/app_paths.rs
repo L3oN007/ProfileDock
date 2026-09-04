@@ -21,6 +21,7 @@ pub struct AppPaths {
     pub cache: PathBuf,
     pub temp: PathBuf,
     pub config: PathBuf,
+    pub secrets: PathBuf,
 }
 
 impl AppPaths {
@@ -39,6 +40,7 @@ impl AppPaths {
             cache: root.join("cache"),
             temp: root.join("temp"),
             config: root.join("config.json"),
+            secrets: root.join("secrets"),
             root,
         };
 
@@ -54,6 +56,7 @@ impl AppPaths {
             &self.browsers,
             &self.cache,
             &self.temp,
+            &self.secrets,
         ] {
             std::fs::create_dir_all(dir)?;
         }

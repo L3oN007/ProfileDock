@@ -5,6 +5,8 @@ use crate::error::AppError;
 const MIGRATION_001: &str = include_str!("migrations/001_app_metadata.sql");
 const MIGRATION_002: &str = include_str!("migrations/002_profiles.sql");
 
+const MIGRATION_003: &str = include_str!("migrations/003_proxies.sql");
+
 pub async fn run_migrations(pool: &SqlitePool) -> Result<(), AppError> {
     sqlx::query(
         "CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -17,6 +19,7 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<(), AppError> {
 
     apply_if_needed(pool, 1, MIGRATION_001).await?;
     apply_if_needed(pool, 2, MIGRATION_002).await?;
+    apply_if_needed(pool, 3, MIGRATION_003).await?;
 
     Ok(())
 }

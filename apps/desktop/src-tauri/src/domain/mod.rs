@@ -1,4 +1,5 @@
 pub mod profile;
+pub mod proxy;
 
 use serde::{Deserialize, Serialize};
 
