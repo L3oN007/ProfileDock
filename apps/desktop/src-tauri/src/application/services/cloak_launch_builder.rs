@@ -26,6 +26,7 @@ impl CloakLaunchBuilder {
 
         let mut args = vec![
             format!("--user-data-dir={}", config.user_data_dir.to_string_lossy()),
+            "--profile-directory=Default".to_string(),
             format!("--download-dir={}", config.download_dir.to_string_lossy()),
             "--no-first-run".to_string(),
             "--no-default-browser-check".to_string(),
@@ -318,6 +319,11 @@ mod tests {
             .iter()
             .any(|arg| arg.contains("AutomationControlled")));
         assert!(spec.args.iter().any(|arg| arg == "--ignore-gpu-blocklist"));
+        assert!(spec.args.iter().any(|arg| arg == "--profile-directory=Default"));
+        assert!(spec
+            .args
+            .iter()
+            .any(|arg| arg == "--user-data-dir=/data/profile/browser-data"));
         assert!(!spec
             .args
             .iter()

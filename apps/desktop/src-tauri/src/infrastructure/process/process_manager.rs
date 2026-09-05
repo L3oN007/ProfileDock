@@ -208,6 +208,10 @@ impl ProcessManager {
     }
 
     pub fn is_pid_alive(pid: u32) -> bool {
+        if pid == 0 {
+            return false;
+        }
+
         #[cfg(unix)]
         {
             use std::process::Command;
@@ -217,11 +221,42 @@ impl ProcessManager {
                 .map(|status| status.success())
                 .unwrap_or(false)
         }
-        #[cfg(not(unix))]
+        #[cfg(windows)]
+        {
+            windows_pid::is_alive(pid)
+        }
+        #[cfg(not(any(unix, windows)))]
         {
             let _ = pid;
             false
         }
+    }
+}
+
+#[cfg(windows)]
+mod windows_pid {
+    use std::ffi::c_void;
+
+    const PROCESS_QUERY_LIMITED_INFORMATION: u32 = 0x1000;
+    const STILL_ACTIVE: u32 = 259;
+
+    extern "system" {
+        fn OpenProcess(dwDesiredAccess: u32, bInheritHandle: i32, dwProcessId: u32) -> *mut c_void;
+        fn GetExitCodeProcess(hProcess: *mut c_void, lpExitCode: *mut u32) -> i32;
+        fn CloseHandle(hObject: *mut c_void) -> i32;
+    }
+
+    pub fn is_alive(pid: u32) -> bool {
+        let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid) };
+        if handle.is_null() {
+            return false;
+        }
+
+        let mut exit_code = 0u32;
+        let success = unsafe { GetExitCodeProcess(handle, &mut exit_code) };
+        unsafe { CloseHandle(handle) };
+
+        success != 0 && exit_code == STILL_ACTIVE
     }
 }
 
