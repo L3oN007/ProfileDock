@@ -32,6 +32,7 @@ import {
 	ArrowUpRight,
 	type LucideIcon,
 	MoreHorizontal,
+	Palette,
 	Pencil,
 	Plus,
 	RefreshCw,
@@ -51,12 +52,22 @@ import {
 import { RouterButton } from "@/components/router-button";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { FilterSelect } from "@/features/shared/filter-select";
+import {
+	DEFAULT_TAG_COLOR,
+	TagColorPicker,
+} from "@/features/tags/components/tag-color-picker";
+import { TagBadge } from "@/features/tags/components/tag-badge";
+import {
+	type TagColorId,
+	isTagColorId,
+} from "@/features/tags/lib/tag-colors";
 
 export interface OrganizationResource {
 	id: string;
 	name: string;
 	profile_count: number;
 	created_at: string;
+	color?: string;
 }
 
 export interface OrganizationResourceConfig {
@@ -70,6 +81,7 @@ export interface OrganizationResourceConfig {
 	emptyDescription: string;
 	Icon: LucideIcon;
 	profilesFilterKey: "groupId" | "tagId";
+	showTagColor?: boolean;
 }
 
 type SortKey =
@@ -139,12 +151,14 @@ interface OrganizationResourcePageProps {
 	isLoading: boolean;
 	isFetching: boolean;
 	onRefresh: () => void;
-	onCreate: (name: string) => void;
+	onCreate: (name: string, color?: string) => void;
 	isCreating: boolean;
 	onDelete: (id: string) => void;
 	onRename?: (id: string, name: string) => void;
+	onUpdateColor?: (id: string, color: string) => void;
 	isDeleting?: boolean;
 	isRenaming?: boolean;
+	isUpdatingColor?: boolean;
 }
 
 export function OrganizationResourcePage({
@@ -157,8 +171,10 @@ export function OrganizationResourcePage({
 	isCreating,
 	onDelete,
 	onRename,
+	onUpdateColor,
 	isDeleting = false,
 	isRenaming = false,
+	isUpdatingColor = false,
 }: OrganizationResourcePageProps) {
 	const navigate = useNavigate();
 	const [search, setSearch] = useState("");
@@ -166,6 +182,7 @@ export function OrganizationResourcePage({
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 	const [createOpen, setCreateOpen] = useState(false);
 	const [createName, setCreateName] = useState("");
+	const [createColor, setCreateColor] = useState<TagColorId>(DEFAULT_TAG_COLOR);
 	const [renameTarget, setRenameTarget] = useState<OrganizationResource | null>(
 		null,
 	);
@@ -173,6 +190,9 @@ export function OrganizationResourcePage({
 	const [deleteTarget, setDeleteTarget] = useState<OrganizationResource | null>(
 		null,
 	);
+	const [colorEditTarget, setColorEditTarget] =
+		useState<OrganizationResource | null>(null);
+	const [editColor, setEditColor] = useState<TagColorId>(DEFAULT_TAG_COLOR);
 
 	const filteredItems = useMemo(() => {
 		const query = search.trim().toLowerCase();
@@ -213,8 +233,9 @@ export function OrganizationResourcePage({
 	const handleCreate = () => {
 		const trimmed = createName.trim();
 		if (!trimmed) return;
-		onCreate(trimmed);
+		onCreate(trimmed, config.showTagColor ? createColor : undefined);
 		setCreateName("");
+		setCreateColor(DEFAULT_TAG_COLOR);
 		setCreateOpen(false);
 	};
 
@@ -225,6 +246,19 @@ export function OrganizationResourcePage({
 		onRename(renameTarget.id, trimmed);
 		setRenameTarget(null);
 		setRenameName("");
+	};
+
+	const openColorEditor = (item: OrganizationResource) => {
+		setColorEditTarget(item);
+		setEditColor(
+			item.color && isTagColorId(item.color) ? item.color : DEFAULT_TAG_COLOR,
+		);
+	};
+
+	const handleUpdateColor = () => {
+		if (!colorEditTarget || !onUpdateColor) return;
+		onUpdateColor(colorEditTarget.id, editColor);
+		setColorEditTarget(null);
 	};
 
 	const handleDelete = () => {
@@ -380,12 +414,34 @@ export function OrganizationResourcePage({
 											</TableCell>
 											<TableCell>
 												<div className="flex items-center gap-2.5">
-													<div className="flex size-7 items-center justify-center rounded-md border border-border/70 bg-surface">
-														<config.Icon className="size-3.5 text-muted-foreground" />
-													</div>
-													<span className="font-medium text-foreground text-sm">
-														{item.name}
-													</span>
+													{config.showTagColor && item.color ? (
+														<button
+															type="button"
+															className={cn(
+																"rounded-md transition-opacity",
+																onUpdateColor
+																	? "cursor-pointer hover:opacity-80"
+																	: "cursor-default",
+															)}
+															onClick={() => {
+																if (onUpdateColor) openColorEditor(item);
+															}}
+															title={
+																onUpdateColor ? "Change tag color" : undefined
+															}
+														>
+															<TagBadge name={item.name} color={item.color} />
+														</button>
+													) : (
+														<>
+															<div className="flex size-7 items-center justify-center rounded-md border border-border/70 bg-surface">
+																<config.Icon className="size-3.5 text-muted-foreground" />
+															</div>
+															<span className="font-medium text-foreground text-sm">
+																{item.name}
+															</span>
+														</>
+													)}
 												</div>
 											</TableCell>
 											<TableCell>
@@ -435,6 +491,15 @@ export function OrganizationResourcePage({
 																>
 																	<Pencil className="size-3.5" />
 																	Rename
+																</DropdownMenuItem>
+															) : null}
+															{config.showTagColor && onUpdateColor ? (
+																<DropdownMenuItem
+																	className="gap-2 rounded-sm"
+																	onClick={() => openColorEditor(item)}
+																>
+																	<Palette className="size-3.5" />
+																	Change color
 																</DropdownMenuItem>
 															) : null}
 															<DropdownMenuItem
@@ -489,6 +554,15 @@ export function OrganizationResourcePage({
 							if (e.key === "Enter") handleCreate();
 						}}
 					/>
+					{config.showTagColor ? (
+						<div className="space-y-2">
+							<p className="text-muted-foreground text-xs">Color</p>
+							<TagColorPicker
+								value={createColor}
+								onChange={setCreateColor}
+							/>
+						</div>
+					) : null}
 					<DialogFooter>
 						<Button variant="outline" onClick={() => setCreateOpen(false)}>
 							Cancel
@@ -535,6 +609,47 @@ export function OrganizationResourcePage({
 								disabled={!renameName.trim() || isRenaming}
 								onClick={handleRename}
 							>
+								Save
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			) : null}
+
+			{config.showTagColor && onUpdateColor ? (
+				<Dialog
+					open={colorEditTarget != null}
+					onOpenChange={(open) => {
+						if (!open) setColorEditTarget(null);
+					}}
+				>
+					<DialogContent className="rounded-xl sm:max-w-md">
+						<DialogHeader>
+							<DialogTitle>Change tag color</DialogTitle>
+							<DialogDescription>
+								Pick a new color for &ldquo;{colorEditTarget?.name}&rdquo;.
+							</DialogDescription>
+						</DialogHeader>
+						<div className="space-y-3">
+							{colorEditTarget?.color ? (
+								<div className="flex items-center gap-2">
+									<span className="text-muted-foreground text-xs">Current</span>
+									<TagBadge
+										name={colorEditTarget.name}
+										color={colorEditTarget.color}
+									/>
+								</div>
+							) : null}
+							<div className="space-y-2">
+								<p className="text-muted-foreground text-xs">New color</p>
+								<TagColorPicker value={editColor} onChange={setEditColor} />
+							</div>
+						</div>
+						<DialogFooter>
+							<Button variant="outline" onClick={() => setColorEditTarget(null)}>
+								Cancel
+							</Button>
+							<Button disabled={isUpdatingColor} onClick={handleUpdateColor}>
 								Save
 							</Button>
 						</DialogFooter>

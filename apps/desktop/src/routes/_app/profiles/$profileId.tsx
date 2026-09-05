@@ -194,6 +194,10 @@ function ProfileDetailPage() {
 									}
 								/>
 								<DetailRow
+									label="GG account"
+									value={profile?.google_account ?? "Not signed in"}
+								/>
+								<DetailRow
 									label="PID"
 									value={profile?.pid?.toString() ?? "—"}
 								/>

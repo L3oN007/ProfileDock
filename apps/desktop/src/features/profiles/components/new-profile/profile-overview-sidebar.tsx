@@ -1,4 +1,4 @@
-import { Badge } from "@ProfileDock/ui/components/badge";
+import { TagBadgeList } from "@/features/tags/components/tag-badge";
 import { Button } from "@ProfileDock/ui/components/button";
 import { RefreshCw } from "lucide-react";
 import type { ReactNode } from "react";
@@ -74,14 +74,11 @@ export function ProfileOverviewSidebar({
 					<OverviewRow
 						label="Tags"
 						value={
-							(form.tags ?? []).length > 0 ? (
-								<div className="flex flex-wrap justify-end gap-1">
-									{(form.tags ?? []).map((tag) => (
-										<Badge key={tag} variant="neutral">
-											{tag}
-										</Badge>
-									))}
-								</div>
+							(form.tagItems ?? []).length > 0 ? (
+								<TagBadgeList
+									tags={form.tagItems ?? []}
+									className="justify-end"
+								/>
 							) : (
 								"—"
 							)

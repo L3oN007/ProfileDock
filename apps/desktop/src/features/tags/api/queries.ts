@@ -3,7 +3,8 @@ import { toast } from "sonner";
 
 import { tagApi } from "@/lib/tauri/tag";
 import type { AppError } from "@/types/app";
-import type { CreateTagInput } from "@/types/tag";
+import type { CreateTagInput, UpdateTagInput } from "@/types/tag";
+import { profileKeys } from "@/features/profiles/api/profile-keys";
 
 export const tagKeys = {
 	all: ["tags"] as const,
@@ -36,6 +37,20 @@ export function useDeleteTag() {
 		onSuccess: () => {
 			toast.success("Tag deleted");
 			queryClient.invalidateQueries({ queryKey: tagKeys.all });
+		},
+		onError: (error: AppError) => toast.error(error.message),
+	});
+}
+
+export function useUpdateTag() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, input }: { id: string; input: UpdateTagInput }) =>
+			tagApi.update(id, input),
+		onSuccess: () => {
+			toast.success("Tag updated");
+			queryClient.invalidateQueries({ queryKey: tagKeys.all });
+			queryClient.invalidateQueries({ queryKey: profileKeys.all });
 		},
 		onError: (error: AppError) => toast.error(error.message),
 	});

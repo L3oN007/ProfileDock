@@ -1,13 +1,15 @@
-import { Badge } from "@ProfileDock/ui/components/badge";
 import { Button } from "@ProfileDock/ui/components/button";
 import { Input } from "@ProfileDock/ui/components/input";
-import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { notion } from "@/app/design/system";
 import { SectionBlock } from "@/app/layout/page-shell";
 import { useGroups } from "@/features/groups/api/queries";
 import { useUpdateProfileFull } from "@/features/profiles/api/mutations";
+import {
+	TagPicker,
+	type SelectedTag,
+} from "@/features/tags/components/tag-picker";
 import { FormField } from "@/features/shared/form-field";
 import { FormSelect } from "@/features/shared/form-select";
 import type { Profile } from "@/types/profile";
@@ -16,6 +18,14 @@ const NONE_VALUE = "__none__";
 
 interface ProfileEditCardProps {
 	profile: Profile;
+}
+
+function profileTagsToSelected(tags: Profile["tags"]): SelectedTag[] {
+	return tags.map((tag) => ({
+		id: tag.id,
+		name: tag.name,
+		color: tag.color,
+	}));
 }
 
 export function ProfileEditCard({ profile }: ProfileEditCardProps) {
@@ -28,8 +38,9 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 	const [platformLabel, setPlatformLabel] = useState(
 		profile.platform_label ?? "",
 	);
-	const [tags, setTags] = useState<string[]>(profile.tags);
-	const [tagInput, setTagInput] = useState("");
+	const [tagItems, setTagItems] = useState<SelectedTag[]>(
+		profileTagsToSelected(profile.tags),
+	);
 
 	const groupOptions = useMemo(
 		() => [
@@ -48,19 +59,8 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 		setRemark(profile.remark ?? "");
 		setNotes(profile.notes ?? "");
 		setPlatformLabel(profile.platform_label ?? "");
-		setTags(profile.tags);
+		setTagItems(profileTagsToSelected(profile.tags));
 	}, [profile]);
-
-	const addTag = () => {
-		const value = tagInput.trim();
-		if (!value) return;
-		setTags((current) => [...new Set([...current, value])]);
-		setTagInput("");
-	};
-
-	const removeTag = (tag: string) => {
-		setTags((current) => current.filter((item) => item !== tag));
-	};
 
 	const handleSave = () => {
 		updateProfile.mutate({
@@ -68,7 +68,8 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 			input: {
 				name: name.trim(),
 				groupId: groupId === NONE_VALUE ? null : groupId,
-				tags,
+				tagItems,
+				tags: tagItems.map((tag) => tag.name),
 				remark,
 				notes,
 				platformLabel,
@@ -112,40 +113,7 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 					/>
 				</FormField>
 				<FormField label="Tags">
-					<div className="flex gap-2">
-						<Input
-							className={notion.input}
-							placeholder="Add a tag"
-							value={tagInput}
-							onChange={(e) => setTagInput(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter") {
-									e.preventDefault();
-									addTag();
-								}
-							}}
-						/>
-						<Button variant="outline" onClick={addTag}>
-							Add
-						</Button>
-					</div>
-					{tags.length > 0 ? (
-						<div className="flex flex-wrap gap-1.5 pt-2">
-							{tags.map((tag) => (
-								<Badge key={tag} variant="neutral" className="gap-1 pr-1.5">
-									{tag}
-									<button
-										type="button"
-										className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-										onClick={() => removeTag(tag)}
-										aria-label={`Remove ${tag}`}
-									>
-										<X className="size-3" />
-									</button>
-								</Badge>
-							))}
-						</div>
-					) : null}
+					<TagPicker value={tagItems} onChange={setTagItems} />
 				</FormField>
 				<FormField label="Remark">
 					<Input
@@ -161,14 +129,9 @@ export function ProfileEditCard({ profile }: ProfileEditCardProps) {
 						onChange={(e) => setNotes(e.target.value)}
 					/>
 				</FormField>
-				<div className="flex justify-end pt-1">
-					<Button
-						disabled={!name.trim() || updateProfile.isPending}
-						onClick={handleSave}
-					>
-						Save changes
-					</Button>
-				</div>
+				<Button onClick={handleSave} disabled={updateProfile.isPending}>
+					Save changes
+				</Button>
 			</div>
 		</SectionBlock>
 	);

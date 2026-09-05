@@ -1,4 +1,3 @@
-import { Badge } from "@ProfileDock/ui/components/badge";
 import { Button } from "@ProfileDock/ui/components/button";
 import { Checkbox } from "@ProfileDock/ui/components/checkbox";
 import { Input } from "@ProfileDock/ui/components/input";
@@ -35,6 +34,7 @@ import {
 	parsePlatformLabel,
 } from "@/features/profiles/lib/platform-config";
 import { useProxies } from "@/features/proxies/api/queries";
+import { TagPicker } from "@/features/tags/components/tag-picker";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { FormField } from "@/features/shared/form-field";
 import { FormSelect } from "@/features/shared/form-select";
@@ -74,6 +74,7 @@ const defaultOs = defaultOsSelection();
 const defaultForm: NewProfileDraft = {
 	name: "",
 	tags: [],
+	tagItems: [],
 	proxyMode: "none",
 	osFamily: defaultOs.osFamily,
 	osVersion: defaultOs.osVersion,
@@ -96,7 +97,6 @@ export function NewProfilePage() {
 	const presetsQuery = useDevicePresets();
 	const [tab, setTab] = useState<TabId>("general");
 	const [form, setForm] = useState<NewProfileDraft>(defaultForm);
-	const [tagInput, setTagInput] = useState("");
 	const [startupUrl, setStartupUrl] = useState("");
 	const [draftRestored, setDraftRestored] = useState(false);
 	const [previewSeed, setPreviewSeed] = useState(() =>
@@ -171,23 +171,6 @@ export function NewProfilePage() {
 		return () => window.clearTimeout(timer);
 	}, [form]);
 
-	const addTag = () => {
-		const value = tagInput.trim();
-		if (!value) return;
-		setForm((current) => ({
-			...current,
-			tags: [...new Set([...(current.tags ?? []), value])],
-		}));
-		setTagInput("");
-	};
-
-	const removeTag = (tag: string) => {
-		setForm((current) => ({
-			...current,
-			tags: (current.tags ?? []).filter((item) => item !== tag),
-		}));
-	};
-
 	const handleCreate = async () => {
 		const {
 			osFamily: draftOsFamily,
@@ -208,7 +191,6 @@ export function NewProfilePage() {
 
 	const clearDraft = () => {
 		setForm(defaultForm);
-		setTagInput("");
 		setStartupUrl("");
 		localStorage.removeItem(DRAFT_STORAGE_KEY);
 		setDraftRestored(false);
@@ -304,46 +286,18 @@ export function NewProfilePage() {
 								</FormField>
 								<FormField
 									label="Tags"
-									hint="Press Enter or click Add to create a tag."
+									hint="Search existing tags or create a new one with a color."
 								>
-									<div className="flex gap-2">
-										<Input
-											className={notion.input}
-											placeholder="Add a tag"
-											value={tagInput}
-											onChange={(e) => setTagInput(e.target.value)}
-											onKeyDown={(e) => {
-												if (e.key === "Enter") {
-													e.preventDefault();
-													addTag();
-												}
-											}}
-										/>
-										<Button variant="outline" onClick={addTag}>
-											Add
-										</Button>
-									</div>
-									{(form.tags ?? []).length > 0 ? (
-										<div className="flex flex-wrap gap-1.5 pt-2">
-											{(form.tags ?? []).map((tag) => (
-												<Badge
-													key={tag}
-													variant="neutral"
-													className="gap-1 pr-1.5"
-												>
-													{tag}
-													<button
-														type="button"
-														className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-														onClick={() => removeTag(tag)}
-														aria-label={`Remove ${tag}`}
-													>
-														<X className="size-3" />
-													</button>
-												</Badge>
-											))}
-										</div>
-									) : null}
+									<TagPicker
+										value={form.tagItems ?? []}
+										onChange={(tagItems) =>
+											setForm((current) => ({
+												...current,
+												tagItems,
+												tags: tagItems.map((tag) => tag.name),
+											}))
+										}
+									/>
 								</FormField>
 								<FormField
 									label="Cookies"

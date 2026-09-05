@@ -34,6 +34,7 @@ import {
 	type ProfileColumnId,
 	useProfileListPreferences,
 } from "@/features/profiles/hooks/use-profile-list-preferences";
+import { TagBadgeList } from "@/features/tags/components/tag-badge";
 import { DesktopOnlyBanner } from "@/features/shared/desktop-only-banner";
 import { isDesktopRuntime } from "@/lib/tauri/runtime";
 import type { Profile } from "@/types/profile";
@@ -271,6 +272,9 @@ export function ProfilesPage() {
 									{visibleColumns.has("proxy") ? (
 										<TableHead>Proxy</TableHead>
 									) : null}
+									{visibleColumns.has("googleAccount") ? (
+										<TableHead>GG account</TableHead>
+									) : null}
 									{visibleColumns.has("status") ? (
 										<TableHead>Status</TableHead>
 									) : null}
@@ -431,13 +435,18 @@ function ProfileRow({
 				</TableCell>
 			) : null}
 			{visibleColumns.has("tags") ? (
-				<TableCell className="max-w-[140px] truncate text-muted-foreground">
-					{profile.tags.length ? profile.tags.join(", ") : "—"}
+				<TableCell className="max-w-[200px]">
+					<TagBadgeList tags={profile.tags} />
 				</TableCell>
 			) : null}
 			{visibleColumns.has("proxy") ? (
 				<TableCell className="text-muted-foreground">
 					{profile.proxy_name ?? "—"}
+				</TableCell>
+			) : null}
+			{visibleColumns.has("googleAccount") ? (
+				<TableCell className="max-w-[180px] truncate text-muted-foreground">
+					{profile.google_account ?? "—"}
 				</TableCell>
 			) : null}
 			{visibleColumns.has("status") ? (

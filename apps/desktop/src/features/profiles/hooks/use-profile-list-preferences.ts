@@ -9,7 +9,8 @@ export type ProfileColumnId =
 	| "lastLaunch"
 	| "remark"
 	| "displayId"
-	| "platform";
+	| "platform"
+	| "googleAccount";
 
 export type ProfileListDensity = "compact" | "comfortable";
 
@@ -18,7 +19,7 @@ export interface ProfileListPreferences {
 	density: ProfileListDensity;
 }
 
-const STORAGE_KEY = "profiledock.profile-list-preferences";
+const STORAGE_KEY = "profiledock.profile-list-preferences.v2";
 
 export const PROFILE_COLUMN_OPTIONS: {
 	id: ProfileColumnId;
@@ -29,6 +30,7 @@ export const PROFILE_COLUMN_OPTIONS: {
 	{ id: "group", label: "Group" },
 	{ id: "tags", label: "Tags" },
 	{ id: "proxy", label: "Proxy" },
+	{ id: "googleAccount", label: "GG account" },
 	{ id: "status", label: "Status" },
 	{ id: "lastLaunch", label: "Last launch" },
 	{ id: "remark", label: "Remark" },
@@ -36,9 +38,27 @@ export const PROFILE_COLUMN_OPTIONS: {
 ];
 
 const DEFAULT_PREFERENCES: ProfileListPreferences = {
-	columns: ["name", "group", "tags", "proxy", "status", "lastLaunch", "remark"],
+	columns: ["name", "group", "tags", "proxy", "googleAccount", "status", "lastLaunch", "remark"],
 	density: "comfortable",
 };
+
+const AUTO_MERGE_COLUMNS: ProfileColumnId[] = ["googleAccount"];
+
+function mergeColumns(saved: ProfileColumnId[]): ProfileColumnId[] {
+	const merged = [...saved];
+	for (const column of AUTO_MERGE_COLUMNS) {
+		if (merged.includes(column)) {
+			continue;
+		}
+		const proxyIndex = merged.indexOf("proxy");
+		if (proxyIndex >= 0) {
+			merged.splice(proxyIndex + 1, 0, column);
+		} else {
+			merged.push(column);
+		}
+	}
+	return merged;
+}
 
 function loadPreferences(): ProfileListPreferences {
 	try {
@@ -49,7 +69,7 @@ function loadPreferences(): ProfileListPreferences {
 			return DEFAULT_PREFERENCES;
 		}
 		return {
-			columns: parsed.columns,
+			columns: mergeColumns(parsed.columns),
 			density: parsed.density === "compact" ? "compact" : "comfortable",
 		};
 	} catch {

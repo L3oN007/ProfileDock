@@ -1,4 +1,5 @@
 import type { CreateProfileDeviceInput } from "@/types/device";
+import type { ProfileTag, TagAssignment } from "@/types/tag";
 
 export type ProfileState = "ready" | "running" | "error" | "archived";
 
@@ -9,7 +10,7 @@ export interface Profile {
 	description: string | null;
 	group_id: string | null;
 	group_name: string | null;
-	tags: string[];
+	tags: ProfileTag[];
 	remark: string | null;
 	notes: string | null;
 	platform_label: string | null;
@@ -19,6 +20,7 @@ export interface Profile {
 	instance_id: string | null;
 	proxy_id: string | null;
 	proxy_name: string | null;
+	google_account: string | null;
 	last_opened_at: string | null;
 	created_at: string;
 	updated_at: string;
@@ -53,6 +55,7 @@ export interface CreateProfileFullInput {
 	description?: string;
 	groupId?: string;
 	tags?: string[];
+	tagItems?: TagAssignment[];
 	remark?: string;
 	notes?: string;
 	platformLabel?: string;
@@ -86,6 +89,7 @@ export interface UpdateProfileFullInput {
 	description?: string;
 	groupId?: string | null;
 	tags?: string[];
+	tagItems?: TagAssignment[];
 	remark?: string;
 	notes?: string;
 	platformLabel?: string;
