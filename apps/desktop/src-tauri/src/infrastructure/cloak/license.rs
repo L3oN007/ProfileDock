@@ -27,6 +27,7 @@ fn license_file_path() -> Option<PathBuf> {
     dirs::home_dir().map(|home| home.join(".cloakbrowser").join(LICENSE_FILE_NAME))
 }
 
+#[allow(dead_code)]
 pub fn store_license_key(value: &str) -> Result<(), AppError> {
     let trimmed = value.trim();
     if trimmed.is_empty() {

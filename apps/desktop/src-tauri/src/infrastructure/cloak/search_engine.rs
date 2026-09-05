@@ -7,6 +7,7 @@ use crate::error::AppError;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SearchEngine {
     Brave,
+    #[allow(dead_code)]
     DuckDuckGo,
 }
 
@@ -224,6 +225,32 @@ mod tests {
             prefs["default_search_provider_data"]["template_url_data"]["short_name"],
             "Google"
         );
+
+        std::fs::remove_dir_all(temp).ok();
+    }
+
+    #[test]
+    fn ensure_duckduckgo_writes_template() {
+        let temp = std::env::temp_dir().join(format!(
+            "profiledock-search-engine-ddg-{}",
+            uuid::Uuid::new_v4()
+        ));
+        let user_data_dir = temp.join("browser-data");
+        std::fs::create_dir_all(&user_data_dir).unwrap();
+
+        ensure_search_engine(&user_data_dir, SearchEngine::DuckDuckGo).unwrap();
+
+        let prefs: Value = serde_json::from_str(
+            &std::fs::read_to_string(user_data_dir.join("Default/Preferences")).unwrap(),
+        )
+        .unwrap();
+        let template = &prefs["default_search_provider_data"]["template_url_data"];
+        assert_eq!(template["short_name"], "DuckDuckGo");
+        assert_eq!(template["keyword"], "duckduckgo.com");
+        assert!(template["url"]
+            .as_str()
+            .unwrap()
+            .starts_with("https://duckduckgo.com"));
 
         std::fs::remove_dir_all(temp).ok();
     }

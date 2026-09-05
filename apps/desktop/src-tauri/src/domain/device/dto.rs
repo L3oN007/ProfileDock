@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use super::platform::DevicePlatform;
 use super::presets::HardwarePreset;
 use super::settings::ProfileDeviceSettings;
 

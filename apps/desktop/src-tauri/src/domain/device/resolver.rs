@@ -16,7 +16,6 @@ pub struct ResolvedDeviceConfig {
     pub timezone: Option<String>,
     pub locale: Option<String>,
     pub webrtc_mode: WebRtcMode,
-    pub hardware_preset_id: Option<String>,
     pub mode: DeviceConfigurationMode,
 }
 
@@ -43,7 +42,6 @@ impl DeviceConfigResolver {
             timezone: None,
             locale: None,
             webrtc_mode: settings.webrtc_mode,
-            hardware_preset_id: settings.hardware_preset_id.clone(),
             mode: settings.mode,
         };
 

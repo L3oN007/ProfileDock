@@ -1,5 +1,4 @@
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 use chrono::Utc;
 
@@ -11,7 +10,8 @@ use crate::domain::cloak::{
 use crate::error::AppError;
 use crate::infrastructure::cloak::{
     cloak_cache_dir, discover_best_installation, discover_installations,
-    validate_installation_root, version_sort_key, DiscoveredCloakInstallation,
+    validate_installation_root, version_from_executable, version_sort_key,
+    DiscoveredCloakInstallation,
 };
 use crate::infrastructure::database::MetadataRepository;
 use crate::infrastructure::filesystem::ConfigStore;
@@ -69,7 +69,7 @@ impl CloakInstallationService {
         let discovered = DiscoveredCloakInstallation {
             executable,
             root_dir,
-            version: Self::read_version(Path::new(&trimmed)).ok().flatten(),
+            version: version_from_executable(Path::new(&trimmed)),
             source: crate::infrastructure::cloak::CloakDiscoverySource::ManualPath,
         };
 
@@ -122,11 +122,14 @@ impl CloakInstallationService {
         let mut candidates: Vec<CloakInstallation> = Vec::new();
 
         if let Some(runtime) = CloakRuntimeManager::active_runtime(state).await? {
-            if let Ok(Some(installation)) = Self::build_installation(
-                runtime.executable,
-                crate::infrastructure::cloak::CloakDiscoverySource::ManualPath,
-            ) {
-                candidates.push(installation);
+            if validate_installation_root(&runtime.root_dir).is_ok() {
+                Self::validate_executable(&runtime.executable)?;
+                candidates.push(CloakInstallation {
+                    executable: runtime.executable,
+                    version: Some(runtime.version),
+                    valid: true,
+                    last_checked_at: Utc::now(),
+                });
             }
         }
 
@@ -134,10 +137,7 @@ impl CloakInstallationService {
         if let Some(path) = metadata.get("browser_executable").await? {
             let candidate = PathBuf::from(&path);
             if candidate.exists() {
-                if let Ok(Some(installation)) = Self::build_installation(
-                    candidate,
-                    crate::infrastructure::cloak::CloakDiscoverySource::ManualPath,
-                ) {
+                if let Ok(Some(installation)) = Self::build_installation(candidate, None) {
                     if candidates
                         .iter()
                         .all(|existing| existing.executable != installation.executable)
@@ -152,9 +152,10 @@ impl CloakInstallationService {
             if validate_installation_root(&discovered.root_dir).is_err() {
                 continue;
             }
-            if let Ok(Some(installation)) =
-                Self::build_installation(discovered.executable, discovered.source)
-            {
+            if let Ok(Some(installation)) = Self::build_installation(
+                discovered.executable,
+                discovered.version,
+            ) {
                 if candidates
                     .iter()
                     .all(|existing| existing.executable != installation.executable)
@@ -228,7 +229,7 @@ impl CloakInstallationService {
         let version = discovered
             .version
             .clone()
-            .or_else(|| Self::read_version(&discovered.executable).ok().flatten());
+            .or_else(|| version_from_executable(&discovered.executable));
 
         let metadata = MetadataRepository::new(state.db.pool().clone());
         metadata.set("browser_executable", &executable).await?;
@@ -261,7 +262,7 @@ impl CloakInstallationService {
 
     fn build_installation(
         executable: PathBuf,
-        _source: crate::infrastructure::cloak::CloakDiscoverySource,
+        known_version: Option<String>,
     ) -> Result<Option<CloakInstallation>, AppError> {
         Self::validate_executable(&executable)?;
 
@@ -269,39 +270,13 @@ impl CloakInstallationService {
             validate_installation_root(root_dir)?;
         }
 
-        let version = Self::read_version(&executable)?;
+        let version = known_version.or_else(|| version_from_executable(&executable));
         Ok(Some(CloakInstallation {
             executable,
             version,
             valid: true,
             last_checked_at: Utc::now(),
         }))
-    }
-
-    fn read_version(executable: &Path) -> Result<Option<String>, AppError> {
-        let output = Command::new(executable)
-            .arg("--version")
-            .output()
-            .map_err(|error| AppError::CloakInstallationInvalid(error.to_string()))?;
-
-        if !output.status.success() {
-            if let Some(parent) = executable.parent().and_then(|path| path.file_name()) {
-                if let Some(version) = parent
-                    .to_str()
-                    .and_then(|name| name.strip_prefix("chromium-"))
-                {
-                    return Ok(Some(version.trim_end_matches("-pro").to_string()));
-                }
-            }
-            return Ok(None);
-        }
-
-        let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        if stdout.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(stdout))
-        }
     }
 
     fn is_compatible(version: Option<&str>) -> bool {
