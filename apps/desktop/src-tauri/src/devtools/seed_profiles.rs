@@ -8,35 +8,51 @@ use crate::state::AppState;
 struct SeedProfileSpec {
     name: &'static str,
     description: &'static str,
-    platform: DevicePlatform,
-    platform_label: &'static str,
+    hardware_preset_id: &'static str,
 }
 
 const SEED_PROFILES: &[SeedProfileSpec] = &[
     SeedProfileSpec {
-        name: "Test Windows",
-        description: "Seed profile for Windows fingerprint testing",
-        platform: DevicePlatform::Windows,
-        platform_label: "Windows",
+        name: "Test Windows — Intel",
+        description: "Seed profile: Windows desktop with Intel UHD graphics",
+        hardware_preset_id: "windows-intel-desktop",
     },
     SeedProfileSpec {
-        name: "Test macOS",
-        description: "Seed profile for macOS fingerprint testing",
-        platform: DevicePlatform::Macos,
-        platform_label: "macOS",
+        name: "Test Windows — NVIDIA",
+        description: "Seed profile: Windows desktop with NVIDIA GTX 1660 SUPER",
+        hardware_preset_id: "windows-nvidia-desktop",
     },
     SeedProfileSpec {
-        name: "Test Linux",
-        description: "Seed profile for Linux fingerprint testing",
-        platform: DevicePlatform::Linux,
-        platform_label: "Linux",
+        name: "Test Windows — Laptop",
+        description: "Seed profile: Windows laptop with Intel Iris Xe graphics",
+        hardware_preset_id: "windows-laptop-intel",
     },
 ];
 
 fn device_input_for_spec(spec: &SeedProfileSpec) -> CreateProfileDeviceInput {
+    let windows = DevicePlatform::Windows;
+    let host_matched = windows == host_platform();
+
+    if host_matched {
+        return CreateProfileDeviceInput {
+            mode: Some("custom".to_string()),
+            platform: Some(windows.as_str().to_string()),
+            hardware_preset_id: Some(spec.hardware_preset_id.to_string()),
+            hardware_concurrency: None,
+            device_memory_gb: None,
+            screen_width: None,
+            screen_height: None,
+            timezone_mode: Some("system".to_string()),
+            timezone: None,
+            locale_mode: Some("system".to_string()),
+            locale: None,
+            webrtc_mode: Some("disabled".to_string()),
+        };
+    }
+
     CreateProfileDeviceInput {
         mode: Some("automatic".to_string()),
-        platform: Some(spec.platform.as_str().to_string()),
+        platform: Some(windows.as_str().to_string()),
         hardware_preset_id: None,
         hardware_concurrency: None,
         device_memory_gb: None,
@@ -50,6 +66,21 @@ fn device_input_for_spec(spec: &SeedProfileSpec) -> CreateProfileDeviceInput {
     }
 }
 
+fn remark_for_spec(spec: &SeedProfileSpec) -> String {
+    let host = host_platform();
+    if host == DevicePlatform::Windows {
+        format!(
+            "Auto-seeded: custom mode + {} (host-matched Windows — lowest FPJS risk)",
+            spec.hardware_preset_id
+        )
+    } else {
+        format!(
+            "Auto-seeded: cross-platform automatic (Windows on {host} — expect higher FPJS score)",
+            host = host.label()
+        )
+    }
+}
+
 pub async fn run() -> Result<(), AppError> {
     let state = AppState::initialize().await?;
     let repo = SqliteProfileRepository::new(state.db.pool().clone());
@@ -59,7 +90,7 @@ pub async fn run() -> Result<(), AppError> {
 
     println!("ProfileDock data directory: {}", state.paths.root.display());
     println!("Host platform: {}", host_platform().label());
-    println!("Seeding test profiles...\n");
+    println!("Seeding Windows test profiles...\n");
 
     let mut created = 0usize;
     let mut skipped = 0usize;
@@ -73,7 +104,6 @@ pub async fn run() -> Result<(), AppError> {
 
         let device = device_input_for_spec(spec);
         let mode = device.mode.clone().unwrap_or_else(|| "automatic".into());
-        let host = host_platform();
 
         let profile = ProfileWorkspaceService::create_full(
             &state,
@@ -81,15 +111,11 @@ pub async fn run() -> Result<(), AppError> {
                 name: spec.name.to_string(),
                 description: Some(spec.description.to_string()),
                 group_id: None,
-                tags: Some(vec!["test".to_string(), "seed".to_string()]),
-                remark: Some(if spec.platform == host {
-                    "Auto-seeded: automatic mode (recommended for FingerprintJS)".to_string()
-                } else {
-                    "Auto-seeded: cross-platform automatic (higher FPJS risk than host-matched)"
-                        .to_string()
-                }),
+                tags: Some(vec!["test".to_string(), "seed".to_string(), "windows".to_string()]),
+                tag_items: None,
+                remark: Some(remark_for_spec(spec)),
                 notes: None,
-                platform_label: Some(spec.platform_label.to_string()),
+                platform_label: Some("Windows".to_string()),
                 proxy_mode: Some("none".to_string()),
                 proxy_id: None,
                 custom_proxy: None,
@@ -106,9 +132,10 @@ pub async fn run() -> Result<(), AppError> {
         .await?;
 
         println!(
-            "  create {} [{}] mode={} id={}",
+            "  create {} [{}] preset={} mode={} id={}",
             profile.name,
             profile.display_id.unwrap_or_else(|| "—".to_string()),
+            spec.hardware_preset_id,
             mode,
             profile.id
         );
