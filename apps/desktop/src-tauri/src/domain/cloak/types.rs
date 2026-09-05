@@ -91,6 +91,7 @@ pub struct CloakInstallation {
 #[derive(Debug, Clone)]
 pub struct CloakLaunchConfig {
     pub profile_id: String,
+    pub profile_name: String,
     pub user_data_dir: PathBuf,
     pub download_dir: PathBuf,
     pub startup_urls: Vec<String>,

@@ -81,6 +81,7 @@ impl CloakConfigResolver {
         Ok((
             CloakLaunchConfig {
                 profile_id: profile_id.to_string(),
+                profile_name: profile.name.clone(),
                 user_data_dir: paths.browser_data,
                 download_dir,
                 startup_urls: settings.startup_urls.clone(),

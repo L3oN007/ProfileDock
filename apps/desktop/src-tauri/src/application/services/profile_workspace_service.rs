@@ -10,6 +10,7 @@ use crate::domain::profile::{
 };
 use crate::domain::profile::{DownloadMode, WindowMode};
 use crate::error::AppError;
+use crate::infrastructure::cloak::ensure_profile_identity;
 use crate::infrastructure::database::{
     SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository, SqliteProfileEventRepository,
     SqliteProfileProxyAssignmentRepository, SqliteProfileRepository, SqliteTagRepository,
@@ -86,6 +87,7 @@ impl ProfileWorkspaceService {
         }
 
         let paths = state.paths.create_profile_directories(&id)?;
+        ensure_profile_identity(&paths.browser_data, &profile.name, &id)?;
         if let Err(error) = profile_repo.create(&profile).await {
             let _ = state.paths.remove_profile_directory(&id);
             return Err(error);

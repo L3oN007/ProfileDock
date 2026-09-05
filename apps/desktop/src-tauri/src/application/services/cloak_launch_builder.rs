@@ -284,6 +284,7 @@ mod tests {
             DeviceConfigResolver::resolve(&device_settings, &CloakCapabilities::default(), false);
         let config = CloakLaunchConfig {
             profile_id: "profile-1".into(),
+            profile_name: "Test Profile".into(),
             user_data_dir: PathBuf::from("/data/profile/browser-data"),
             download_dir: PathBuf::from("/data/profile/downloads"),
             startup_urls: vec!["https://example.com".into()],
@@ -331,6 +332,7 @@ mod tests {
             DeviceConfigResolver::resolve(&device_settings, &CloakCapabilities::default(), false);
         let config = CloakLaunchConfig {
             profile_id: "profile-1".into(),
+            profile_name: "Test Profile".into(),
             user_data_dir: PathBuf::from("/data/profile/browser-data"),
             download_dir: PathBuf::from("/data/profile/downloads"),
             startup_urls: vec!["https://example.com".into()],
@@ -375,6 +377,7 @@ mod tests {
         assert_eq!(device.mode, DeviceConfigurationMode::Automatic);
         let config = CloakLaunchConfig {
             profile_id: "profile-1".into(),
+            profile_name: "Test Profile".into(),
             user_data_dir: PathBuf::from("/data/profile/browser-data"),
             download_dir: PathBuf::from("/data/profile/downloads"),
             startup_urls: vec![],
@@ -412,6 +415,7 @@ mod tests {
             DeviceConfigResolver::resolve(&device_settings, &CloakCapabilities::default(), false);
         let config = CloakLaunchConfig {
             profile_id: "profile-1".into(),
+            profile_name: "Test Profile".into(),
             user_data_dir: PathBuf::from("/data/profile/browser-data"),
             download_dir: PathBuf::from("/data/profile/downloads"),
             startup_urls: vec![],
@@ -459,6 +463,7 @@ mod tests {
             DeviceConfigResolver::resolve(&device_settings, &CloakCapabilities::default(), false);
         let config = CloakLaunchConfig {
             profile_id: "profile-1".into(),
+            profile_name: "Test Profile".into(),
             user_data_dir: PathBuf::from("/data/profile/browser-data"),
             download_dir: PathBuf::from("/data/profile/downloads"),
             startup_urls: vec![],

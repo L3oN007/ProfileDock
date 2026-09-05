@@ -11,7 +11,7 @@ use crate::domain::cloak::ConfigSnapshot;
 use crate::domain::profile::{BrowserInstance, BrowserInstanceDto, InstanceState};
 use crate::domain::BrowserStatus;
 use crate::error::AppError;
-use crate::infrastructure::cloak::ensure_default_search_engine;
+use crate::infrastructure::cloak::{ensure_default_search_engine, ensure_profile_identity};
 use crate::infrastructure::database::{
     MetadataRepository, SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository,
     SqliteProfileEventRepository,
@@ -95,6 +95,11 @@ impl BrowserService {
             CloakConfigResolver::resolve(state, profile_id).await?;
 
         ensure_default_search_engine(&launch_config.user_data_dir)?;
+        ensure_profile_identity(
+            &launch_config.user_data_dir,
+            &launch_config.profile_name,
+            profile_id,
+        )?;
 
         let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
         let event_repo = SqliteProfileEventRepository::new(state.db.pool().clone());

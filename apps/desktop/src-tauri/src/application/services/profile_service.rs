@@ -6,6 +6,7 @@ use crate::domain::profile::{
     ProfileDto, ProfileEventDto, UpdateProfileInput,
 };
 use crate::error::AppError;
+use crate::infrastructure::cloak::ensure_profile_identity;
 use crate::infrastructure::database::{
     SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository, SqliteProfileEventRepository,
     SqliteProfileGroupRepository, SqliteProfileProxyAssignmentRepository, SqliteProfileRepository,
@@ -67,6 +68,13 @@ impl ProfileService {
             Ok(paths) => paths,
             Err(error) => return Err(error),
         };
+
+        if let Err(error) =
+            ensure_profile_identity(&paths.browser_data, &profile.name, &id)
+        {
+            let _ = state.paths.remove_profile_directory(&id);
+            return Err(error);
+        }
 
         if let Err(error) = profile_repo.create(&profile).await {
             let _ = state.paths.remove_profile_directory(&id);
