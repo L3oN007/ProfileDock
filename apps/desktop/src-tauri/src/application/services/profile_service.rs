@@ -6,6 +6,7 @@ use crate::domain::profile::{
     ProfileDto, ProfileEventDto, UpdateProfileInput,
 };
 use crate::error::AppError;
+use crate::infrastructure::cloak::read_linked_google_account;
 use crate::infrastructure::cloak::ensure_profile_identity;
 use crate::infrastructure::database::{
     SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository, SqliteProfileEventRepository,
@@ -243,7 +244,7 @@ impl ProfileService {
 
         let active = instance_repo.find_active_by_profile(&profile.id).await?;
         let last_opened = instance_repo.last_stopped_at(&profile.id).await?;
-        let tags = tag_repo.list_profile_tag_names(&profile.id).await?;
+        let tags = tag_repo.list_profile_tags(&profile.id).await?;
         let group_name = if let Some(group_id) = &profile.group_id {
             group_repo
                 .find_by_id(group_id)
@@ -263,6 +264,12 @@ impl ProfileService {
             None
         };
 
+        let google_account = state
+            .paths
+            .profile(&profile.id)
+            .ok()
+            .and_then(|paths| read_linked_google_account(&paths.browser_data));
+
         Ok(ProfileDto {
             id: profile.id,
             display_id: profile.display_id,
@@ -280,6 +287,7 @@ impl ProfileService {
             instance_id: active.map(|i| i.id),
             proxy_id,
             proxy_name,
+            google_account,
             last_opened_at: last_opened.map(|dt| dt.to_rfc3339()),
             created_at: profile.created_at.to_rfc3339(),
             updated_at: profile.updated_at.to_rfc3339(),

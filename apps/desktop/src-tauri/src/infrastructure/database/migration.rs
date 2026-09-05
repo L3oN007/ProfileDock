@@ -15,6 +15,8 @@ const MIGRATION_006: &str = include_str!("migrations/006_phase5_profile_workspac
 
 const MIGRATION_007: &str = include_str!("migrations/007_profile_device_settings.sql");
 
+const MIGRATION_008: &str = include_str!("migrations/008_tag_colors.sql");
+
 pub async fn run_migrations(pool: &SqlitePool) -> Result<(), AppError> {
     sqlx::query(
         "CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -32,6 +34,7 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<(), AppError> {
     apply_if_needed(pool, 5, MIGRATION_005).await?;
     apply_if_needed(pool, 6, MIGRATION_006).await?;
     apply_if_needed(pool, 7, MIGRATION_007).await?;
+    apply_if_needed(pool, 8, MIGRATION_008).await?;
 
     crate::infrastructure::database::repositories::sqlite_profile_repository::SqliteProfileRepository::new(
         pool.clone(),

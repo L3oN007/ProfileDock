@@ -3,6 +3,7 @@ use uuid::Uuid;
 
 use crate::application::queries::profile_list_query::ProfileListQueryService;
 use crate::application::services::{DeviceSettingsService, ProfileService, TagService};
+use crate::domain::tag::TagAssignmentInput;
 use crate::domain::profile::{
     validate_profile_id, ActivityEventDto, BulkProfileUpdateInput, CreateProfileBrowserInput,
     CreateProfileFullInput, DuplicateProfileInput, Profile, ProfileBrowserSettings, ProfileDto,
@@ -10,7 +11,7 @@ use crate::domain::profile::{
 };
 use crate::domain::profile::{DownloadMode, WindowMode};
 use crate::error::AppError;
-use crate::infrastructure::cloak::ensure_profile_identity;
+use crate::infrastructure::cloak::{ensure_profile_identity, read_linked_google_account};
 use crate::infrastructure::database::{
     SqliteBrowserInstanceRepository, SqliteBrowserSettingsRepository, SqliteProfileEventRepository,
     SqliteProfileProxyAssignmentRepository, SqliteProfileRepository, SqliteTagRepository,
@@ -26,7 +27,14 @@ impl ProfileWorkspaceService {
     ) -> Result<ProfileListPage, AppError> {
         let mut page = ProfileListQueryService::execute(state.db.pool(), query).await?;
         let instance_repo = SqliteBrowserInstanceRepository::new(state.db.pool().clone());
+        let tag_repo = SqliteTagRepository::new(state.db.pool().clone());
+        let profile_ids = page.items.iter().map(|item| item.id.clone()).collect::<Vec<_>>();
+        let tags_by_profile = tag_repo.list_tags_for_profiles(&profile_ids).await?;
         for item in &mut page.items {
+            item.tags = tags_by_profile
+                .get(&item.id)
+                .cloned()
+                .unwrap_or_default();
             if item.is_archived {
                 item.state = "archived".to_string();
                 continue;
@@ -35,6 +43,11 @@ impl ProfileWorkspaceService {
             item.pid = active.as_ref().and_then(|instance| instance.pid);
             item.instance_id = active.as_ref().map(|instance| instance.id.clone());
             item.state = ProfileService::derive_state(item.is_archived, active.as_ref());
+            item.google_account = state
+                .paths
+                .profile(&item.id)
+                .ok()
+                .and_then(|paths| read_linked_google_account(&paths.browser_data));
         }
         Ok(page)
     }
@@ -108,8 +121,10 @@ impl ProfileWorkspaceService {
             return Err(error);
         }
 
-        if let Some(tags) = &input.tags {
-            let tag_ids = TagService::ensure_tag_ids(state, tags).await?;
+        let assignments =
+            TagService::resolve_tag_assignments(input.tag_items.clone(), input.tags.clone());
+        if !assignments.is_empty() {
+            let tag_ids = TagService::ensure_tag_ids_from_assignments(state, &assignments).await?;
             SqliteTagRepository::new(state.db.pool().clone())
                 .set_profile_tags(&id, &tag_ids)
                 .await?;
@@ -193,8 +208,10 @@ impl ProfileWorkspaceService {
         profile.updated_at = Utc::now();
         profile_repo.update(&profile).await?;
 
-        if let Some(tags) = input.tags {
-            let tag_ids = TagService::ensure_tag_ids(state, &tags).await?;
+        if input.tags.is_some() || input.tag_items.is_some() {
+            let assignments =
+                TagService::resolve_tag_assignments(input.tag_items.clone(), input.tags.clone());
+            let tag_ids = TagService::ensure_tag_ids_from_assignments(state, &assignments).await?;
             SqliteTagRepository::new(state.db.pool().clone())
                 .set_profile_tags(id, &tag_ids)
                 .await?;
@@ -353,7 +370,23 @@ impl ProfileWorkspaceService {
                 .unwrap_or_else(|| format!("{} (Copy)", source.name)),
             description: source.description,
             group_id: source.group_id,
-            tags: Some(source.tags),
+            tags: Some(
+                source
+                    .tags
+                    .iter()
+                    .map(|tag| tag.name.clone())
+                    .collect(),
+            ),
+            tag_items: Some(
+                source
+                    .tags
+                    .iter()
+                    .map(|tag| TagAssignmentInput {
+                        name: tag.name.clone(),
+                        color: Some(tag.color.clone()),
+                    })
+                    .collect(),
+            ),
             remark: source.remark,
             notes: source.notes,
             platform_label: source.platform_label,

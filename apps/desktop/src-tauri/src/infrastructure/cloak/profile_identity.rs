@@ -69,7 +69,13 @@ pub fn ensure_profile_identity(
         })?;
 
     entry.insert("name".to_string(), json!(display_name));
-    entry.insert("user_name".to_string(), json!(display_name));
+    if !entry
+        .get("user_name")
+        .and_then(Value::as_str)
+        .is_some_and(|value| value.contains('@'))
+    {
+        entry.insert("user_name".to_string(), json!(display_name));
+    }
     entry.insert(
         "avatar_icon".to_string(),
         json!(format!(
@@ -100,6 +106,30 @@ pub fn ensure_profile_identity(
     );
 
     write_local_state(&local_state_path, &local_state)?;
+    write_profile_preferences_name(user_data_dir, &display_name)?;
+    Ok(())
+}
+
+fn write_profile_preferences_name(user_data_dir: &Path, display_name: &str) -> Result<(), AppError> {
+    let profile_dir = user_data_dir.join(PROFILE_DIRECTORY);
+    std::fs::create_dir_all(&profile_dir)?;
+
+    let prefs_file = profile_dir.join("Preferences");
+    let mut prefs = read_json_file(&prefs_file)?;
+
+    let root = prefs
+        .as_object_mut()
+        .ok_or_else(|| AppError::CloakConfigInvalid("invalid browser preferences root".into()))?;
+
+    let profile = root
+        .entry("profile")
+        .or_insert_with(|| json!({}))
+        .as_object_mut()
+        .ok_or_else(|| AppError::CloakConfigInvalid("invalid browser profile prefs".into()))?;
+
+    profile.insert("name".to_string(), json!(display_name));
+
+    write_json_file(&prefs_file, &prefs)?;
     Ok(())
 }
 
@@ -149,18 +179,26 @@ fn darken_component(value: u8) -> u8 {
 }
 
 fn read_local_state(path: &Path) -> Result<Value, AppError> {
+    read_json_file(path)
+}
+
+fn write_local_state(path: &Path, state: &Value) -> Result<(), AppError> {
+    write_json_file(path, state)
+}
+
+fn read_json_file(path: &Path) -> Result<Value, AppError> {
     if !path.exists() {
         return Ok(json!({}));
     }
 
     let raw = std::fs::read_to_string(path)?;
     serde_json::from_str(&raw).map_err(|error| {
-        AppError::CloakConfigInvalid(format!("invalid browser local state JSON: {error}"))
+        AppError::CloakConfigInvalid(format!("invalid browser JSON at {}: {error}", path.display()))
     })
 }
 
-fn write_local_state(path: &Path, state: &Value) -> Result<(), AppError> {
-    std::fs::write(path, serde_json::to_string(state)?)?;
+fn write_json_file(path: &Path, value: &Value) -> Result<(), AppError> {
+    std::fs::write(path, serde_json::to_string(value)?)?;
     Ok(())
 }
 
@@ -195,6 +233,12 @@ mod tests {
         assert!(entry["default_avatar_fill_color"].is_number());
         assert!(entry["default_avatar_stroke_color"].is_number());
         assert_eq!(state["profile"]["last_used"], "Default");
+
+        let prefs: Value = serde_json::from_str(
+            &std::fs::read_to_string(user_data_dir.join("Default/Preferences")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(prefs["profile"]["name"], "TikTok Ads");
 
         std::fs::remove_dir_all(temp).ok();
     }

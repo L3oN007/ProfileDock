@@ -2,6 +2,7 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
+use crate::domain::tag::{ProfileTagDto, TagAssignmentInput};
 use crate::error::AppError;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -12,7 +13,7 @@ pub struct ProfileDto {
     pub description: Option<String>,
     pub group_id: Option<String>,
     pub group_name: Option<String>,
-    pub tags: Vec<String>,
+    pub tags: Vec<ProfileTagDto>,
     pub remark: Option<String>,
     pub notes: Option<String>,
     pub platform_label: Option<String>,
@@ -22,6 +23,7 @@ pub struct ProfileDto {
     pub instance_id: Option<String>,
     pub proxy_id: Option<String>,
     pub proxy_name: Option<String>,
+    pub google_account: Option<String>,
     pub last_opened_at: Option<String>,
     pub created_at: String,
     pub updated_at: String,
@@ -54,6 +56,7 @@ pub struct CreateProfileFullInput {
     pub description: Option<String>,
     pub group_id: Option<String>,
     pub tags: Option<Vec<String>>,
+    pub tag_items: Option<Vec<TagAssignmentInput>>,
     pub remark: Option<String>,
     pub notes: Option<String>,
     pub platform_label: Option<String>,
@@ -79,6 +82,7 @@ pub struct UpdateProfileFullInput {
     pub description: Option<String>,
     pub group_id: Option<Option<String>>,
     pub tags: Option<Vec<String>>,
+    pub tag_items: Option<Vec<TagAssignmentInput>>,
     pub remark: Option<String>,
     pub notes: Option<String>,
     pub platform_label: Option<String>,

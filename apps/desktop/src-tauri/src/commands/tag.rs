@@ -1,7 +1,7 @@
 use tauri::State;
 
 use crate::application::services::TagService;
-use crate::domain::tag::{CreateTagInput, TagDto};
+use crate::domain::tag::{CreateTagInput, TagDto, UpdateTagInput};
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -21,4 +21,13 @@ pub async fn tag_create(
 #[tauri::command]
 pub async fn tag_delete(state: State<'_, AppState>, id: String) -> Result<(), AppError> {
     TagService::delete(&state, &id).await
+}
+
+#[tauri::command]
+pub async fn tag_update(
+    state: State<'_, AppState>,
+    id: String,
+    input: UpdateTagInput,
+) -> Result<TagDto, AppError> {
+    TagService::update(&state, &id, input).await
 }

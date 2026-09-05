@@ -132,12 +132,6 @@ impl ProfileListQueryService {
             "SELECT p.id, p.display_id, p.name, p.description, p.group_id, p.remark, p.notes,
                     p.platform_label, p.is_archived, p.created_at, p.updated_at,
                     g.name AS group_name,
-                    (
-                        SELECT GROUP_CONCAT(t.name, ',')
-                        FROM profile_tags pt
-                        JOIN tags t ON t.id = pt.tag_id
-                        WHERE pt.profile_id = p.id
-                    ) AS tag_names,
                     ppa.proxy_id,
                     pr.name AS proxy_name,
                     (
@@ -186,7 +180,6 @@ struct ProfileListRow {
     created_at: String,
     updated_at: String,
     group_name: Option<String>,
-    tag_names: Option<String>,
     proxy_id: Option<String>,
     proxy_name: Option<String>,
     last_opened_at: Option<String>,
@@ -194,18 +187,6 @@ struct ProfileListRow {
 
 impl ProfileListRow {
     fn into_profile_dto(self) -> ProfileDto {
-        let tags = self
-            .tag_names
-            .map(|value| {
-                value
-                    .split(',')
-                    .map(str::trim)
-                    .filter(|v| !v.is_empty())
-                    .map(str::to_string)
-                    .collect()
-            })
-            .unwrap_or_default();
-
         ProfileDto {
             id: self.id,
             display_id: self.display_id,
@@ -213,7 +194,7 @@ impl ProfileListRow {
             description: self.description,
             group_id: self.group_id,
             group_name: self.group_name,
-            tags,
+            tags: Vec::new(),
             remark: self.remark,
             notes: self.notes,
             platform_label: self.platform_label,
@@ -227,6 +208,7 @@ impl ProfileListRow {
             instance_id: None,
             proxy_id: self.proxy_id,
             proxy_name: self.proxy_name,
+            google_account: None,
             last_opened_at: self.last_opened_at,
             created_at: self.created_at,
             updated_at: self.updated_at,
